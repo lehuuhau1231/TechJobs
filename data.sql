@@ -39,33 +39,46 @@ CREATE TABLE user (
 	avatar VARCHAR(255),
 	email VARCHAR(100) UNIQUE NOT NULL,
 	phone VARCHAR(20),
-	full_name VARCHAR(100),
-	full_address VARCHAR(255),
+	address VARCHAR(255),
 	district VARCHAR(100),
 	city VARCHAR(100),
     role ENUM('CANDIDATE', 'EMPLOYER','ADMIN') NOT NULL
 );
 
+-- 4. Insert User (CANDIDATE)
+INSERT INTO user VALUES 
+(1, 'candidate1', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate1@email.com', '0123456789','phường 13', 'Quận 1', 'Ho Chi Minh','CANDIDATE'),
+(2, 'candidate2', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate2@email.com', '0123456790','phường 15', 'Quận 5', 'Ho Chi Minh','CANDIDATE'),
+(3, 'employer', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'employer1@email.com', '0987654321','phường 13', 'Hanoi', 'Cau Giay','CANDIDATE'),
+(4, 'admin', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'admin@email.com', '0987654322','phường 13', 'District 3', 'Cau Giay','CANDIDATE');
+
 -- 5. Bảng Candidate
 CREATE TABLE candidate (
    id INT PRIMARY KEY AUTO_INCREMENT,
+   full_name VARCHAR(50),
    self_description TEXT,
-   phone VARCHAR(20),
-   avatar VARCHAR(255),
    birth_date DATE,
    user_id INT UNIQUE,
    CONSTRAINT fk_candidate_user FOREIGN KEY (user_id) REFERENCES user(id) 
 );
 
+-- 7. Insert Candidate
+INSERT INTO candidate VALUES 
+(1, 'Le Huu Hau', 'I am a Java developer with 3 years of experience', '1995-01-01', 1),
+(2, 'Dang Van Binh', 'I am a frontend developer passionate about React', '1995-01-01', 2);
+
 -- 6. Bảng Employer
 CREATE TABLE employer (
   id INT PRIMARY KEY AUTO_INCREMENT,
   company_name VARCHAR(255) NOT NULL,
-  image VARCHAR(255),
   status ENUM('PENDING', 'APPROVED','CANCELED') NOT NULL,
   user_id INT UNIQUE,
   FOREIGN KEY (user_id) REFERENCES user(id) 
 );
+
+-- 8. Insert Employer
+INSERT INTO employer VALUES 
+(1, 'Cong ty ABC', 'APPROVED', 3);
 
 CREATE TABLE company_image (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -165,21 +178,6 @@ INSERT INTO skill (id, name) VALUES
 (7, 'Docker'),
 (8, 'AWS');
 
--- 4. Insert User (CANDIDATE)
-INSERT INTO user (id, username, password, avatar, email, phone, full_name, full_address, city, district) VALUES 
-(1, 'candidate1', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', NULL, 'candidate1@email.com', '0123456789', 'Nguyen Van A','phường 13', 'Quận 1', 'Ho Chi Minh'),
-(2, 'candidate2', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', NULL, 'candidate2@email.com', '0123456790', 'Tran Thi B','phường 15', 'Quận 5', 'Ho Chi Minh'),
-(3, 'employer', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', NULL, 'employer1@email.com', '0987654321', 'Nguyen Van C','phường 13', 'Hanoi', 'Cau Giay'),
-(4, 'admin', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', NULL, 'admin@email.com', '0987654322', 'Nguyen Van D','phường 13', 'District 3', 'Cau Giay');
-
--- 7. Insert Candidate
-INSERT INTO candidate (id, self_description, avatar, birth_date, user_id) VALUES 
-(1, 'I am a Java developer with 3 years of experience', 'https://deviet.vn/wp-content/uploads/2019/04/vuong-quoc-anh.jpg', '1995-01-01', 1),
-(2, 'I am a frontend developer passionate about React', 'https://deviet.vn/wp-content/uploads/2019/04/vuong-quoc-anh.jpg', '1995-01-01', 2);
-
--- 8. Insert Employer
-INSERT INTO employer (id, company_name, image, status, user_id) VALUES 
-(1, 'Cong ty ABC', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'APPROVED', 3);
 
 
 INSERT INTO company_image VALUES 

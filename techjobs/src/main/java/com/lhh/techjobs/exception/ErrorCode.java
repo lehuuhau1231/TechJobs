@@ -15,6 +15,10 @@ public enum ErrorCode {
     WRONG_USERNAME_OR_PASSWORD(1005, "Wrong username or password", HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
+    INVALID_TOKEN(1008, "Invalid token", HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTS(1009, "Email exists", HttpStatus.BAD_REQUEST),
+    PHONE_EXISTS(1010, "Phone exists", HttpStatus.BAD_REQUEST),
+    EMPLOYER_ACCOUNT_NOT_ACTIVE(1011, "Employer account is not active", HttpStatus.BAD_REQUEST),
     ;
 
 

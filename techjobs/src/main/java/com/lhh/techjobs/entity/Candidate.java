@@ -1,15 +1,9 @@
 package com.lhh.techjobs.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -18,16 +12,17 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Candidate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "full_name")
+    private String fullName;
     @Size(max = 300)
     private String selfDescription;
     @Temporal(TemporalType.DATE)
-    private Date birthDate;
-    @Column(name = "avatar")
-    private String avatar;
+    private LocalDate birthDate;
 
     @OneToOne
     @JoinColumn(name = "user_id")

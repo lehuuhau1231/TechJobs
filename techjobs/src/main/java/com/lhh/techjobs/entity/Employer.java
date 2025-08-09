@@ -22,9 +22,6 @@ public class Employer {
     private Integer id;
     @Column(name = "company_name")
     private String companyName;
-    
-    @Column(name = "image")
-    private String image;
 
     @Enumerated(EnumType.STRING)
     private Status status;

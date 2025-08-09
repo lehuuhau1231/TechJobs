@@ -17,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,12 +31,12 @@ public class User {
     
     @Column(name = "email", unique = true)
     private String email;
+
+    @Column(name = "avatar")
+    private String avatar;
     
     @Column(name = "phone")
     private String phone;
-    
-    @Column(name = "full_name")
-    private String fullName;
 
     @Column(name = "address")
     private String address;

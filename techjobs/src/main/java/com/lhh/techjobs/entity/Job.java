@@ -4,7 +4,9 @@ import com.lhh.techjobs.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -23,6 +25,27 @@ public class Job {
     
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "age_from")
+    private Integer ageFrom;
+
+    @Column(name = "age_to")
+    private Integer ageTo;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @Column(name = "start_time")
+    private LocalTime startTime;
+
+    @Column(name = "end_time")
+    private LocalTime endTime;
     
     @Column(name = "salary_min")
     private Integer salaryMin;
@@ -33,6 +56,9 @@ public class Job {
     @Column(name = "job_require", columnDefinition = "TEXT")
     private String jobRequire;
 
+    @Column(name = "benefits", columnDefinition = "TEXT")
+    private String benefits;
+
     @Enumerated(EnumType.STRING)
     private Status status;
     
@@ -41,7 +67,23 @@ public class Job {
     
     @Column(name = "posted_date")
     private LocalDateTime postedDate;
-    
+
+    @OneToOne
+    @JoinColumn(name = "city_id")
+    private City city;
+
+    @OneToOne
+    @JoinColumn(name = "job_level_id")
+    private JobLevel jobLevel;
+
+    @OneToOne
+    @JoinColumn(name = "job_type_id")
+    private JobType jobType;
+
+    @OneToOne
+    @JoinColumn(name = "contract_type_id")
+    private ContractType contractType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employer_id", nullable = false)
     private Employer employer;

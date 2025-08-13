@@ -28,7 +28,8 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {"/api/candidate", "/api/employer", "/auth/token", "/auth/introspect"};
+    private final String[] PUBLIC_ENDPOINTS = {"/api/candidate", "/api/employer", "/api/jobs", "/auth/token", "/auth/introspect",
+    "/api/job-levels", "/api/contract-types", "/api/cities", "/api/job-types"};
 
     private final JwtTokenFilter jwtTokenFilter;
 
@@ -37,9 +38,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request ->
-                        request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+        httpSecurity
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(request ->
+                        request.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                                 .anyRequest().authenticated())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
@@ -47,11 +52,6 @@ public class SecurityConfig {
                         })
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 );
-
-        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
-                jwt.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter())));
-
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
         return httpSecurity.build();
     }
 

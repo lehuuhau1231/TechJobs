@@ -23,6 +23,9 @@ public class Employer {
     @Column(name = "company_name")
     private String companyName;
 
+    @Column(name = "tax_code")
+    private String tax_code;
+
     @Enumerated(EnumType.STRING)
     private Status status;
 

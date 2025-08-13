@@ -23,6 +23,8 @@ public class Candidate {
     private String selfDescription;
     @Temporal(TemporalType.DATE)
     private LocalDate birthDate;
+    @Column(name = "cv")
+    private String cv;
 
     @OneToOne
     @JoinColumn(name = "user_id")

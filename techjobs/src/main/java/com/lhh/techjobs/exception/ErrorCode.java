@@ -19,6 +19,7 @@ public enum ErrorCode {
     EMAIL_EXISTS(1009, "Email exists", HttpStatus.BAD_REQUEST),
     PHONE_EXISTS(1010, "Phone exists", HttpStatus.BAD_REQUEST),
     EMPLOYER_ACCOUNT_NOT_ACTIVE(1011, "Employer account is not active", HttpStatus.BAD_REQUEST),
+    FILE_INVALID(1012, "File invalid", HttpStatus.BAD_REQUEST),
     ;
 
 

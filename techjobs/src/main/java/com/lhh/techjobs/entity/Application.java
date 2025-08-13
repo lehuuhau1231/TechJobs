@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +32,9 @@ public class Application {
     
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
+
+    @Column(name = "cv")
+    private String cv;
 
     @Enumerated(EnumType.STRING)
     private Status status;

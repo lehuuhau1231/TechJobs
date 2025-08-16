@@ -1,8 +1,11 @@
 package com.lhh.techjobs.repository;
 
+import com.lhh.techjobs.dto.response.JobTitleResponse;
+import com.lhh.techjobs.entity.Employer;
 import com.lhh.techjobs.entity.Job;
 import com.lhh.techjobs.dto.response.JobDetailResponse;
 import com.lhh.techjobs.dto.response.JobResponse;
+import com.lhh.techjobs.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,7 +13,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface JobRepository extends JpaRepository<Job, Integer> {
     @Query("SELECT new com.lhh.techjobs.dto.response.JobResponse(j.id, " +
@@ -81,5 +83,8 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "AND (j.status = com.lhh.techjobs.enums.Status.APPROVED)")
     JobDetailResponse findJobDetailById(@Param("jobId") Integer jobId);
 
-    Optional<Job> findById(Integer id);
+    @Query("SELECT new com.lhh.techjobs.dto.response.JobTitleResponse(j.id, j.title) FROM Job j " +
+            "JOIN j.employer e " +
+            "WHERE j.status = :status AND j.employer = :employer ")
+    List<JobTitleResponse> findAllJobTitles(@Param("status") Status status, @Param("employer") Employer employer);
 }

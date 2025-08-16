@@ -2,6 +2,10 @@ package com.lhh.techjobs.service;
 
 import com.lhh.techjobs.dto.response.JobDetailResponse;
 import com.lhh.techjobs.dto.response.JobResponse;
+import com.lhh.techjobs.dto.response.JobTitleResponse;
+import com.lhh.techjobs.entity.Employer;
+import com.lhh.techjobs.enums.Status;
+import com.lhh.techjobs.repository.EmployerRepository;
 import com.lhh.techjobs.repository.JobRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +27,7 @@ import java.util.Map;
 public class JobService {
     JobRepository jobRepository;
     int PAGE_SIZE = 10;
+    EmployerRepository employerRepository;
 
     public Page<JobResponse> searchJobs(Map<String, String> params) {
         int page = 0;
@@ -56,5 +62,14 @@ public class JobService {
         jobDetail.setJobSkills(jobSkills);
 
         return jobDetail;
+    }
+
+    public List<JobTitleResponse> getTitleJob() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employer employer = employerRepository.findByUserUsername(username);
+        if (employer == null) {
+            throw new RuntimeException("Employer not found for username: " + username);
+        }
+        return this.jobRepository.findAllJobTitles(Status.APPROVED, employer);
     }
 }

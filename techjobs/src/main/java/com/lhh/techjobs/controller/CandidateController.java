@@ -1,6 +1,7 @@
 package com.lhh.techjobs.controller;
 
 import com.lhh.techjobs.dto.request.CandidateCreationRequest;
+import com.lhh.techjobs.service.CVProducer;
 import com.lhh.techjobs.service.CandidateService;
 
 import jakarta.validation.Valid;
@@ -14,6 +15,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/candidate")
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class CandidateController {
     CandidateService candidateService;
+    CVProducer cvProducer;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -34,7 +38,7 @@ public class CandidateController {
     @PreAuthorize("hasRole('CANDIDATE')")
     @PostMapping("/cv")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createCandidate(@RequestParam("cvFile") MultipartFile cvFile) {
-        this.candidateService.updateCandidateCV(cvFile);
+    public void updateCVCandidate(@RequestParam("cvFile") MultipartFile cvFile) throws IOException {
+        this.cvProducer.queueCVFile(cvFile);
     }
 }

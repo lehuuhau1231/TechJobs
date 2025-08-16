@@ -6,5 +6,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CandidateRepository extends JpaRepository<Candidate, Integer> {
     Candidate findByUserUsername(String username);
-    Long findIdByUserUsername(String username);
 }

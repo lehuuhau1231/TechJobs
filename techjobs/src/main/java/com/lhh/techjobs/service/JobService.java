@@ -26,7 +26,7 @@ import java.util.Map;
 @Slf4j
 public class JobService {
     JobRepository jobRepository;
-    int PAGE_SIZE = 10;
+    int PAGE_SIZE = 5;
     EmployerRepository employerRepository;
 
     public Page<JobResponse> searchJobs(Map<String, String> params) {

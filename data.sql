@@ -5,6 +5,10 @@ DROP TABLE IF EXISTS foreign_language;
 DROP TABLE IF EXISTS job_skill;
 DROP TABLE IF EXISTS candidate_skill;
 DROP TABLE IF EXISTS job;
+DROP TABLE IF EXISTS city;
+DROP TABLE IF EXISTS job_level;
+DROP TABLE IF EXISTS job_type;
+DROP TABLE IF EXISTS contract_type;
 DROP TABLE IF EXISTS company_image;
 DROP TABLE IF EXISTS employer;
 DROP TABLE IF EXISTS candidate;
@@ -47,10 +51,10 @@ CREATE TABLE user (
 
 -- 4. Insert User (CANDIDATE)
 INSERT INTO user VALUES 
-(1, 'candidate1', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate1@email.com', '0123456789','phường 13', 'Quận 1', 'Ho Chi Minh','CANDIDATE'),
-(2, 'candidate2', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate2@email.com', '0123456790','phường 15', 'Quận 5', 'Ho Chi Minh','CANDIDATE'),
-(3, 'employer', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'employer1@email.com', '0987654321','phường 13', 'Hanoi', 'Cau Giay','CANDIDATE'),
-(4, 'admin', '$2a$10$rDmFN6ZqJdcQKzKzKzKzK.zKzKzKzKzKzKzKzKzKzKzKzKzKzKzK', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'admin@email.com', '0987654322','phường 13', 'District 3', 'Cau Giay','CANDIDATE');
+(1, 'candidate1', '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate1@email.com', '0123456789','phường 13', 'Quận 1', 'Ho Chi Minh','CANDIDATE'),
+(2, 'candidate2', '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate2@email.com', '0123456790','phường 15', 'Quận 5', 'Ho Chi Minh','CANDIDATE'),
+(3, 'employer', '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'employer1@email.com', '0987654321','phường 13', 'Hanoi', 'Cau Giay','EMPLOYER'),
+(4, 'admin', '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'admin@email.com', '0987654322','phường 13', 'District 3', 'Cau Giay','ADMIN');
 
 -- 5. Bảng Candidate
 CREATE TABLE candidate (
@@ -58,19 +62,21 @@ CREATE TABLE candidate (
    full_name VARCHAR(50),
    self_description TEXT,
    birth_date DATE,
+   cv VARCHAR(255),
    user_id INT UNIQUE,
    CONSTRAINT fk_candidate_user FOREIGN KEY (user_id) REFERENCES user(id) 
 );
 
 -- 7. Insert Candidate
 INSERT INTO candidate VALUES 
-(1, 'Le Huu Hau', 'I am a Java developer with 3 years of experience', '1995-01-01', 1),
-(2, 'Dang Van Binh', 'I am a frontend developer passionate about React', '1995-01-01', 2);
+(1, 'Le Huu Hau', 'I am a Java developer with 3 years of experience', '1995-01-01', 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1755098353/v8zoo3pariinuwrmrvfv.pdf', 1),
+(2, 'Dang Van Binh', 'I am a frontend developer passionate about React', '1995-01-01', null, 2);
 
 -- 6. Bảng Employer
 CREATE TABLE employer (
   id INT PRIMARY KEY AUTO_INCREMENT,
   company_name VARCHAR(255) NOT NULL,
+  tax_code VARCHAR(14) NOT NULL,
   status ENUM('PENDING', 'APPROVED','CANCELED') NOT NULL,
   user_id INT UNIQUE,
   FOREIGN KEY (user_id) REFERENCES user(id) 
@@ -78,7 +84,7 @@ CREATE TABLE employer (
 
 -- 8. Insert Employer
 INSERT INTO employer VALUES 
-(1, 'Cong ty ABC', 'APPROVED', 3);
+(1, 'Cong ty ABC', 'AB198293CB', 'APPROVED', 3);
 
 CREATE TABLE company_image (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -87,20 +93,87 @@ CREATE TABLE company_image (
   FOREIGN KEY (employer_id) REFERENCES user(id) 
 );
 
+CREATE TABLE city (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(30)
+);
+
+INSERT INTO city VALUES 
+(1, 'Hồ Chí Minh'),
+(2, 'Hà Nội'),
+(3, 'Đà Nẵng');
+
+CREATE TABLE job_level (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(30)
+);
+
+INSERT INTO job_level VALUES 
+(1, 'Intern'),
+(2, 'Fresher'),
+(3, 'Junior'),
+(4, 'Middle'),
+(5, 'Senior'),
+(6, 'Trưởng Nhóm'),
+(7, 'Trưởng phòng');
+
+CREATE TABLE job_type (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(30)
+);
+
+INSERT INTO job_type VALUES 
+(1, 'In Office'),
+(2, 'Hybrid'),
+(3, 'Remote');
+
+CREATE TABLE contract_type (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(30)
+);
+
+INSERT INTO contract_type VALUES 
+(1, 'Fulltime'),
+(2, 'Part-time'),
+(3, 'Freelance');
+
 -- 7. Bảng Job
 CREATE TABLE job (
  id INT PRIMARY KEY AUTO_INCREMENT,
  title VARCHAR(255) NOT NULL,
- description TEXT,
- salary_min DECIMAL(10,2),
- salary_max DECIMAL(10,2),
- job_require TEXT,
+ description TEXT NOT NULL,
+ salary_min DECIMAL(10,2) NOT NULL,
+ salary_max DECIMAL(10,2) NOT NULL,
+ job_require TEXT NOT NULL,
+ benefits TEXT NOT NULL,
  status ENUM('PENDING', 'APPROVED','CANCELED') NOT NULL,
- created_date TIMESTAMP,
- posted_date TIMESTAMP,
+ created_date TIMESTAMP NOT NULL,
+ posted_date TIMESTAMP NOT NULL,
+ address VARCHAR(200) NOT NULL,
+ age_from INT NOT NULL,
+ age_to INT NOT NULL,
+ start_date DATE NOT NULL,
+ end_date DATE NOT NULL,
+ start_time TIME NOT NULL,
+ end_time TIME NOT NULL,
  employer_id INT,
- FOREIGN KEY (employer_id) REFERENCES employer(id) 
+ city_id INT,
+ job_level_id INT,
+ job_type_id INT,
+ contract_type_id INT,
+ FOREIGN KEY (employer_id) REFERENCES employer(id),
+ FOREIGN KEY (city_id) REFERENCES city(id),
+ FOREIGN KEY (job_level_id) REFERENCES job_level(id),
+ FOREIGN KEY (job_type_id) REFERENCES job_type(id),
+ FOREIGN KEY (contract_type_id) REFERENCES contract_type(id)
 );
+
+
+-- 9. Insert Job
+INSERT INTO job VALUES 
+(1, 'Java Developer', 'Develop backend services using Spring Boot', 1000, 2000, 'Java, Spring Boot, SQL', 'Đi chơi 1 năm 2 lần', 'APPROVED', NOW(), NOW(), 'Hồ Chí minh', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 1, 1,1),
+(2, 'Frontend Developer', 'Develop user interface using React', 800, 1500, 'JavaScript, React, HTML, CSS', 'Đi chơi 1 năm 2 lần', 'CANCELED', NOW(), NOW(), 'Hà Nội', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 1, 1,1),
+(3, 'Full Stack Developer', 'Develop both frontend and backend', 1200, 2500, 'Java, Spring Boot, React, SQL', 'Đi chơi 1 năm 2 lần', 'PENDING', NOW(), NOW(), 'Đà Nẵng', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 3, 1, 1,1);
 
 -- 8. Bảng CandidateSkill (nhiều-nhiều Candidate - Skill)
 CREATE TABLE candidate_skill (
@@ -138,6 +211,7 @@ CREATE TABLE application (
  job_id INT,
  applied_date TIMESTAMP,
  message TEXT,
+ cv VARCHAR(255),
  status ENUM('PENDING', 'APPROVED','CANCELED') NOT NULL,
  FOREIGN KEY (candidate_id) REFERENCES candidate(id) ,
  FOREIGN KEY (job_id) REFERENCES job(id) 
@@ -169,14 +243,103 @@ INSERT INTO language (id, name) VALUES
 
 -- 3. Insert Skill
 INSERT INTO skill (id, name) VALUES 
-(1, 'Java'), 
-(2, 'Spring Boot'), 
-(3, 'SQL'),
-(4, 'JavaScript'),
-(5, 'React'),
-(6, 'Python'),
-(7, 'Docker'),
-(8, 'AWS');
+(1, 'Java'),
+(2, 'JavaScript'),
+(3, 'TypeScript'),
+(4, 'Python'),
+(5, 'C'),
+(6, 'C++'),
+(7, 'C#'),
+(8, 'Go'),
+(9, 'Rust'),
+(10, 'PHP'),
+(11, 'Ruby'),
+(12, 'Kotlin'),
+(13, 'Swift'),
+(14, 'Objective-C'),
+(15, 'Scala'),
+(16, 'Dart'),
+(17, 'R'),
+(18, 'MATLAB'),
+(19, 'Groovy'),
+(20, 'Bash/Shell'),
+
+-- Databases
+(21, 'MySQL'),
+(22, 'PostgreSQL'),
+(23, 'SQL Server'),
+(24, 'Oracle'),
+(25, 'MongoDB'),
+(26, 'Redis'),
+(27, 'Elasticsearch'),
+(28, 'Cassandra'),
+(29, 'MariaDB'),
+(30, 'DynamoDB'),
+(31, 'Firebase Realtime Database'),
+(32, 'Neo4j'),
+
+-- Backend Frameworks
+(33, 'Spring Boot'),
+(34, '.NET Core'),
+(35, 'Express.js'),
+(36, 'NestJS'),
+(37, 'Django'),
+(38, 'Flask'),
+(39, 'Ruby on Rails'),
+(40, 'Laravel'),
+(41, 'FastAPI'),
+(42, 'Koa.js'),
+
+-- Frontend Frameworks
+(43, 'ReactJS'),
+(44, 'Angular'),
+(45, 'Vue.js'),
+(46, 'Svelte'),
+(47, 'Next.js'),
+(48, 'Nuxt.js'),
+
+-- Mobile Frameworks
+(49, 'React Native'),
+(50, 'Flutter'),
+(51, 'SwiftUI'),
+(52, 'Xamarin'),
+
+-- Authentication / Security
+(53, 'JWT'),
+(54, 'OAuth 2.0'),
+(55, 'OpenID Connect'),
+(56, 'SAML'),
+(57, 'Basic Auth'),
+(58, 'Keycloak'),
+(59, 'Okta'),
+
+-- DevOps / Cloud
+(60, 'Docker'),
+(61, 'Kubernetes'),
+(62, 'Jenkins'),
+(63, 'GitLab CI/CD'),
+(64, 'GitHub Actions'),
+(65, 'AWS'),
+(66, 'Azure'),
+(67, 'Google Cloud Platform'),
+(68, 'Terraform'),
+(69, 'Ansible'),
+
+-- Architecture
+(70, 'Microservices'),
+(71, 'Monolithic'),
+(72, 'Serverless'),
+(73, 'Event-Driven Architecture'),
+(74, 'MVC'),
+(75, 'MVVM'),
+(76, 'Hexagonal Architecture'),
+(77, 'Clean Architecture'),
+
+-- Other
+(78, 'UI/UX'),
+(79, 'Agile'),
+(80, 'Scrum'),
+(81, 'Kanban');
 
 
 
@@ -184,11 +347,6 @@ INSERT INTO company_image VALUES
 (1, 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 1),
 (2, 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 1);
 
--- 9. Insert Job
-INSERT INTO job (id, title, description, salary_min, salary_max, job_require, status, created_date, posted_date, employer_id) VALUES 
-(1, 'Java Developer', 'Develop backend services using Spring Boot', 1000, 2000, 'Java, Spring Boot, SQL', 'APPROVED', NOW(), NOW(), 1),
-(2, 'Frontend Developer', 'Develop user interface using React', 800, 1500, 'JavaScript, React, HTML, CSS', 'CANCELED', NOW(), NOW(), 1),
-(3, 'Full Stack Developer', 'Develop both frontend and backend', 1200, 2500, 'Java, Spring Boot, React, SQL', 'PENDING', NOW(), NOW(), 1);
 
 -- 10. Insert CandidateSkill
 INSERT INTO candidate_skill (id, candidate_id, skill_id) VALUES 
@@ -216,10 +374,10 @@ INSERT INTO foreign_language (id, language_id, level_id, candidate_id) VALUES
 (3, 1, 3, 2); -- Candidate 2 - English Advanced
 
 -- 13. Insert Application
-INSERT INTO application (id, candidate_id, job_id, applied_date, message, status) VALUES 
-(1, 1, 1, NOW(), 'I am very interested in this Java Developer position', 'APPROVED'),
-(2, 1, 3, NOW(), 'I would like to apply for the Full Stack Developer role', 'CANCELED'),
-(3, 2, 2, NOW(), 'I am excited about this Frontend Developer opportunity', 'PENDING');
+INSERT INTO application VALUES 
+(1, 1, 1, NOW(), 'I am very interested in this Java Developer position', null, 'APPROVED'),
+(2, 1, 3, NOW(), 'I would like to apply for the Full Stack Developer role', null, 'CANCELED'),
+(3, 2, 2, NOW(), 'I am excited about this Frontend Developer opportunity', null, 'PENDING');
 
 -- 14. Insert JobAlert
 INSERT INTO job_alert (id, candidate_id, job_id, notification_status) VALUES 

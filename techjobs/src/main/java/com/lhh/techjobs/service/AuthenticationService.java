@@ -8,14 +8,10 @@ import com.lhh.techjobs.enums.Status;
 import com.lhh.techjobs.exception.AppException;
 import com.lhh.techjobs.exception.ErrorCode;
 import com.lhh.techjobs.repository.UserRepository;
-import com.nimbusds.jose.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.text.ParseException;
-import java.util.Date;
 
 @Slf4j
 @Service
@@ -26,7 +22,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        User user = userRepository.findByUsername(request.getUsername());
+        User user = userRepository.findByEmail(request.getEmail());
         if (user == null) {
             throw new AppException(ErrorCode.WRONG_USERNAME_OR_PASSWORD);
         }

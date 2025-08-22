@@ -51,14 +51,15 @@ public class CandidateService {
     static String CV_QUEUE = "cvQueue";
 
     @Transactional
-    public void createCandidate(CandidateCreationRequest info, MultipartFile avatar) {
-        if (userRepository.existsByUsername(info.getUsername()))
+    public void createCandidate(CandidateCreationRequest info) {
+        if (userRepository.existsByEmail(info.getEmail()))
             throw new AppException(ErrorCode.USER_EXISTS);
         User user = userMapper.toUserForCandidate(info);
         user.setPassword(passwordEncoder.encode(info.getPassword()));
-        if (!avatar.isEmpty()) {
+        MultipartFile avatar = info.getAvatar();
+        if (avatar != null && avatar.isEmpty()) {
             try {
-                Map uploadResult = cloudinaryClient.uploader().upload(avatar.getBytes(),
+                Map uploadResult = cloudinaryClient.uploader().upload(info.getAvatar().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto"));
                 user.setAvatar(uploadResult.get("secure_url").toString());
             } catch (IOException e) {
@@ -69,6 +70,7 @@ public class CandidateService {
 
         Candidate candidate = new Candidate();
         candidate.setUser(user);
+        candidate.setFullName(info.getFullName());
         candidate.setBirthDate(info.getBirthDate());
         candidateRepository.save(candidate);
     }

@@ -20,17 +20,17 @@ import "../styles/common.css";
 import { Eye, EyeOff, Upload } from "lucide-react";
 import AlertSuccess from "../layout/AlertSuccess";
 
-const RegisterPage = () => {
+const EmployerRegisterPage = () => {
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
     email: "",
     phone: "",
-    fullName: "",
+    companyName: "",
+    taxCode: "",
     address: "",
     city: "",
     district: "",
-    birthDate: "",
   });
 
   const [avatar, setAvatar] = useState(null);
@@ -41,10 +41,89 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [alertSuccess, setAlertSuccess] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Thông tin các trường trong form
+  const formFields = [
+    {
+      title: "Tên công ty",
+      field: "companyName",
+      type: "text",
+      required: true,
+      placeholder: "Nhập tên công ty",
+      colSize: 6,
+    },
+    {
+      title: "Mã số thuế",
+      field: "taxCode",
+      type: "text",
+      required: true,
+      placeholder: "Nhập mã số thuế",
+      colSize: 6,
+    },
+    {
+      title: "Email",
+      field: "email",
+      type: "email",
+      required: true,
+      placeholder: "Nhập địa chỉ email",
+      colSize: 6,
+    },
+    {
+      title: "Số điện thoại",
+      field: "phone",
+      type: "text",
+      required: true,
+      placeholder: "Nhập số điện thoại",
+      colSize: 6,
+    },
+    {
+      title: "Mật khẩu",
+      field: "password",
+      type: "password",
+      required: true,
+      placeholder: "Nhập mật khẩu",
+      colSize: 6,
+      showPassword: true,
+    },
+    {
+      title: "Xác nhận mật khẩu",
+      field: "confirmPassword",
+      type: "password",
+      required: true,
+      placeholder: "Xác nhận mật khẩu",
+      colSize: 6,
+      showPassword: true,
+    },
+  ];
+
+  // Tạo một đối tượng để chứa các trường form trong nhóm city/district riêng biệt
+  const locationFields = [
+    {
+      title: "Thành phố",
+      field: "city",
+      type: "select",
+      colSize: 6,
+      options: cities,
+      optionValue: "name",
+      optionLabel: "name",
+      optionDataId: "id",
+    },
+    {
+      title: "Quận/Huyện",
+      field: "district",
+      type: "select",
+      colSize: 6,
+      options: districts,
+      optionValue: "name",
+      optionLabel: "name",
+      optionDataId: "id",
+      disabled: !formData.city || districts.length === 0,
+      helpText: !formData.city && "Vui lòng chọn thành phố trước",
+    },
+  ];
 
   const navigate = useNavigate();
 
@@ -68,7 +147,6 @@ const RegisterPage = () => {
     try {
       if (cityId) {
         const response = await Apis.get(`${endpoints.districts}/${cityId}`);
-        console.log("Districts for city:", response.data);
         if (response.data) {
           setDistricts(response.data);
         }
@@ -85,17 +163,21 @@ const RegisterPage = () => {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-        district: "",
+        district: "", // Reset district khi thành phố thay đổi
       }));
 
       if (value) {
+        // Lấy ID thành phố từ phần tử option được chọn
         const selectedOption = e.target.options[e.target.selectedIndex];
         const cityId = selectedOption.getAttribute("data-id");
+        // Gọi API lấy districts cho thành phố có ID đã chọn
         fetchDistrictsForCity(cityId);
       } else {
+        // Reset districts khi không có thành phố được chọn
         setDistricts([]);
       }
     } else {
+      // Xử lý cho các trường khác
       setFormData((prev) => ({
         ...prev,
         [name]: value,
@@ -182,18 +264,14 @@ const RegisterPage = () => {
         "Số điện thoại không hợp lệ (phải có dạng +84 hoặc 0 và 9-10 số)";
     }
 
-    // Full name validation
-    if (!formData.fullName) {
-      newErrors.fullName = "Họ tên là bắt buộc";
+    // Company name validation
+    if (!formData.companyName) {
+      newErrors.companyName = "Tên công ty là bắt buộc";
     }
 
-    // Birth date validation
-    if (formData.birthDate) {
-      const today = new Date();
-      const birthDate = new Date(formData.birthDate);
-      if (birthDate >= today) {
-        newErrors.birthDate = "Ngày sinh phải trong quá khứ";
-      }
+    // Tax code validation
+    if (!formData.taxCode) {
+      newErrors.taxCode = "Mã số thuế là bắt buộc";
     }
 
     setErrors(newErrors);
@@ -209,13 +287,12 @@ const RegisterPage = () => {
 
     setLoading(true);
     setErrorMessage("");
-    setSuccessMessage("");
 
     try {
-      // Format birth date if provided (to ISO format yyyy-MM-dd)
       let formattedData = { ...formData };
       delete formattedData.confirmPassword; // Remove confirmPassword as it's not needed for API
 
+      // Create FormData object to handle file upload
       const formDataToSend = new FormData();
 
       // Add all text fields
@@ -230,31 +307,33 @@ const RegisterPage = () => {
         formDataToSend.append("avatar", avatar);
       }
 
-      const response = await Apis.post(endpoints.register, formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await Apis.post(
+        endpoints.employer_register,
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       if (response.status === 201 || response.status === 200) {
-        setSuccessMessage(
-          "Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập."
-        );
         // Reset form
         setFormData({
           password: "",
           confirmPassword: "",
           email: "",
           phone: "",
-          fullName: "",
+          companyName: "",
+          taxCode: "",
           address: "",
           city: "",
           district: "",
-          birthDate: "",
         });
         setAvatar(null);
         setAvatarPreview(null);
         setAlertSuccess(true);
+
         navigate("/login");
       }
     } catch (error) {
@@ -283,7 +362,9 @@ const RegisterPage = () => {
       <Header />
       <div className='min-vh-100 d-flex align-items-center justify-content-center bg-light py-5'>
         <Container>
-          {alertSuccess && <AlertSuccess message='Đăng ký thành công!' />}
+          {alertSuccess && (
+            <AlertSuccess message='Đăng ký thành công! Đợi xét duyệt' />
+          )}
           <Row className='justify-content-center'>
             <Col md={8} lg={7}>
               <Card className='border-0 shadow-sm'>
@@ -315,9 +396,9 @@ const RegisterPage = () => {
 
                   {/* Welcome Text */}
                   <div className='text-center mb-4'>
-                    <h4 className='fw-bold mb-2'>Đăng ký tài khoản</h4>
+                    <h4 className='fw-bold mb-2'>Đăng ký nhà tuyển dụng</h4>
                     <p className='text-muted mb-0'>
-                      Tạo tài khoản để tìm kiếm việc làm
+                      Tạo tài khoản để đăng tin tuyển dụng
                     </p>
                     <div className='mt-2'>
                       <span className='text-muted me-1'>Đã có tài khoản?</span>
@@ -335,13 +416,6 @@ const RegisterPage = () => {
                     </div>
                   </div>
 
-                  {/* Alert Messages */}
-                  {successMessage && (
-                    <Alert variant='success' className='mb-4'>
-                      {successMessage}
-                    </Alert>
-                  )}
-
                   {errorMessage && (
                     <Alert variant='danger' className='mb-4'>
                       {errorMessage}
@@ -351,222 +425,143 @@ const RegisterPage = () => {
                   {/* Registration Form */}
                   <Form onSubmit={handleSubmit}>
                     <Row>
-                      {/* Full Name Field */}
-                      <Col md={6}>
-                        <Form.Group className='mb-3'>
-                          <Form.Label className='fw-medium'>
-                            Họ và tên <span className='text-danger'>*</span>
-                          </Form.Label>
-                          <Form.Control
-                            type='text'
-                            name='fullName'
-                            value={formData.fullName}
-                            onChange={handleChange}
-                            placeholder='Nhập họ và tên'
-                            isInvalid={!!errors.fullName}
-                          />
-                          <Form.Control.Feedback type='invalid'>
-                            {errors.fullName}
-                          </Form.Control.Feedback>
-                        </Form.Group>
-                      </Col>
+                      {/* Các trường form động từ mảng formFields */}
+                      {formFields.map((field) => (
+                        <Col md={field.colSize} key={field.field}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fw-medium'>
+                              {field.title}
+                              {field.required && (
+                                <span className='text-danger'>*</span>
+                              )}
+                            </Form.Label>
+                            {field.showPassword ? (
+                              // Input cho các trường mật khẩu
+                              <InputGroup>
+                                <Form.Control
+                                  type={
+                                    field.field === "password"
+                                      ? showPassword
+                                        ? "text"
+                                        : "password"
+                                      : showConfirmPassword
+                                      ? "text"
+                                      : "password"
+                                  }
+                                  name={field.field}
+                                  value={formData[field.field]}
+                                  onChange={handleChange}
+                                  placeholder={field.placeholder}
+                                  isInvalid={!!errors[field.field]}
+                                />
+                                <Button
+                                  variant='outline-secondary'
+                                  onClick={() =>
+                                    field.field === "password"
+                                      ? setShowPassword(!showPassword)
+                                      : setShowConfirmPassword(
+                                          !showConfirmPassword
+                                        )
+                                  }
+                                >
+                                  {field.field === "password" ? (
+                                    showPassword ? (
+                                      <EyeOff />
+                                    ) : (
+                                      <Eye />
+                                    )
+                                  ) : showConfirmPassword ? (
+                                    <EyeOff />
+                                  ) : (
+                                    <Eye />
+                                  )}
+                                </Button>
+                                <Form.Control.Feedback type='invalid'>
+                                  {errors[field.field]}
+                                </Form.Control.Feedback>
+                              </InputGroup>
+                            ) : (
+                              // Input cho các trường thông thường
+                              <>
+                                <Form.Control
+                                  type={field.type}
+                                  name={field.field}
+                                  value={formData[field.field]}
+                                  onChange={handleChange}
+                                  placeholder={field.placeholder}
+                                  isInvalid={!!errors[field.field]}
+                                />
+                                <Form.Control.Feedback type='invalid'>
+                                  {errors[field.field]}
+                                </Form.Control.Feedback>
+                              </>
+                            )}
+                          </Form.Group>
+                        </Col>
+                      ))}
 
-                      {/* Email Field */}
-                      <Col md={6}>
-                        <Form.Group className='mb-3'>
-                          <Form.Label className='fw-medium'>
-                            Email <span className='text-danger'>*</span>
-                          </Form.Label>
-                          <Form.Control
-                            type='email'
-                            name='email'
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder='Nhập địa chỉ email'
-                            isInvalid={!!errors.email}
-                          />
-                          <Form.Control.Feedback type='invalid'>
-                            {errors.email}
-                          </Form.Control.Feedback>
-                        </Form.Group>
-                      </Col>
-
-                      {/* Phone Field */}
-                      <Col md={6}>
-                        <Form.Group className='mb-3'>
-                          <Form.Label className='fw-medium'>
-                            Số điện thoại <span className='text-danger'>*</span>
-                          </Form.Label>
-                          <Form.Control
-                            type='text'
-                            name='phone'
-                            value={formData.phone}
-                            onChange={handleChange}
-                            placeholder='Nhập số điện thoại'
-                            isInvalid={!!errors.phone}
-                          />
-                          <Form.Control.Feedback type='invalid'>
-                            {errors.phone}
-                          </Form.Control.Feedback>
-                        </Form.Group>
-                      </Col>
-
-                      {/* Password Field */}
-                      <Col md={6}>
-                        <Form.Group className='mb-3'>
-                          <Form.Label className='fw-medium'>
-                            Mật khẩu <span className='text-danger'>*</span>
-                          </Form.Label>
-                          <InputGroup>
-                            <Form.Control
-                              type={showPassword ? "text" : "password"}
-                              name='password'
-                              value={formData.password}
+                      {/* City và District Fields */}
+                      {locationFields.map((field) => (
+                        <Col md={field.colSize} key={field.field}>
+                          <Form.Group className='mb-3'>
+                            <Form.Label className='fw-medium'>
+                              {field.title}
+                            </Form.Label>
+                            <Form.Select
+                              name={field.field}
+                              value={formData[field.field]}
                               onChange={handleChange}
-                              placeholder='Nhập mật khẩu'
-                              isInvalid={!!errors.password}
-                            />
-                            <Button
-                              variant='outline-secondary'
-                              onClick={() => setShowPassword(!showPassword)}
+                              disabled={field.disabled}
                             >
-                              {showPassword ? <EyeOff /> : <Eye />}
-                            </Button>
-                            <Form.Control.Feedback type='invalid'>
-                              {errors.password}
-                            </Form.Control.Feedback>
-                          </InputGroup>
-                        </Form.Group>
-                      </Col>
-
-                      {/* Confirm Password Field */}
-                      <Col md={6}>
-                        <Form.Group className='mb-3'>
-                          <Form.Label className='fw-medium'>
-                            Xác nhận mật khẩu{" "}
-                            <span className='text-danger'>*</span>
-                          </Form.Label>
-                          <InputGroup>
-                            <Form.Control
-                              type={showConfirmPassword ? "text" : "password"}
-                              name='confirmPassword'
-                              value={formData.confirmPassword}
-                              onChange={handleChange}
-                              placeholder='Xác nhận mật khẩu'
-                              isInvalid={!!errors.confirmPassword}
-                            />
-                            <Button
-                              variant='outline-secondary'
-                              onClick={() =>
-                                setShowConfirmPassword(!showConfirmPassword)
-                              }
-                            >
-                              {showConfirmPassword ? <EyeOff /> : <Eye />}
-                            </Button>
-                            <Form.Control.Feedback type='invalid'>
-                              {errors.confirmPassword}
-                            </Form.Control.Feedback>
-                          </InputGroup>
-                        </Form.Group>
-                      </Col>
-
-                      {/* Birth Date Field */}
-                      <Col md={6}>
-                        <Form.Group className='mb-3'>
-                          <Form.Label className='fw-medium'>
-                            Ngày sinh
-                          </Form.Label>
-                          <Form.Control
-                            type='date'
-                            name='birthDate'
-                            value={formData.birthDate}
-                            onChange={handleChange}
-                            isInvalid={!!errors.birthDate}
-                          />
-                          <Form.Control.Feedback type='invalid'>
-                            {errors.birthDate}
-                          </Form.Control.Feedback>
-                        </Form.Group>
-                      </Col>
-
-                      {/* City Field */}
-                      <Col md={6}>
-                        <Form.Group className='mb-3'>
-                          <Form.Label className='fw-medium'>
-                            Thành phố
-                          </Form.Label>
-                          <Form.Select
-                            name='city'
-                            value={formData.city}
-                            onChange={handleChange}
-                          >
-                            <option value=''>Chọn thành phố</option>
-                            {cities.map((city) => (
-                              <option
-                                key={city.id}
-                                value={city.name}
-                                data-id={city.id}
-                              >
-                                {city.name}
+                              <option value=''>
+                                Chọn {field.title.toLowerCase()}
                               </option>
-                            ))}
-                          </Form.Select>
-                        </Form.Group>
-                      </Col>
+                              {field.options.map((option) => (
+                                <option
+                                  key={option.id}
+                                  value={option[field.optionValue]}
+                                  data-id={option[field.optionDataId]}
+                                >
+                                  {option[field.optionLabel]}
+                                </option>
+                              ))}
+                            </Form.Select>
+                            {field.helpText && (
+                              <Form.Text className='text-muted'>
+                                {field.helpText}
+                              </Form.Text>
+                            )}
+                          </Form.Group>
+                        </Col>
+                      ))}
 
-                      {/* District Field */}
-                      <Col md={6}>
-                        <Form.Group className='mb-3'>
-                          <Form.Label className='fw-medium'>
-                            Quận/Huyện
-                          </Form.Label>
-                          <Form.Select
-                            name='district'
-                            value={formData.district}
-                            onChange={handleChange}
-                            disabled={!formData.city || districts.length === 0}
-                          >
-                            <option value=''>Chọn quận/huyện</option>
-                            {districts.map((district) => (
-                              <option
-                                key={district.id}
-                                value={district.name}
-                                data-id={district.id}
-                              >
-                                {district.name}
-                              </option>
-                            ))}
-                          </Form.Select>
-                          <Form.Text className='text-muted'>
-                            {!formData.city && "Vui lòng chọn thành phố trước"}
-                          </Form.Text>
-                        </Form.Group>
-                      </Col>
-
-                      {/* Address Field */}
-                      <Col md={6}>
-                        <Form.Group className='mb-3'>
-                          <Form.Label className='fw-medium'>Địa chỉ</Form.Label>
-                          <Form.Control
-                            type='text'
-                            name='address'
-                            value={formData.address}
-                            onChange={handleChange}
-                            placeholder='Nhập địa chỉ'
-                          />
-                        </Form.Group>
-                      </Col>
+                      <Form.Group className='mb-3'>
+                        <Form.Label className='fw-medium'>Địa chỉ</Form.Label>
+                        <Form.Control
+                          type='text'
+                          name='address'
+                          value={formData.address}
+                          onChange={handleChange}
+                          isInvalid={!!errors.address}
+                          placeholder='Địa chỉ'
+                        />
+                        <Form.Control.Feedback type='invalid'>
+                          {errors.address}
+                        </Form.Control.Feedback>
+                      </Form.Group>
 
                       {/* Avatar Field */}
                       <Col md={12}>
                         <Form.Group className='mb-4'>
-                          <Form.Label className='fw-medium'>Avatar</Form.Label>
+                          <Form.Label className='fw-medium'>
+                            Logo công ty
+                          </Form.Label>
                           <div className='d-flex align-items-center'>
                             {avatarPreview && (
                               <div className='me-3'>
                                 <Image
                                   src={avatarPreview}
-                                  alt='Avatar Preview'
+                                  alt='Logo Preview'
                                   style={{
                                     width: "100px",
                                     height: "100px",
@@ -592,7 +587,7 @@ const RegisterPage = () => {
                                   className='d-flex align-items-center'
                                 >
                                   <Upload size={16} className='me-2' />
-                                  Chọn ảnh
+                                  Chọn logo
                                 </Button>
                                 {avatar && (
                                   <div className='ms-2 d-flex align-items-center'>
@@ -647,4 +642,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default EmployerRegisterPage;

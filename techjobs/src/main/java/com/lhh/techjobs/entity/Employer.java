@@ -24,7 +24,7 @@ public class Employer {
     private String companyName;
 
     @Column(name = "tax_code")
-    private String tax_code;
+    private String taxCode;
 
     @Enumerated(EnumType.STRING)
     private Status status;

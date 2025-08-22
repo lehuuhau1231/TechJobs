@@ -36,8 +36,8 @@ public class EmployerService {
     Cloudinary cloudinaryClient;
 
     @Transactional
-    public void createEmployer(EmployerCreationRequest info, MultipartFile avatar) {
-        if(userRepository.existsByUsername(info.getUsername()))
+    public void createEmployer(EmployerCreationRequest info) {
+        if(userRepository.existsByEmail(info.getEmail()))
             throw new AppException(ErrorCode.USER_EXISTS);
 
         if (info.getEmail() != null && !info.getEmail().isEmpty() && userRepository.existsByEmail(info.getEmail()))
@@ -49,6 +49,7 @@ public class EmployerService {
         // Tiếp tục quy trình tạo user
         User user = userMapper.toUserForEmployer(info);
         user.setPassword(passwordEncoder.encode(info.getPassword()));
+        MultipartFile avatar = info.getAvatar();
         if (avatar != null && !avatar.isEmpty()) {
             try {
                 Map uploadResult = cloudinaryClient.uploader().upload(avatar.getBytes(),
@@ -63,6 +64,7 @@ public class EmployerService {
         Employer employer = new Employer();
         employer.setUser(user);
         employer.setCompanyName(info.getCompanyName());
+        employer.setTaxCode(info.getTaxCode());
         employer.setStatus(Status.PENDING);
         employerRepository.save(employer);
     }

@@ -23,10 +23,9 @@ public class EmployerController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createCandidate(
-            @Valid @ModelAttribute EmployerCreationRequest info,
-            @RequestParam(value = "avatar") MultipartFile avatar) {
+    public void createEmployer(
+            @Valid @ModelAttribute EmployerCreationRequest info) {
 
-        this.employerService.createEmployer(info, avatar);
+        this.employerService.createEmployer(info);
     }
 }

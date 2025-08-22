@@ -28,34 +28,6 @@ const Home = () => {
   const [contractTypes, setContractTypes] = useState([]);
   const [cities, setCities] = useState([]);
 
-  const handleJobTypeChange = (type) => {
-    if (type === "All") {
-      setSelectedJobType(["All"]);
-    } else {
-      const newTypes = selectedJobType.includes("All")
-        ? [type]
-        : selectedJobType.includes(type)
-        ? selectedJobType.filter((t) => t !== type)
-        : [...selectedJobType.filter((t) => t !== "All"), type];
-
-      setSelectedJobType(newTypes.length === 0 ? ["All"] : newTypes);
-    }
-  };
-
-  const handleExperienceChange = (exp) => {
-    if (exp === "All") {
-      setSelectedExperience(["All"]);
-    } else {
-      const newExp = selectedExperience.includes("All")
-        ? [exp]
-        : selectedExperience.includes(exp)
-        ? selectedExperience.filter((e) => e !== exp)
-        : [...selectedExperience.filter((e) => e !== "All"), exp];
-
-      setSelectedExperience(newExp.length === 0 ? ["All"] : newExp);
-    }
-  };
-
   useEffect(() => {
     fetchJob();
     fetchJobLevels();

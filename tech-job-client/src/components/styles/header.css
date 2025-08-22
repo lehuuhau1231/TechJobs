@@ -1,0 +1,45 @@
+.button {
+  padding: "6px 12px";
+  border: "none";
+  border-radius: "4px";
+  font-size: "12px";
+  display: "flex";
+  align-items: "center";
+  gap: "4px";
+}
+
+.button-active {
+  background-color: "#3B82F6";
+  color: "white";
+}
+
+.button-inactive {
+  background-color: "#F3F4F6";
+  color: "#6B7280";
+}
+
+.image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+/* Loại bỏ màu nền và viền của dropdown toggle */
+#dropdown-user::after {
+  display: none !important;
+}
+
+/* Đảm bảo dropdown toggle không có nền màu khi hover hoặc focus */
+.dropdown-toggle {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Đảm bảo không có outline khi focus */
+.dropdown-toggle:focus {
+  outline: none !important;
+}

@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS foreign_language;
 DROP TABLE IF EXISTS job_skill;
 DROP TABLE IF EXISTS candidate_skill;
 DROP TABLE IF EXISTS job;
+DROP TABLE IF EXISTS district;
 DROP TABLE IF EXISTS city;
 DROP TABLE IF EXISTS job_level;
 DROP TABLE IF EXISTS job_type;
@@ -38,7 +39,6 @@ CREATE TABLE skill (
 -- 4. Bảng User
 CREATE TABLE user (
 	id INT PRIMARY KEY AUTO_INCREMENT,
-	username VARCHAR(100) UNIQUE NOT NULL,
 	password VARCHAR(255) NOT NULL,
 	avatar VARCHAR(255),
 	email VARCHAR(100) UNIQUE NOT NULL,
@@ -51,10 +51,10 @@ CREATE TABLE user (
 
 -- 4. Insert User (CANDIDATE)
 INSERT INTO user VALUES 
-(1, 'candidate1', '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate1@email.com', '0123456789','phường 13', 'Quận 1', 'Ho Chi Minh','CANDIDATE'),
-(2, 'candidate2', '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate2@email.com', '0123456790','phường 15', 'Quận 5', 'Ho Chi Minh','CANDIDATE'),
-(3, 'employer', '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'employer1@email.com', '0987654321','phường 13', 'Hanoi', 'Cau Giay','EMPLOYER'),
-(4, 'admin', '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'admin@email.com', '0987654322','phường 13', 'District 3', 'Cau Giay','ADMIN');
+(1, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate1@email.com', '0123456789','phường 13', 'Quận 1', 'Ho Chi Minh','CANDIDATE'),
+(2, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate2@email.com', '0123456790','phường 15', 'Quận 5', 'Ho Chi Minh','CANDIDATE'),
+(3, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'employer1@email.com', '0987654321','phường 13', 'Hanoi', 'Cau Giay','EMPLOYER'),
+(4, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'admin@email.com', '0987654322','phường 13', 'District 3', 'Cau Giay','ADMIN');
 
 -- 5. Bảng Candidate
 CREATE TABLE candidate (
@@ -137,6 +137,75 @@ INSERT INTO contract_type VALUES
 (2, 'Part-time'),
 (3, 'Freelance');
 
+CREATE TABLE district (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(30),
+  city_id INT,
+  FOREIGN KEY (city_id) REFERENCES city(id)
+);
+
+INSERT INTO district VALUES 
+(1, 'Quận 1', 1),
+(2, 'Thành phố Thủ Đức', 1),
+(3, 'Quận 3', 1),
+(4, 'Quận 4', 1),
+(5, 'Quận 5', 1),
+(6, 'Quận 6', 1),
+(7, 'Quận 7', 1),
+(8, 'Quận 8', 1),
+(9, 'Quận 10', 1),
+(10, 'Quận 11', 1),
+(11, 'Quận 12', 1),
+(12, 'Quận Bình Tân', 1),
+(13, 'Quận Bình Thạnh', 1),
+(14, 'Quận Gò Vấp', 1),
+(15, 'Quận Phú Nhuận', 1),
+(16, 'Quận Tân Bình', 1),
+(17, 'Quận Tân Phú', 1),
+(18, 'Huyện Bình Chánh', 1),
+(19, 'Huyện Cần Giờ', 1),
+(20, 'Huyện Củ Chi', 1),
+(21, 'Huyện Hóc Môn', 1),
+(22, 'Huyện Nhà Bè', 1),
+(23, 'Quận Ba Đình', 2),
+(24, 'Quận Hoàn Kiếm', 2),
+(25, 'Quận Tây Hồ', 2),
+(26, 'Quận Long Biên', 2),
+(27, 'Quận Cầu Giấy', 2),
+(28, 'Quận Đống Đa', 2),
+(29, 'Quận Hai Bà Trưng', 2),
+(30, 'Quận Hoàng Mai', 2),
+(31, 'Quận Thanh Xuân', 2),
+(32, 'Quận Nam Từ Liêm', 2),
+(33, 'Quận Bắc Từ Liêm', 2),
+(34, 'Quận Hà Đông', 2),
+(35, 'Thị xã Sơn Tây', 2),
+(36, 'Huyện Ba Vì', 2),
+(37, 'Huyện Chương Mỹ', 2),
+(38, 'Huyện Đan Phượng', 2),
+(39, 'Huyện Đông Anh', 2),
+(40, 'Huyện Gia Lâm', 2),
+(41, 'Huyện Hoài Đức', 2),
+(42, 'Huyện Mê Linh', 2),
+(43, 'Huyện Mỹ Đức', 2),
+(44, 'Huyện Phú Xuyên', 2),
+(45, 'Huyện Phúc Thọ', 2),
+(46, 'Huyện Quốc Oai', 2),
+(47, 'Huyện Sóc Sơn', 2),
+(48, 'Huyện Thạch Thất', 2),
+(49, 'Huyện Thanh Oai', 2),
+(50, 'Huyện Thanh Trì', 2),
+(51, 'Huyện Thường Tín', 2),
+(52, 'Huyện Ứng Hòa', 2),
+(53, 'Quận Hải Châu', 3),
+(54, 'Quận Cẩm Lệ', 3),
+(55, 'Quận Thanh Khê', 3),
+(56, 'Quận Liên Chiểu', 3),
+(57, 'Quận Ngũ Hành Sơn', 3),
+(58, 'Quận Sơn Trà', 3),
+(59, 'Huyện Hòa Vang', 3),
+(60, 'Huyện Hoàng Sa', 3);
+
 -- 7. Bảng Job
 CREATE TABLE job (
  id INT PRIMARY KEY AUTO_INCREMENT,
@@ -158,11 +227,13 @@ CREATE TABLE job (
  end_time TIME NOT NULL,
  employer_id INT,
  city_id INT,
+ district_id INT,
  job_level_id INT,
  job_type_id INT,
  contract_type_id INT,
  FOREIGN KEY (employer_id) REFERENCES employer(id),
  FOREIGN KEY (city_id) REFERENCES city(id),
+ FOREIGN KEY (district_id) REFERENCES district(id),
  FOREIGN KEY (job_level_id) REFERENCES job_level(id),
  FOREIGN KEY (job_type_id) REFERENCES job_type(id),
  FOREIGN KEY (contract_type_id) REFERENCES contract_type(id)
@@ -171,9 +242,9 @@ CREATE TABLE job (
 
 -- 9. Insert Job
 INSERT INTO job VALUES 
-(1, 'Java Developer', 'Develop backend services using Spring Boot', 1000, 2000, 'Java, Spring Boot, SQL', 'Đi chơi 1 năm 2 lần', 'APPROVED', NOW(), NOW(), 'Hồ Chí minh', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 1, 1,1),
-(2, 'Frontend Developer', 'Develop user interface using React', 800, 1500, 'JavaScript, React, HTML, CSS', 'Đi chơi 1 năm 2 lần', 'CANCELED', NOW(), NOW(), 'Hà Nội', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 1, 1,1),
-(3, 'Full Stack Developer', 'Develop both frontend and backend', 1200, 2500, 'Java, Spring Boot, React, SQL', 'Đi chơi 1 năm 2 lần', 'PENDING', NOW(), NOW(), 'Đà Nẵng', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 3, 1, 1,1);
+(1, 'Java Developer', 'Develop backend services using Spring Boot', 1000, 2000, 'Java, Spring Boot, SQL', 'Đi chơi 1 năm 2 lần', 'APPROVED', NOW(), NOW(), 'Hồ Chí minh', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 1, 1, 1,1),
+(2, 'Frontend Developer', 'Develop user interface using React', 800, 1500, 'JavaScript, React, HTML, CSS', 'Đi chơi 1 năm 2 lần', 'CANCELED', NOW(), NOW(), 'Hà Nội', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 40, 1, 1,1),
+(3, 'Full Stack Developer', 'Develop both frontend and backend', 1200, 2500, 'Java, Spring Boot, React, SQL', 'Đi chơi 1 năm 2 lần', 'PENDING', NOW(), NOW(), 'Đà Nẵng', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 3, 54, 1, 1,1);
 
 -- 8. Bảng CandidateSkill (nhiều-nhiều Candidate - Skill)
 CREATE TABLE candidate_skill (

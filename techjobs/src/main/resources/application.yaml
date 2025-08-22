@@ -26,3 +26,7 @@ cloudinary:
   api-key: "932944391659178"
   api-secret: "_UlDjHd_T5WxNV0iZMMN9tGJuy0"
   secure: true
+
+address:
+  api-province: "https://tailieu365.com/api/address/province?mode=2"
+  api-district: "https://tailieu365.com/api/address/district"

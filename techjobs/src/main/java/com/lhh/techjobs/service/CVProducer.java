@@ -42,8 +42,8 @@ public class CVProducer {
     }
 
     private void updateCandidateCV(MultipartFile cvFile) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Candidate candidate = candidateRepository.findByUserUsername(username);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Candidate candidate = candidateRepository.findByUserEmail(email);
         if (candidate != null && cvFile != null && !cvFile.isEmpty()) {
             try {
                 Map uploadResult = cloudinaryClient.uploader().upload(cvFile.getBytes(),

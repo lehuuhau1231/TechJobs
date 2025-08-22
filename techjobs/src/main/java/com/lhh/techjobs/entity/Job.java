@@ -73,6 +73,10 @@ public class Job {
     private City city;
 
     @OneToOne
+    @JoinColumn(name = "district_id")
+    private District district;
+
+    @OneToOne
     @JoinColumn(name = "job_level_id")
     private JobLevel jobLevel;
 

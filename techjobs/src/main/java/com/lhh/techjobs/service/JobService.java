@@ -65,10 +65,10 @@ public class JobService {
     }
 
     public List<JobTitleResponse> getTitleJob() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Employer employer = employerRepository.findByUserUsername(username);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employer employer = employerRepository.findByUserEmail(email);
         if (employer == null) {
-            throw new RuntimeException("Employer not found for username: " + username);
+            throw new RuntimeException("Employer not found for email: " + email);
         }
         return this.jobRepository.findAllJobTitles(Status.APPROVED, employer);
     }

@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,10 +22,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CandidateCreationRequest {
-    @NotBlank(message = "Username is required")
-    @Size(min = 4, max = 50, message = "Username must be between 4 and 50 characters")
-    private String username;
-
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
@@ -49,4 +46,6 @@ public class CandidateCreationRequest {
     @Past(message = "Birth date must be in the past")
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate birthDate;
+
+    private MultipartFile avatar;
 } 

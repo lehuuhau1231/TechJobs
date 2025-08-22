@@ -1,0 +1,77 @@
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Container */
+.alert-box {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  width: 320px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: slideInRight 0.4s ease-out;
+  display: flex;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  padding: 10px 15px;
+}
+
+/* Nội dung */
+.alert-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Icon */
+.alert-icon {
+  background-color: #166534;
+  color: white;
+  border-radius: 50%;
+  padding: 6px;
+  font-size: 14px;
+  margin-right: 10px;
+  width: 23px;
+  height: 23px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Text */
+.alert-text {
+  flex: 1;
+  color: #166534;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Nút đóng */
+.alert-close {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #166534;
+  cursor: pointer;
+}

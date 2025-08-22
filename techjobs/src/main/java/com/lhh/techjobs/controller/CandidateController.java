@@ -29,10 +29,9 @@ public class CandidateController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createCandidate( 
-            @Valid @ModelAttribute CandidateCreationRequest info,
-            @RequestParam(value = "avatar") MultipartFile avatar) {
+            @Valid @ModelAttribute CandidateCreationRequest info) {
         
-        this.candidateService.createCandidate(info, avatar);
+        this.candidateService.createCandidate(info);
     }
 
     @PreAuthorize("hasRole('CANDIDATE')")

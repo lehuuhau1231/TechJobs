@@ -47,8 +47,8 @@ public class ApplicationService {
     int PAGE_SIZE = 10;
 
     public void addApplication(ApplicationRequest request) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Candidate candidate = candidateRepository.findByUserUsername(username);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Candidate candidate = candidateRepository.findByUserEmail(email);
 
         Job job = jobRepository.findById(request.getJob())
                 .orElseThrow(() -> new RuntimeException("Job not found with id: " + request.getJob()));
@@ -81,8 +81,8 @@ public class ApplicationService {
     }
 
     public Page<ApplicationPendingResponse> getPendingApplicationsByJobId(Map<String, String> params) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Employer employer = employerRepository.findByUserUsername(username);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employer employer = employerRepository.findByUserEmail(email);
 
         log.info("Fetching pending applications for employer: {}", employer);
 

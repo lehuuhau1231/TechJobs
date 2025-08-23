@@ -33,7 +33,7 @@ import java.util.Arrays;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {"/api/candidate", "/api/employer", "/api/jobs", "/auth/token", "/auth/introspect",
+    private final String[] PUBLIC_ENDPOINTS = {"/api/candidate", "/api/employer", "/api/jobs", "/api/jobs/*", "/auth/token", "/auth/introspect",
     "/api/job-levels", "/api/contract-types", "/api/cities", "/api/job-types", "/api/user/avatar/*", "/api/provinces", "/api/districts/*",
     "/api/districts/*"};
 

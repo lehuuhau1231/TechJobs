@@ -57,6 +57,8 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
     @Query("SELECT new com.lhh.techjobs.dto.response.JobDetailResponse(j.id, " +
             "j.title, " +
             "j.description, " +
+            "c.name, " +
+            "d.name, " +
             "j.address, " +
             "j.salaryMin, " +
             "j.salaryMax, " +
@@ -76,6 +78,7 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "JOIN j.employer e " +
             "JOIN e.user u " +
             "LEFT JOIN j.city c " +
+            "LEFT JOIN j.district d " +
             "LEFT JOIN j.jobLevel jl " +
             "LEFT JOIN j.jobType jt " +
             "LEFT JOIN j.contractType ct " +

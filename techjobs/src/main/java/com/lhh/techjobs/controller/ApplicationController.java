@@ -2,8 +2,9 @@ package com.lhh.techjobs.controller;
 
 import com.lhh.techjobs.dto.request.ApplicationRequest;
 import com.lhh.techjobs.dto.request.ApplicationStatusRequest;
+import com.lhh.techjobs.dto.request.ApplicationFilterRequest;
+import com.lhh.techjobs.dto.response.ApplicationFilterResponse;
 import com.lhh.techjobs.dto.response.ApplicationPendingResponse;
-import com.lhh.techjobs.dto.response.JobResponse;
 import com.lhh.techjobs.dto.response.PageResponse;
 import com.lhh.techjobs.service.ApplicationService;
 import jakarta.validation.Valid;
@@ -30,6 +31,13 @@ public class ApplicationController {
     @ResponseStatus(HttpStatus.CREATED)
     public void addApplication(@Valid @ModelAttribute ApplicationRequest request) {
         applicationService.addApplication(request);
+    }
+
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @GetMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<List<ApplicationFilterResponse>> getApplication(ApplicationFilterRequest request) {
+        return ResponseEntity.ok(applicationService.applicationFilter(request));
     }
 
     @PreAuthorize("hasRole('EMPLOYER')")

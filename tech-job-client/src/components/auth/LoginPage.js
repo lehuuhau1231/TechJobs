@@ -16,7 +16,7 @@ import APIs, { endpoints } from "../../configs/Apis";
 import { MyUserContext } from "../Context/MyContext";
 import cookies from "react-cookies";
 import Apis from "../../configs/Apis";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Loading from "../layout/Loading";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 
@@ -29,6 +29,7 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [, dispatch] = useContext(MyUserContext);
   const navigate = useNavigate();
+  const [q] = useSearchParams();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,14 +45,17 @@ export default function LoginPage() {
       const res = await Apis.post(endpoints.login, loginData);
 
       if (res && res.data) {
-        cookies.save("token", res.data.token);
+        cookies.save("token", res.data.result.token);
 
         dispatch({
           type: "login",
-          payload: res.data,
+          payload: res.data.result,
         });
-
-        navigate("/");
+        if (q.get("next")) {
+          navigate(q.get("next"));
+        } else {
+          navigate("/");
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -113,7 +117,7 @@ export default function LoginPage() {
                         style={{ color: "#4285f4" }}
                         onClick={(e) => {
                           e.preventDefault();
-                          navigate("/register");
+                          navigate("/register-switch");
                         }}
                       >
                         Đăng ký ngay

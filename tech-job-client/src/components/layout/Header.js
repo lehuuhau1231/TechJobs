@@ -1,10 +1,13 @@
 import {
   Bell,
   Building2,
+  ClipboardClock,
+  LogOut,
   MessageCircle,
   Search,
   Settings,
   TrendingUp,
+  User,
   Users,
 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
@@ -97,7 +100,7 @@ const Header = () => {
                   className='p-0 border-0 shadow-none bg-transparent'
                 >
                   <Image
-                    src={user.result.avatar}
+                    src={user.avatar}
                     alt='User Avatar'
                     className='image'
                   />
@@ -105,8 +108,14 @@ const Header = () => {
 
                 <Dropdown.Menu>
                   <Dropdown.Item onClick={() => navigate("/profile")}>
-                    <i className='bi bi-person me-2'></i>
+                    <User size={20} style={{ marginRight: "8px" }} />
                     Thông tin cá nhân
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => navigate("/application-tracking")}
+                  >
+                    <ClipboardClock size={20} style={{ marginRight: "8px" }} />
+                    Theo dõi ứng tuyển
                   </Dropdown.Item>
                   <Dropdown.Divider />
                   <Dropdown.Item
@@ -115,7 +124,7 @@ const Header = () => {
                     }}
                     className='text-danger'
                   >
-                    <i className='bi bi-box-arrow-right me-2'></i>
+                    <LogOut size={20} style={{ marginRight: "8px" }} />
                     Đăng xuất
                   </Dropdown.Item>
                 </Dropdown.Menu>

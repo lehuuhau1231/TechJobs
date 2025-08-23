@@ -399,7 +399,7 @@ const CandidateRegisterPage = () => {
 
                   {/* Welcome Text */}
                   <div className='text-center mb-4'>
-                    <h4 className='fw-bold mb-2'>Đăng ký tài khoản</h4>
+                    <h4 className='fw-bold mb-2'>Đăng ký tài khoản ứng viên</h4>
                     <p className='text-muted mb-0'>
                       Tạo tài khoản để tìm kiếm việc làm
                     </p>

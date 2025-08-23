@@ -1,0 +1,67 @@
+.job-detail-header {
+  border-left: 4px solid #4f46e5;
+}
+
+.job-badge {
+  font-size: 14px;
+  font-weight: normal;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+}
+
+.company-logo img {
+  border: 1px solid #eee;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.job-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.apply-btn,
+.favorite-btn {
+  font-weight: 600;
+}
+
+.top-reasons {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.top-reasons li {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.job-description,
+.job-requirements,
+.job-benefits {
+  line-height: 1.6;
+}
+
+.job-description ul,
+.job-requirements ul,
+.job-benefits ul {
+  padding-left: 20px;
+  margin-bottom: 15px;
+}
+
+.job-description li,
+.job-requirements li,
+.job-benefits li {
+  margin-bottom: 8px;
+}
+
+.sticky-sidebar {
+  top: 20px;
+}
+
+@media (max-width: 767px) {
+  .sticky-sidebar {
+    position: static !important;
+  }
+}

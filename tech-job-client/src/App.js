@@ -6,6 +6,9 @@ import { MyUserContext } from "./components/Context/MyContext";
 import Home from "./components/Job/Home";
 import CandidateRegisterPage from "./components/auth/CandidateRegisterPage";
 import EmployerRegisterPage from "./components/auth/EmployerRegisterPage";
+import RegisterSwitch from "./components/auth/RegisterSwitch";
+import JobDetail from "./components/Job/JobDetail";
+import ApplicationTracking from "./components/Job/ApplicationTracking";
 
 function App() {
   const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -17,9 +20,14 @@ function App() {
           <Routes>
             {user ? (
               <>
-                {user.result && user.result.role === "CANDIDATE" && (
+                {user && user.role === "CANDIDATE" && (
                   <>
                     <Route path='/' element={<Home />} />
+                    <Route
+                      path='/application-tracking'
+                      element={<ApplicationTracking />}
+                    />
+                    <Route path='/job-detail/:id' element={<JobDetail />} />
                   </>
                 )}
               </>
@@ -35,6 +43,8 @@ function App() {
                   path='/employer-register'
                   element={<EmployerRegisterPage />}
                 />
+                <Route path='/register-switch' element={<RegisterSwitch />} />
+                <Route path='/job-detail/:id' element={<JobDetail />} />
               </>
             )}
           </Routes>

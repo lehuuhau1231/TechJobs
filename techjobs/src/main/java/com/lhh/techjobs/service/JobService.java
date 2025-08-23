@@ -53,6 +53,9 @@ public class JobService {
     }
 
     public JobDetailResponse getJobDetail(Integer jobId) {
+        if(jobId != null && jobId <= 0) {
+            throw new IllegalArgumentException("Job ID không hợp lệ");
+        }
         JobDetailResponse jobDetail = jobRepository.findJobDetailById(jobId);
         if (jobDetail == null) {
             throw new RuntimeException("Không tìm thấy công việc với ID: " + jobId);

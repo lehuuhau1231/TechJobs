@@ -13,6 +13,7 @@ export const endpoints = {
   contract_types: "/api/contract-types",
   cities: "/api/cities",
   districts: "/api/districts",
+  application: "/api/application",
 };
 
 export const authApis = (token) =>

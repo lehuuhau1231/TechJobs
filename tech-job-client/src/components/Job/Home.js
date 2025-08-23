@@ -5,12 +5,9 @@ import { Button, Container } from "react-bootstrap";
 import "../styles/common.css";
 import { Eraser } from "lucide-react";
 import Loading from "../layout/Loading";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
-  const [selectedJobType, setSelectedJobType] = useState(["All"]);
-  const [selectedSalaryRange, setSelectedSalaryRange] = useState("Custom");
-  const [selectedExperience, setSelectedExperience] = useState(["All"]);
-  const [viewMode, setViewMode] = useState("grid");
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState(null);
@@ -27,6 +24,8 @@ const Home = () => {
   const [jobTypes, setJobTypes] = useState([]);
   const [contractTypes, setContractTypes] = useState([]);
   const [cities, setCities] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchJob();
@@ -485,6 +484,9 @@ const Home = () => {
                                 style={{
                                   marginLeft: "auto",
                                 }}
+                                onClick={() =>
+                                  navigate(`/job-detail/${job.id}`)
+                                }
                               >
                                 Chi tiết
                               </Button>

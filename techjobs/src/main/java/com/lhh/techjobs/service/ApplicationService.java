@@ -2,8 +2,10 @@ package com.lhh.techjobs.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.lhh.techjobs.dto.request.ApplicationFilterRequest;
 import com.lhh.techjobs.dto.request.ApplicationRequest;
 import com.lhh.techjobs.dto.request.ApplicationStatusRequest;
+import com.lhh.techjobs.dto.response.ApplicationFilterResponse;
 import com.lhh.techjobs.dto.response.ApplicationPendingResponse;
 import com.lhh.techjobs.entity.Application;
 import com.lhh.techjobs.entity.Candidate;
@@ -71,6 +73,12 @@ public class ApplicationService {
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload CV file", e);
         }
+    }
+
+    public List<ApplicationFilterResponse> applicationFilter(ApplicationFilterRequest request) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Candidate candidate = candidateRepository.findByUserEmail(email);
+        return applicationRepository.getApplicationByStatus(request.getStatus(), candidate);
     }
 
     public void updateApplicationStatus(ApplicationStatusRequest request) {

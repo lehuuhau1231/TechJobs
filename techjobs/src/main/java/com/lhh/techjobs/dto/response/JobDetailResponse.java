@@ -17,6 +17,8 @@ public class JobDetailResponse {
     private Integer id;
     private String title;
     private String description;
+    private String city;
+    private String district;
     private String address;
     private Integer salaryMin;
     private Integer salaryMax;
@@ -34,7 +36,7 @@ public class JobDetailResponse {
     private String contractTypeName;
     private List<String> jobSkills;
 
-    public JobDetailResponse(Integer id, String title, String description, String address,
+    public JobDetailResponse(Integer id, String title, String description, String city, String district, String address,
                              Integer salaryMin, Integer salaryMax, String jobRequire,
                              String benefits, LocalDate startDate, LocalDate endDate,
                              LocalTime startTime, LocalTime endTime, String companyName,
@@ -43,6 +45,8 @@ public class JobDetailResponse {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.city = city;
+        this.district = district;
         this.address = address;
         this.salaryMin = salaryMin;
         this.salaryMax = salaryMax;

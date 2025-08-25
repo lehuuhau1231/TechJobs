@@ -5,6 +5,8 @@ import com.cloudinary.utils.ObjectUtils;
 import com.lhh.techjobs.dto.request.ApplicationFilterRequest;
 import com.lhh.techjobs.dto.request.ApplicationRequest;
 import com.lhh.techjobs.dto.request.ApplicationStatusRequest;
+import com.lhh.techjobs.dto.request.UpdateStatusApplication;
+import com.lhh.techjobs.dto.response.ApplicationEmployerResponse;
 import com.lhh.techjobs.dto.response.ApplicationFilterResponse;
 import com.lhh.techjobs.dto.response.ApplicationPendingResponse;
 import com.lhh.techjobs.entity.Application;
@@ -88,27 +90,20 @@ public class ApplicationService {
         applicationRepository.save(application);
     }
 
-    public Page<ApplicationPendingResponse> getPendingApplicationsByJobId(Map<String, String> params) {
+    public Page<ApplicationEmployerResponse> getApplicationsByJobIdForEmployer(UpdateStatusApplication request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Employer employer = employerRepository.findByUserEmail(email);
-
-        log.info("Fetching pending applications for employer: {}", employer);
-
         if (employer == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
-        if(params.get("jobId") == null || params.get("jobId").isEmpty()) {
-            throw new RuntimeException("Job ID is required to fetch pending applications.");
-        }
-
         int page = 0;
-        if(params.containsKey("page")) {
-            page = Integer.parseInt(params.get("page")) - 1;
+        if(request.getPage() != null && request.getPage() > 0) {
+            page = request.getPage() - 1;
         }
 
-        int jobId = Integer.parseInt(params.get("jobId"));
-        Pageable pageable = PageRequest.of(page, 10);
-        return applicationRepository.findPendingApplicationsByJobIdAndEmployerId(jobId, Status.PENDING, employer, pageable);
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+
+        return applicationRepository.findApplicationsByJobIdAndEmployer(request.getJobId(), employer, pageable);
     }
 }

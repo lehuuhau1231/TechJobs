@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS application;
 DROP TABLE IF EXISTS foreign_language;
 DROP TABLE IF EXISTS job_skill;
 DROP TABLE IF EXISTS candidate_skill;
+DROP TABLE IF EXISTS bill;
 DROP TABLE IF EXISTS job;
 DROP TABLE IF EXISTS district;
 DROP TABLE IF EXISTS city;
@@ -217,7 +218,7 @@ CREATE TABLE job (
  benefits TEXT NOT NULL,
  status ENUM('PENDING', 'APPROVED','CANCELED') NOT NULL,
  created_date TIMESTAMP NOT NULL,
- posted_date TIMESTAMP NOT NULL,
+ posted_date TIMESTAMP NULL,
  address VARCHAR(200) NOT NULL,
  age_from INT NOT NULL,
  age_to INT NOT NULL,
@@ -246,6 +247,15 @@ INSERT INTO job VALUES
 (2, 'Frontend Developer', 'Develop user interface using React', 800, 1500, 'JavaScript, React, HTML, CSS', 'Đi chơi 1 năm 2 lần', 'CANCELED', NOW(), NOW(), 'Hà Nội', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 40, 1, 1,1),
 (3, 'Full Stack Developer', 'Develop both frontend and backend', 1200, 2500, 'Java, Spring Boot, React, SQL', 'Đi chơi 1 năm 2 lần', 'PENDING', NOW(), NOW(), 'Đà Nẵng', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 3, 54, 1, 1,1);
 
+CREATE TABLE bill (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  created_date TIMESTAMP NOT NULL,
+  status ENUM('UNPAID', 'PAID', 'REFUNDED','CANCELED') NOT NULL,
+  amount INT,
+  job_id INT,
+  FOREIGN KEY (job_id) REFERENCES job(id)
+);
+
 -- 8. Bảng CandidateSkill (nhiều-nhiều Candidate - Skill)
 CREATE TABLE candidate_skill (
  id INT PRIMARY KEY AUTO_INCREMENT,
@@ -257,9 +267,9 @@ CREATE TABLE candidate_skill (
 
 -- 9. Bảng JobSkill (nhiều-nhiều Job - Skill)
 CREATE TABLE job_skill (
-   id INT PRIMARY KEY AUTO_INCREMENT,
    job_id INT,
    skill_id INT,
+   PRIMARY KEY (job_id, skill_id),
    FOREIGN KEY (job_id) REFERENCES job(id) ,
    FOREIGN KEY (skill_id) REFERENCES skill(id) 
 );
@@ -428,15 +438,15 @@ INSERT INTO candidate_skill (id, candidate_id, skill_id) VALUES
 (5, 2, 5); -- Candidate 2 - React
 
 -- 11. Insert JobSkill
-INSERT INTO job_skill (id, job_id, skill_id) VALUES 
-(1, 1, 1), -- Job 1 - Java
-(2, 1, 2), -- Job 1 - Spring Boot
-(3, 1, 3), -- Job 1 - SQL
-(4, 2, 4), -- Job 2 - JavaScript
-(5, 2, 5), -- Job 2 - React
-(6, 3, 1), -- Job 3 - Java
-(7, 3, 2), -- Job 3 - Spring Boot
-(8, 3, 5); -- Job 3 - React
+INSERT INTO job_skill VALUES 
+(1, 1), -- Job 1 - Java
+(1, 2), -- Job 1 - Spring Boot
+(1, 3), -- Job 1 - SQL
+(2, 4), -- Job 2 - JavaScript
+(2, 5), -- Job 2 - React
+(3, 1), -- Job 3 - Java
+(3, 2), -- Job 3 - Spring Boot
+(3, 5); -- Job 3 - React
 
 -- 12. Insert ForeignLanguage
 INSERT INTO foreign_language (id, language_id, level_id, candidate_id) VALUES 

@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface JobRepository extends JpaRepository<Job, Integer> {
     @Query("SELECT new com.lhh.techjobs.dto.response.JobResponse(j.id, " +
@@ -27,8 +28,7 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "JOIN j.employer e " +
             "JOIN e.user u " +
             "LEFT JOIN j.city c " +
-            "LEFT JOIN j.jobSkills js " +
-            "LEFT JOIN js.skill s " +
+            "LEFT JOIN j.skills s " +
             "LEFT JOIN j.jobLevel jl " +
             "LEFT JOIN j.jobType jt " +
             "LEFT JOIN j.contractType ct " +
@@ -49,8 +49,7 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
                                Pageable pageable);
 
     @Query("SELECT s.name FROM Job j " +
-            "JOIN j.jobSkills js " +
-            "JOIN js.skill s " +
+            "JOIN j.skills s " +
             "WHERE j.id = :jobId")
     List<String> findJobSkillsByJobId(@Param("jobId") Integer jobId);
 
@@ -90,4 +89,5 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "JOIN j.employer e " +
             "WHERE j.status = :status AND j.employer = :employer ")
     List<JobTitleResponse> findAllJobTitles(@Param("status") Status status, @Param("employer") Employer employer);
+
 }

@@ -6,8 +6,8 @@ server:
 spring:
   datasource:
     url: "jdbc:mysql://localhost:3306/techjobdb"
-    username: root
-    password: 123456
+    username: ${username}
+    password: ${password}
   jpa:
     hibernate:
       ddl-auto: update
@@ -22,11 +22,25 @@ jwt:
   signerKey: "KMPH22iU4IExFBhtdQhyZoCn2JRkZ/WJeuu26VMZsH5SXXCfOxAVQwDwrDxHov1o"
 
 cloudinary:
-  cloud-name: "dndsrbf9s"
-  api-key: "932944391659178"
-  api-secret: "_UlDjHd_T5WxNV0iZMMN9tGJuy0"
+  cloud-name: ${cloud-name}
+  api-key: ${cloud-api-key}
+  api-secret: ${cloud-api-secret}
   secure: true
 
-address:
-  api-province: "https://tailieu365.com/api/address/province?mode=2"
-  api-district: "https://tailieu365.com/api/address/district"
+vnpay:
+  version: "2.1.0"
+  TmnCode: ${tmn-code}
+  HashSecret: ${hash-secret}
+  payUrl: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+  returnUrl: ${returnUrl}
+  ipnUrl: ${ipnUrl}
+  orderType: "billpayment"
+  locale: "vn"
+
+#mail:
+#  host: "smtp.gmail.com"
+#  port: 587
+#  username: "lehuuhau1231@gmail.com"
+#  password: ${email-app-password}
+#  properties.mail.smtp.auth=true
+#  properties.mail.smtp.starttls.enable=true

@@ -3,6 +3,8 @@ package com.lhh.techjobs.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "city")
 @Getter
@@ -16,6 +18,6 @@ public class City {
     private Integer id;
     private String name;
 
-    @OneToOne(mappedBy = "city")
-    private Job job;
+    @OneToMany(mappedBy = "city")
+    private List<Job> jobs;
 }

@@ -19,8 +19,8 @@ public class Skill {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL)
-    private List<JobSkill> jobSkills;
+    @ManyToMany(mappedBy = "skills")
+    private List<Job> jobs;
 
     @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL)
     private List<CandidateSkill> candidateSkills;

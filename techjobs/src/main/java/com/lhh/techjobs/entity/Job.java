@@ -65,26 +65,26 @@ public class Job {
     @Column(name = "created_date")
     private LocalDateTime createdDate;
     
-    @Column(name = "posted_date")
+    @Column(name = "posted_date", nullable = true)
     private LocalDateTime postedDate;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
     private City city;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "district_id")
     private District district;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_level_id")
     private JobLevel jobLevel;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_type_id")
     private JobType jobType;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contract_type_id")
     private ContractType contractType;
 
@@ -98,6 +98,7 @@ public class Job {
     @OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
     private List<Application> jobApplications;
 
-    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
-    private List<JobSkill> jobSkills;
+    @ManyToMany
+    @JoinTable(name ="job_skill", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
+    private List<Skill> skills;
 }

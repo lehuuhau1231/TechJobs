@@ -3,6 +3,8 @@ package com.lhh.techjobs.controller;
 import com.lhh.techjobs.dto.request.ApplicationRequest;
 import com.lhh.techjobs.dto.request.ApplicationStatusRequest;
 import com.lhh.techjobs.dto.request.ApplicationFilterRequest;
+import com.lhh.techjobs.dto.request.UpdateStatusApplication;
+import com.lhh.techjobs.dto.response.ApplicationEmployerResponse;
 import com.lhh.techjobs.dto.response.ApplicationFilterResponse;
 import com.lhh.techjobs.dto.response.ApplicationPendingResponse;
 import com.lhh.techjobs.dto.response.PageResponse;
@@ -36,7 +38,7 @@ public class ApplicationController {
     @PreAuthorize("hasRole('CANDIDATE')")
     @GetMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<List<ApplicationFilterResponse>> getApplication(ApplicationFilterRequest request) {
+    public ResponseEntity<List<ApplicationFilterResponse>> getApplication(@ModelAttribute ApplicationFilterRequest request) {
         return ResponseEntity.ok(applicationService.applicationFilter(request));
     }
 
@@ -47,16 +49,17 @@ public class ApplicationController {
         applicationService.updateApplicationStatus(request);
     }
 
+
     @PreAuthorize("hasRole('EMPLOYER')")
     @GetMapping("/pending")
-    public ResponseEntity<PageResponse<ApplicationPendingResponse>> getPendingApplicationsByJobId(@RequestParam Map<String, String> params) {
-        var application = applicationService.getPendingApplicationsByJobId(params);
-        var response = PageResponse.<ApplicationPendingResponse>builder()
-                .content(application.getContent())
-                .page(application.getNumber())
-                .size(application.getSize())
-                .totalElements(application.getTotalElements())
-                .totalPages(application.getTotalPages())
+    public ResponseEntity<PageResponse<ApplicationEmployerResponse>> getEmployerApplicationsByJobId(@Valid @ModelAttribute UpdateStatusApplication request) {
+        var applications = applicationService.getApplicationsByJobIdForEmployer(request);
+        var response = PageResponse.<ApplicationEmployerResponse>builder()
+                .content(applications.getContent())
+                .page(applications.getNumber())
+                .size(applications.getSize())
+                .totalElements(applications.getTotalElements())
+                .totalPages(applications.getTotalPages())
                 .build();
         return ResponseEntity.ok(response);
     }

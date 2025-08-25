@@ -53,6 +53,10 @@ export default function LoginPage() {
         });
         if (q.get("next")) {
           navigate(q.get("next"));
+        } else if (res.data.result.role === "CANDIDATE") {
+          navigate("/");
+        } else if (res.data.result.role === "EMPLOYER") {
+          navigate("/create-job");
         } else {
           navigate("/");
         }

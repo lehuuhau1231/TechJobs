@@ -1,5 +1,6 @@
 package com.lhh.techjobs.repository;
 
+import com.lhh.techjobs.dto.response.ApplicationEmployerResponse;
 import com.lhh.techjobs.dto.response.ApplicationFilterResponse;
 import com.lhh.techjobs.dto.response.ApplicationPendingResponse;
 import com.lhh.techjobs.entity.Application;
@@ -16,21 +17,22 @@ import java.util.List;
 
 
 public interface ApplicationRepository extends JpaRepository<Application, Integer> {
-    @Query("SELECT new com.lhh.techjobs.dto.response.ApplicationPendingResponse( a.id, a.appliedDate, a.message, a.status, c.id, c.cv)" +
-            " FROM Application a " +
-            "JOIN a.candidate c " +
-            "JOIN c.user u " +
-            "JOIN a.job j " +
-            "WHERE j.id = :jobId AND a.status = :status AND j.employer = :employer")
-    Page<ApplicationPendingResponse> findPendingApplicationsByJobIdAndEmployerId(
-            @Param("jobId") Integer jobId,
-            @Param("status") Status status,
-            @Param("employer") Employer employer,
-            Pageable pageable);
 
     @Query("SELECT new com.lhh.techjobs.dto.response.ApplicationFilterResponse(a.id, j.id, j.title, a.appliedDate) " +
             "FROM Application a " +
             "JOIN a.job j " +
             "WHERE a.status = :status AND a.candidate = :candidate")
     List<ApplicationFilterResponse> getApplicationByStatus(@Param("status") Status status, @Param("candidate") Candidate candidate);
+
+    @Query("SELECT new com.lhh.techjobs.dto.response.ApplicationEmployerResponse(a.id, a.appliedDate, a.message, c.fullName, u.avatar) " +
+            "FROM Application a " +
+            "JOIN a.candidate c " +
+            "JOIN c.user u " +
+            "JOIN a.job j " +
+            "WHERE j.status = 'APPROVED' AND a.status = 'PENDING' " +
+            "AND j.id = :jobId AND j.employer = :employer")
+    Page<ApplicationEmployerResponse> findApplicationsByJobIdAndEmployer(
+            @Param("jobId") Integer jobId,
+            @Param("employer") Employer employer,
+            Pageable pageable);
 }

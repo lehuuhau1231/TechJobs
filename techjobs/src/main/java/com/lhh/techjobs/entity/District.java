@@ -3,6 +3,8 @@ package com.lhh.techjobs.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "district")
 @Getter
@@ -16,8 +18,8 @@ public class District {
     private Integer id;
     private String name;
 
-    @OneToOne(mappedBy = "district")
-    private Job job;
+    @OneToMany(mappedBy = "district")
+    private List<Job> jobs;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")

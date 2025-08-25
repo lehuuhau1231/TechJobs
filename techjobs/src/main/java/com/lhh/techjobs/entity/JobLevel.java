@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name = "job_level")
 @Getter
@@ -18,6 +20,6 @@ public class JobLevel {
     private Integer id;
     private String name;
 
-    @OneToOne(mappedBy = "jobLevel")
-    private Job job;
+    @OneToMany(mappedBy = "jobLevel")
+    private List<Job> jobs;
 }

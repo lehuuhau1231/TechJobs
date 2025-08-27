@@ -12,6 +12,9 @@ import ApplicationTracking from "./components/Job/ApplicationTracking";
 import { authApis, endpoints } from "./configs/Apis";
 import cookies from "react-cookies";
 import CreateJob from "./components/Job/CreateJob";
+import JobTracking from "./components/Job/JobTracking";
+import ApproveJob from "./components/Employer/ApproveJob";
+import CandidateApply from "./components/Employer/CandidateApply";
 
 function App() {
   const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -66,6 +69,12 @@ function App() {
               ) : user.role === "EMPLOYER" ? (
                 <>
                   <Route path='/create-job' element={<CreateJob />} />
+                  <Route path='/job-tracking' element={<JobTracking />} />
+                  <Route path='/approve-job' element={<ApproveJob />} />
+                  <Route
+                    path='/employer/job/:jobId/candidates'
+                    element={<CandidateApply />}
+                  />
                 </>
               ) : null
             ) : (

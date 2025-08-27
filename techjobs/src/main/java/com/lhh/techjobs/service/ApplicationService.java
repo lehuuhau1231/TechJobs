@@ -5,10 +5,10 @@ import com.cloudinary.utils.ObjectUtils;
 import com.lhh.techjobs.dto.request.ApplicationFilterRequest;
 import com.lhh.techjobs.dto.request.ApplicationRequest;
 import com.lhh.techjobs.dto.request.ApplicationStatusRequest;
-import com.lhh.techjobs.dto.request.UpdateStatusApplication;
+import com.lhh.techjobs.dto.request.PendingStatusApplicationRequest;
 import com.lhh.techjobs.dto.response.ApplicationEmployerResponse;
 import com.lhh.techjobs.dto.response.ApplicationFilterResponse;
-import com.lhh.techjobs.dto.response.ApplicationPendingResponse;
+import com.lhh.techjobs.dto.response.InfoMailResponse;
 import com.lhh.techjobs.entity.Application;
 import com.lhh.techjobs.entity.Candidate;
 import com.lhh.techjobs.entity.Employer;
@@ -30,12 +30,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +48,7 @@ public class ApplicationService {
     Cloudinary cloudinaryClient;
     JobRepository jobRepository;
     EmployerRepository employerRepository;
+    MailService mailService;
     int PAGE_SIZE = 10;
 
     public void addApplication(ApplicationRequest request) {
@@ -87,10 +88,24 @@ public class ApplicationService {
         Application application = applicationRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Application not found with id: " + request.getId()));
         application.setStatus(request.getStatus());
+        InfoMailResponse infoEmail = applicationRepository.findInfoToSendMail(request.getId());
+        String subject = "Thông báo về trạng thái ứng tuyển";
+
+        String message;
+        String link = "http://localhost:3000/job-detail/" + infoEmail.getJobId();
+        if (request.getStatus() == Status.APPROVED) {
+            message = "Chúc mừng! Ứng tuyển của bạn đã được chấp nhận.";
+        } else if (request.getStatus() == Status.CANCELED) {
+            message = "Rất tiếc! Ứng tuyển của bạn đã bị từ chối.";
+        } else {
+            message = "Trạng thái ứng tuyển của bạn đã được cập nhật.";
+        }
+        mailService.sendNotification(infoEmail.getEmail(), subject, message, link);
+//        mailService.sendSimpleEmail();
         applicationRepository.save(application);
     }
 
-    public Page<ApplicationEmployerResponse> getApplicationsByJobIdForEmployer(UpdateStatusApplication request) {
+    public Page<ApplicationEmployerResponse> getApplicationsByJobIdForEmployer(PendingStatusApplicationRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Employer employer = employerRepository.findByUserEmail(email);
         if (employer == null) {

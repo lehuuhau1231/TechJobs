@@ -2,15 +2,14 @@ package com.lhh.techjobs.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
-public class JobTitleResponse {
-    private Integer id;
-    private String title;
-    private LocalDateTime createdDate;
+public class InfoMailResponse {
+    private int jobId;
+    private String email;
 }

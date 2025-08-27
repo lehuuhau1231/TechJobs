@@ -17,6 +17,17 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
       enabled: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: lehuuhau1231@gmail.com
+    password: ${email-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 jwt:
   signerKey: "KMPH22iU4IExFBhtdQhyZoCn2JRkZ/WJeuu26VMZsH5SXXCfOxAVQwDwrDxHov1o"
@@ -37,10 +48,3 @@ vnpay:
   orderType: "billpayment"
   locale: "vn"
 
-#mail:
-#  host: "smtp.gmail.com"
-#  port: 587
-#  username: "lehuuhau1231@gmail.com"
-#  password: ${email-app-password}
-#  properties.mail.smtp.auth=true
-#  properties.mail.smtp.starttls.enable=true

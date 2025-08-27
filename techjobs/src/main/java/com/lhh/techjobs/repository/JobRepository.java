@@ -1,5 +1,6 @@
 package com.lhh.techjobs.repository;
 
+import com.lhh.techjobs.dto.response.JobStatsResponse;
 import com.lhh.techjobs.dto.response.JobTitleResponse;
 import com.lhh.techjobs.entity.Employer;
 import com.lhh.techjobs.entity.Job;
@@ -85,9 +86,17 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "AND (j.status = com.lhh.techjobs.enums.Status.APPROVED)")
     JobDetailResponse findJobDetailById(@Param("jobId") Integer jobId);
 
-    @Query("SELECT new com.lhh.techjobs.dto.response.JobTitleResponse(j.id, j.title) FROM Job j " +
+    @Query("SELECT new com.lhh.techjobs.dto.response.JobTitleResponse(j.id, j.title, j.createdDate) FROM Job j " +
             "JOIN j.employer e " +
             "WHERE j.status = :status AND j.employer = :employer ")
     List<JobTitleResponse> findAllJobTitles(@Param("status") Status status, @Param("employer") Employer employer);
 
+    @Query("SELECT new com.lhh.techjobs.dto.response.JobStatsResponse(j.id, j.title, j.postedDate, COUNT(a)) " +
+            "FROM Job j " +
+            "JOIN j.jobApplications a " +
+            "WHERE j.status = com.lhh.techjobs.enums.Status.APPROVED " +
+            "AND j.employer = :employer " +
+            "AND a.status = com.lhh.techjobs.enums.Status.PENDING " +
+            "GROUP BY j.id, j.title, j.postedDate")
+    List<JobStatsResponse> findApprovedJobsWithApplicationCount(@Param("employer") Employer employer);
 }

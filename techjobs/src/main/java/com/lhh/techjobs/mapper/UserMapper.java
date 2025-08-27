@@ -13,6 +13,7 @@ public interface UserMapper {
     @Mapping(target = "candidate", ignore = true)
     @Mapping(target = "employer", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "avatar", ignore = true)
     User toUserForCandidate(CandidateCreationRequest request);
 
     @Mapping(target = "role", constant = "EMPLOYER")
@@ -20,5 +21,6 @@ public interface UserMapper {
     @Mapping(target = "candidate", ignore = true)
     @Mapping(target = "employer", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "avatar", ignore = true)
     User toUserForEmployer(EmployerCreationRequest request);
 }

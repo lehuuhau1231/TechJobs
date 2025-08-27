@@ -3,6 +3,7 @@ package com.lhh.techjobs.repository;
 import com.lhh.techjobs.dto.response.ApplicationEmployerResponse;
 import com.lhh.techjobs.dto.response.ApplicationFilterResponse;
 import com.lhh.techjobs.dto.response.ApplicationPendingResponse;
+import com.lhh.techjobs.dto.response.InfoMailResponse;
 import com.lhh.techjobs.entity.Application;
 import com.lhh.techjobs.entity.Candidate;
 import com.lhh.techjobs.entity.Employer;
@@ -29,10 +30,18 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
             "JOIN a.candidate c " +
             "JOIN c.user u " +
             "JOIN a.job j " +
-            "WHERE j.status = 'APPROVED' AND a.status = 'PENDING' " +
+            "WHERE j.status = com.lhh.techjobs.enums.Status.APPROVED AND a.status = com.lhh.techjobs.enums.Status.PENDING " +
             "AND j.id = :jobId AND j.employer = :employer")
     Page<ApplicationEmployerResponse> findApplicationsByJobIdAndEmployer(
             @Param("jobId") Integer jobId,
             @Param("employer") Employer employer,
             Pageable pageable);
+
+    @Query("SELECT new com.lhh.techjobs.dto.response.InfoMailResponse(j.id, u.email) " +
+            "FROM Application a " +
+            "JOIN a.candidate c " +
+            "JOIN c.user u " +
+            "JOIN a.job j " +
+            "WHERE a.id = :id")
+    InfoMailResponse findInfoToSendMail(@Param("id") Integer id);
 }

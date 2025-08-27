@@ -9,10 +9,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class UpdateStatusApplication {
-    @NotNull(message = "Status không được để trống")
-    private Status status;
-
+public class PendingStatusApplicationRequest {
     private Integer page;
 
     @NotNull(message = "Job ID không được để trống")

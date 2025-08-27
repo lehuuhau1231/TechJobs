@@ -3,10 +3,9 @@ package com.lhh.techjobs.controller;
 import com.lhh.techjobs.dto.request.ApplicationRequest;
 import com.lhh.techjobs.dto.request.ApplicationStatusRequest;
 import com.lhh.techjobs.dto.request.ApplicationFilterRequest;
-import com.lhh.techjobs.dto.request.UpdateStatusApplication;
+import com.lhh.techjobs.dto.request.PendingStatusApplicationRequest;
 import com.lhh.techjobs.dto.response.ApplicationEmployerResponse;
 import com.lhh.techjobs.dto.response.ApplicationFilterResponse;
-import com.lhh.techjobs.dto.response.ApplicationPendingResponse;
 import com.lhh.techjobs.dto.response.PageResponse;
 import com.lhh.techjobs.service.ApplicationService;
 import jakarta.validation.Valid;
@@ -19,7 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/application")
@@ -52,7 +50,7 @@ public class ApplicationController {
 
     @PreAuthorize("hasRole('EMPLOYER')")
     @GetMapping("/pending")
-    public ResponseEntity<PageResponse<ApplicationEmployerResponse>> getEmployerApplicationsByJobId(@Valid @ModelAttribute UpdateStatusApplication request) {
+    public ResponseEntity<PageResponse<ApplicationEmployerResponse>> getEmployerApplicationsByJobId(@Valid @ModelAttribute PendingStatusApplicationRequest request) {
         var applications = applicationService.getApplicationsByJobIdForEmployer(request);
         var response = PageResponse.<ApplicationEmployerResponse>builder()
                 .content(applications.getContent())

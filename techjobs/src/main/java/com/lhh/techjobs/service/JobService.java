@@ -3,6 +3,7 @@ package com.lhh.techjobs.service;
 import com.lhh.techjobs.dto.request.JobCreateRequest;
 import com.lhh.techjobs.dto.response.JobDetailResponse;
 import com.lhh.techjobs.dto.response.JobResponse;
+import com.lhh.techjobs.dto.response.JobStatsResponse;
 import com.lhh.techjobs.dto.response.JobTitleResponse;
 import com.lhh.techjobs.entity.*;
 import com.lhh.techjobs.enums.Status;
@@ -78,13 +79,13 @@ public class JobService {
         return jobDetail;
     }
 
-    public List<JobTitleResponse> getTitleJob() {
+    public List<JobTitleResponse> getTitleJob(Status status) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Employer employer = employerRepository.findByUserEmail(email);
         if (employer == null) {
             throw new RuntimeException("Employer not found for email: " + email);
         }
-        return this.jobRepository.findAllJobTitles(Status.APPROVED, employer);
+        return this.jobRepository.findAllJobTitles(status, employer);
     }
 
     @Transactional
@@ -170,5 +171,11 @@ public class JobService {
             log.error("Lỗi khi tạo job: {}", e.getMessage(), e);
             throw e;
         }
+    }
+
+    public List<JobStatsResponse> getApprovedJobsWithApplicationCount() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Employer employer = employerRepository.findByUserEmail(email);
+        return jobRepository.findApprovedJobsWithApplicationCount(employer);
     }
 }

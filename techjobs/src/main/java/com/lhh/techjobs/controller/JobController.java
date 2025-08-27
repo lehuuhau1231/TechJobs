@@ -2,6 +2,7 @@ package com.lhh.techjobs.controller;
 
 import com.lhh.techjobs.dto.request.JobCreateRequest;
 import com.lhh.techjobs.dto.response.*;
+import com.lhh.techjobs.enums.Status;
 import com.lhh.techjobs.service.JobService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -45,9 +46,9 @@ public class JobController {
     }
 
     @PreAuthorize("hasRole('EMPLOYER')")
-    @GetMapping("/job-title")
-    public ResponseEntity<List<JobTitleResponse>> getTitleJobApproved() {
-        return ResponseEntity.ok(jobService.getTitleJob());
+    @GetMapping("/job-title/{status}")
+    public ResponseEntity<List<JobTitleResponse>> getTitleJob(@PathVariable Status status) {
+        return ResponseEntity.ok(jobService.getTitleJob(status));
     }
 
     @PreAuthorize("hasRole('EMPLOYER')")
@@ -55,5 +56,12 @@ public class JobController {
     public ResponseEntity<Map<String, Integer>> createJob(@Valid @RequestBody JobCreateRequest request) {
         int jobId = jobService.createJob(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("jobId", jobId));
+    }
+
+    @PreAuthorize("hasRole('EMPLOYER')")
+    @GetMapping("/application-count")
+    public ResponseEntity<List<JobStatsResponse>> getJobsWithApplicationCount() {
+        List<JobStatsResponse> jobStats = jobService.getApprovedJobsWithApplicationCount();
+        return ResponseEntity.ok(jobStats);
     }
 }

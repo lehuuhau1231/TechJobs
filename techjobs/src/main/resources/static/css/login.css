@@ -1,0 +1,58 @@
+
+/* login.css */
+body {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    min-height: 100vh; /* Đảm bảo body chiếm toàn bộ chiều cao viewport */
+    display: flex; /* Sử dụng Flexbox cho body */
+    align-items: center; /* Căn giữa các phần tử con theo chiều dọc */
+    justify-content: center; /* Căn giữa các phần tử con theo chiều ngang */
+}
+
+.login-card {
+    background: #f8f9fa; /* Màu nền của login card */
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Các style khác của bạn giữ nguyên */
+.login-card h2 {
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.form-control {
+    border-radius: 20px;
+    padding: 0.75rem 1rem;
+}
+
+.btn-login {
+    background-color: #2575fc;
+    border: none;
+    border-radius: 20px;
+    padding: 0.75rem 2rem;
+    color: #fff;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #1a5bb8;
+}
+
+.login-footer {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+.form-control {
+    border-radius: 20px;
+    padding: 0.75rem 1rem;
+    /* Có thể giữ hoặc bỏ width ở đây tùy thuộc vào bạn */
+}
+
+/* Style riêng cho input đăng nhập */
+.login-input {
+    width: 100%; /* Đặt chiều rộng mong muốn cho input đăng nhập */
+}

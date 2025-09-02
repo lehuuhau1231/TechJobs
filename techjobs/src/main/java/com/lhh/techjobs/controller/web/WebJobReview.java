@@ -1,6 +1,5 @@
 package com.lhh.techjobs.controller.web;
 
-import com.lhh.techjobs.repository.BillRepository;
 import com.lhh.techjobs.service.BillService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -11,15 +10,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE,  makeFinal = true)
 @Slf4j
-public class WebHomeController {
+public class WebJobReview {
     BillService billService;
-    @GetMapping("/")
-    public String home(Model model) {
-        model.addAttribute("years", billService.getYear());
-        model.addAttribute("countTotalAmount", billService.getTotalAmount());
-        return "index";
+
+    @GetMapping("/job-review")
+    public String jobReview(Model model) {
+        model.addAttribute("bill", billService.getBillPending());
+        return "jobReview";
     }
 }

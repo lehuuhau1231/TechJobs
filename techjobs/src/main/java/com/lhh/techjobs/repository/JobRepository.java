@@ -14,7 +14,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface JobRepository extends JpaRepository<Job, Integer> {
     @Query("SELECT new com.lhh.techjobs.dto.response.JobResponse(j.id, " +
@@ -55,6 +54,7 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
     List<String> findJobSkillsByJobId(@Param("jobId") Integer jobId);
 
     @Query("SELECT new com.lhh.techjobs.dto.response.JobDetailResponse(j.id, " +
+            "j.status, " +
             "j.title, " +
             "j.description, " +
             "c.name, " +
@@ -82,14 +82,17 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "LEFT JOIN j.jobLevel jl " +
             "LEFT JOIN j.jobType jt " +
             "LEFT JOIN j.contractType ct " +
-            "WHERE (j.id = :jobId) " +
-            "AND (j.status = com.lhh.techjobs.enums.Status.APPROVED)")
+            "WHERE (j.id = :jobId)")
     JobDetailResponse findJobDetailById(@Param("jobId") Integer jobId);
 
     @Query("SELECT new com.lhh.techjobs.dto.response.JobTitleResponse(j.id, j.title, j.createdDate) FROM Job j " +
             "JOIN j.employer e " +
             "WHERE j.status = :status AND j.employer = :employer ")
     List<JobTitleResponse> findAllJobTitles(@Param("status") Status status, @Param("employer") Employer employer);
+
+    @Query("SELECT new com.lhh.techjobs.dto.response.JobTitleResponse(j.id, j.title, j.createdDate) FROM Job j " +
+            "WHERE j.status = :status ")
+    List<JobTitleResponse> findAllJobTitles(@Param("status") Status status);
 
     @Query("SELECT new com.lhh.techjobs.dto.response.JobStatsResponse(j.id, j.title, j.postedDate, COUNT(a)) " +
             "FROM Job j " +

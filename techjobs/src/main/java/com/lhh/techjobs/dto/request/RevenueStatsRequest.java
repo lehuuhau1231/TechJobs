@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class RevenueStats {
+public class RevenueStatsRequest {
     @NotNull(message = "Giai đoạn không được để trống")
     private StatsPeriod period;
     private Integer year;

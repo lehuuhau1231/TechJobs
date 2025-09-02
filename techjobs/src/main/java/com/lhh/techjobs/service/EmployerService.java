@@ -3,6 +3,7 @@ package com.lhh.techjobs.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.lhh.techjobs.dto.request.EmployerCreationRequest;
+import com.lhh.techjobs.dto.response.PendingEmployerResponse;
 import com.lhh.techjobs.entity.Candidate;
 import com.lhh.techjobs.entity.Employer;
 import com.lhh.techjobs.entity.User;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -68,4 +70,10 @@ public class EmployerService {
         employer.setStatus(Status.PENDING);
         employerRepository.save(employer);
     }
+
+    @Transactional(readOnly = true)
+    public List<PendingEmployerResponse> getPendingEmployers() {
+        return employerRepository.findByStatus(Status.PENDING);
+    }
+
 }

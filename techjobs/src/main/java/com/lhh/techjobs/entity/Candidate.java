@@ -30,6 +30,10 @@ public class Candidate {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToOne
+    @JoinColumn(name = "cv_profile_id")
+    private CvProfile cvProfile;
+
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL)
     private List<ForeignLanguage> candidateForeignLanguages;
 

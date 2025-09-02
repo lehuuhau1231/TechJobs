@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechJobs - Xét duyệt công việc</title>
+    <th:block th:replace="base :: resource"></th:block>
+    <style>
+        .job-review-card {
+            transition: transform 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .job-review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .job-title {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .bill-info {
+            color: #7f8c8d;
+        }
+        .amount {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .date-info {
+            font-size: 0.9rem;
+            color: #95a5a6;
+        }
+        .action-button {
+            width: 120px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <th:block th:replace="base :: header"></th:block>
+
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="fw-bold">Xét duyệt công việc</h2>
+                <p class="text-muted">Danh sách các công việc cần xét duyệt thanh toán</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <!-- Thông báo khi không có đơn hàng -->
+                <div th:if="${#lists.isEmpty(bill)}" class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i> Không có đơn hàng nào cần xét duyệt
+                </div>
+
+                <!-- Danh sách đơn hàng -->
+                <div th:unless="${#lists.isEmpty(bill)}" class="row g-3">
+                    <div th:each="item : ${bill}" class="col-md-6 col-lg-6">
+                        <div th:text="${item.billId}"></div>
+                        <div class="card job-review-card h-100">
+                            <div class="card-header bg-white">
+                                <span class="badge bg-warning">Chờ xét duyệt</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title job-title" th:text="${'Tên công ty: ' + item.companyName}"></h5>
+                                <h6 class="card-title job-title" th:text="${'Tên công việc: ' + item.jobTitle}"></h6>
+                                <p class="card-text">
+                                    <span>Số tiền thanh toán: </span>
+                                    <span class="amount" th:text="${#numbers.formatDecimal(item.amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                                </p>
+                                <p class="card-text date-info">
+                                    <i class="bi bi-clock me-1"></i>
+                                    <span th:text="${'Ngày tạo đơn: ' + #temporals.format(item.createdDate, 'dd/MM/yyyy HH:mm')}"></span>
+                                </p>
+                            </div>
+                            <div class="card-footer bg-white d-flex justify-content-between">
+                                <button class="btn btn-success action-button"
+                                        th:onclick="'approveJob(' + ${item.billId} + ')'">
+                                    <i class="bi bi-check-circle me-1"></i> Duyệt
+                                </button>
+                                <button class="btn btn-danger action-button"
+                                        th:onclick="'rejectJob(' + ${item.billId} + ')'">
+                                    <i class="bi bi-x-circle me-1"></i> Từ chối
+                                </button>
+                                    <a th:href="@{'http://localhost:3000/job-detail/' + ${item.jobId}}"
+                                       target="_blank"
+                                       class="btn btn-outline-secondary action-button">
+                                        Xem chi tiết
+                                    </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal xác nhận -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalTitle">Xác nhận</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="confirmModalBody">
+                    Bạn có chắc chắn muốn thực hiện hành động này?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="confirmButton">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedBillId = null;
+        let actionType = '';
+
+        function approveJob(billId) {
+            selectedBillId = billId;
+            actionType = 'approve';
+            document.getElementById('confirmModalTitle').innerText = 'Xác nhận duyệt';
+            document.getElementById('confirmModalBody').innerText = 'Bạn có chắc chắn muốn duyệt đơn hàng này?';
+            document.getElementById('confirmButton').className = 'btn btn-success';
+            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            modal.show();
+        }
+
+        function rejectJob(billId) {
+            selectedBillId = billId;
+            actionType = 'reject';
+            document.getElementById('confirmModalTitle').innerText = 'Xác nhận từ chối';
+            document.getElementById('confirmModalBody').innerText = 'Bạn có chắc chắn muốn từ chối đơn hàng này?';
+            document.getElementById('confirmButton').className = 'btn btn-danger';
+            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+            modal.show();
+        }
+
+        document.getElementById('confirmButton').addEventListener('click', function() {
+            if (actionType === 'approve') {
+                // Gửi yêu cầu duyệt
+                fetch(`/techJobs/api/bills/${selectedBillId}/approve`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
+                    }
+                });
+            } else if (actionType === 'reject') {
+                // Gửi yêu cầu từ chối
+                fetch(`/techJobs/api/bills/${selectedBillId}/reject`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

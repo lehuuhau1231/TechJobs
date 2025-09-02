@@ -88,6 +88,10 @@ public class JobService {
         return this.jobRepository.findAllJobTitles(status, employer);
     }
 
+    public List<JobTitleResponse> getTitleJob() {
+        return this.jobRepository.findAllJobTitles(Status.PENDING);
+    }
+
     @Transactional
     public int createJob(JobCreateRequest request) {
         log.info("Bắt đầu tạo job mới với request: {}", request);

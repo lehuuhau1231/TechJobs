@@ -238,6 +238,7 @@ const JobDetail = () => {
                 <Button
                   className='apply-btn mb-2 w-100 button'
                   onClick={handleApplyClick}
+                  disabled={job.status !== "APPROVED"}
                 >
                   Ứng tuyển ngay
                 </Button>
@@ -407,6 +408,7 @@ const JobDetail = () => {
                 <Button
                   className='apply-btn w-100 mt-2 button'
                   onClick={handleApplyClick}
+                  disabled={job.status !== "APPROVED"}
                 >
                   Ứng tuyển ngay
                 </Button>

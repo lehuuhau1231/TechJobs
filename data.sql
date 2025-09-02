@@ -10,10 +10,11 @@ DROP TABLE IF EXISTS district;
 DROP TABLE IF EXISTS city;
 DROP TABLE IF EXISTS job_level;
 DROP TABLE IF EXISTS job_type;
+DROP TABLE IF EXISTS candidate;
+DROP TABLE IF EXISTS cv_profile;
 DROP TABLE IF EXISTS contract_type;
 DROP TABLE IF EXISTS company_image;
 DROP TABLE IF EXISTS employer;
-DROP TABLE IF EXISTS candidate;
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS skill;
 DROP TABLE IF EXISTS language;
@@ -55,7 +56,19 @@ INSERT INTO user VALUES
 (1, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate1@email.com', '0123456789','phường 13', 'Quận 1', 'Ho Chi Minh','CANDIDATE'),
 (2, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate2@email.com', '0123456790','phường 15', 'Quận 5', 'Ho Chi Minh','CANDIDATE'),
 (3, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'employer1@email.com', '0987654321','phường 13', 'Hanoi', 'Cau Giay','EMPLOYER'),
-(4, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'admin@email.com', '0987654322','phường 13', 'District 3', 'Cau Giay','ADMIN');
+(4, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'employer2@email.com', '0987654391','phường 13', 'Hanoi', 'Cau Giay','EMPLOYER'),
+(5, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'admin@email.com', '0987654322','phường 13', 'District 3', 'Cau Giay','ADMIN');
+
+
+CREATE TABLE cv_profile (
+   id INT PRIMARY KEY AUTO_INCREMENT,
+   skills TEXT,
+   education TEXT,
+   experience TEXT,
+   preferred_location TEXT,
+   preferred_salary TEXT,
+   raw_text TEXT
+);
 
 -- 5. Bảng Candidate
 CREATE TABLE candidate (
@@ -65,13 +78,16 @@ CREATE TABLE candidate (
    birth_date DATE,
    cv VARCHAR(255),
    user_id INT UNIQUE,
-   CONSTRAINT fk_candidate_user FOREIGN KEY (user_id) REFERENCES user(id) 
+   cv_profile_id INT UNIQUE,
+   CONSTRAINT fk_candidate_user FOREIGN KEY (user_id) REFERENCES user(id),
+   FOREIGN KEY (cv_profile_id) REFERENCES cv_profile(id) 
 );
 
 -- 7. Insert Candidate
 INSERT INTO candidate VALUES 
-(1, 'Le Huu Hau', 'I am a Java developer with 3 years of experience', '1995-01-01', 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1755098353/v8zoo3pariinuwrmrvfv.pdf', 1),
-(2, 'Dang Van Binh', 'I am a frontend developer passionate about React', '1995-01-01', null, 2);
+(1, 'Le Huu Hau', 'I am a Java developer with 3 years of experience', '1995-01-01', 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1755098353/v8zoo3pariinuwrmrvfv.pdf', 1, null),
+(2, 'Dang Van Binh', 'I am a frontend developer passionate about React', '1995-01-01', null, 2, null);
+
 
 -- 6. Bảng Employer
 CREATE TABLE employer (
@@ -85,7 +101,8 @@ CREATE TABLE employer (
 
 -- 8. Insert Employer
 INSERT INTO employer VALUES 
-(1, 'Cong ty ABC', 'AB198293CB', 'APPROVED', 3);
+(1, 'Cong ty ABC', 'AB198293CB', 'APPROVED', 3),
+(2, 'Cong ty X', 'AB198293CB', 'APPROVED', 4);
 
 CREATE TABLE company_image (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -250,8 +267,11 @@ INSERT INTO job VALUES
 CREATE TABLE bill (
   id INT PRIMARY KEY AUTO_INCREMENT,
   created_date TIMESTAMP NOT NULL,
-  status ENUM('UNPAID', 'PAID', 'REFUNDED','CANCELED') NOT NULL,
+  status ENUM('UNPAID', 'PAID', 'REFUNDED', 'PENDING','CANCELED') NOT NULL,
   amount INT,
+  txn_ref VARCHAR(255),
+  transaction_no VARCHAR(255),
+  transaction_date TIMESTAMP,
   job_id INT,
   FOREIGN KEY (job_id) REFERENCES job(id)
 );

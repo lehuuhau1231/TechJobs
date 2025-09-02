@@ -286,24 +286,19 @@ const CreateJob = () => {
       try {
         setLoading(true);
         const queryString = window.location.search;
-        let url = `${endpoints.return_payment}${queryString}`;
+        const billId = cookies.load("billId");
+        let url = `${endpoints.return_payment}${queryString}&billId=${billId}`;
         console.log("getUrl:", url);
         const response = await authApis(token).get(url);
-
+        console.log("response: ", response);
         if (response.data.status === "success") {
-          const billId = cookies.load("billId");
-          const billUrl = `${endpoints.bill}/${billId}`;
-          let paymentStatusResponse = await authApis(token).patch(billUrl);
-
-          if (paymentStatusResponse.status === 200) {
-            cookies.remove("billId");
-            setAlertSuccess(true);
-            window.history.replaceState(
-              {},
-              document.title,
-              window.location.pathname
-            );
-          }
+          cookies.remove("billId");
+          setAlertSuccess(true);
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
         }
       } catch (error) {
         console.log(error);
@@ -314,36 +309,66 @@ const CreateJob = () => {
     }
   }, [token]);
 
+  // const handlePayment = async () => {
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
+  //     console.log("formData:", formData);
+  //     const jobResponse = await authApis(token).post(endpoints.job, formData);
+
+  //     if (jobResponse.status !== 201 && jobResponse.status !== 200) {
+  //       setError("Có lỗi khi tạo công việc. Vui lòng thử lại.");
+  //       setLoading(false);
+  //       return;
+  //     } else {
+  //       const jobId = jobResponse.data.jobId;
+  //       const billResponse = await authApis(token).post(endpoints.bill, {
+  //         jobId: jobId,
+  //         amount: amount,
+  //       });
+
+  //       if (billResponse.status === 201 || billResponse.status === 200) {
+  //         cookies.save("billId", billResponse.data.id);
+  //         const response = await authApis(token).post(
+  //           endpoints.create_payment,
+  //           {
+  //             amount: billResponse.data.amount,
+  //             billId: billResponse.data.id,
+  //           }
+  //         );
+  //         console.log("paymentUrl:", response.data.paymentUrl);
+  //         window.location.href = response.data.paymentUrl;
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     setError("Có lỗi khi tạo đơn hàng hoặc thanh toán");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handlePayment = async () => {
     try {
       setLoading(true);
       setError(null);
       console.log("formData:", formData);
-      const jobResponse = await authApis(token).post(endpoints.job, formData);
 
-      if (jobResponse.status !== 201 && jobResponse.status !== 200) {
-        setError("Có lỗi khi tạo công việc. Vui lòng thử lại.");
-        setLoading(false);
-        return;
-      } else {
-        const jobId = jobResponse.data.jobId;
-        const billResponse = await authApis(token).post(endpoints.bill, {
-          jobId: jobId,
-          amount: amount,
+      setError("Có lỗi khi tạo công việc. Vui lòng thử lại.");
+      setLoading(false);
+      const billResponse = await authApis(token).post(endpoints.bill, {
+        jobId: 1,
+        amount: 1000000,
+      });
+
+      if (billResponse.status === 201 || billResponse.status === 200) {
+        cookies.save("billId", billResponse.data.id);
+        const response = await authApis(token).post(endpoints.create_payment, {
+          amount: billResponse.data.amount,
+          billId: 78,
         });
-
-        if (billResponse.status === 201 || billResponse.status === 200) {
-          cookies.save("billId", billResponse.data.id);
-          const response = await authApis(token).post(
-            endpoints.create_payment,
-            {
-              amount: billResponse.data.amount,
-              billId: billResponse.data.id,
-            }
-          );
-          console.log("paymentUrl:", response.data.paymentUrl);
-          window.location.href = response.data.paymentUrl;
-        }
+        console.log("paymentUrl:", response.data.paymentUrl);
+        window.location.href = response.data.paymentUrl;
       }
     } catch (error) {
       console.log(error);

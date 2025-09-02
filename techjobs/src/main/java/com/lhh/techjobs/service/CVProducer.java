@@ -24,14 +24,22 @@ import java.util.Map;
 public class CVProducer {
     private final RedisTemplate<String, Object> redisTemplate;
     private static final String CV_QUEUE = "cvQueue";
-    Cloudinary cloudinaryClient;
     CandidateRepository candidateRepository;
+    CloudinaryService cloudinaryService;
+    CVConsumer cvConsumer;
 
-    public void queueCVFile(MultipartFile file) throws IOException {
+    public String queueCVFile(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             throw new AppException(ErrorCode.FILE_INVALID);
         }
-        updateCandidateCV(file);
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Candidate candidate = candidateRepository.findByUserEmail(email);
+
+        String fileUrl = cloudinaryService.uploadFile(file);
+        candidate.setCv(fileUrl);
+        candidateRepository.save(candidate);
+
         Map<String, Object> payload = new HashMap<>();
         payload.put("fileName", file.getOriginalFilename());
         payload.put("content", file.getBytes());
@@ -39,22 +47,8 @@ public class CVProducer {
         //còn nếu ban đầu là String thì không cần chuển về byte[]
         redisTemplate.opsForList().rightPush(CV_QUEUE, payload);
         //thêm phần tử vào cuối FIFO, leftPop sẽ lấy phần tử đầu tiên
-    }
 
-    private void updateCandidateCV(MultipartFile cvFile) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Candidate candidate = candidateRepository.findByUserEmail(email);
-        if (candidate != null && cvFile != null && !cvFile.isEmpty()) {
-            try {
-                Map uploadResult = cloudinaryClient.uploader().upload(cvFile.getBytes(),
-                        ObjectUtils.asMap("resource_type", "auto"));
-                candidate.setCv(uploadResult.get("secure_url").toString());
-                candidateRepository.save(candidate);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to upload CV file", e);
-            }
-        } else {
-            throw new AppException(ErrorCode.FILE_INVALID);
-        }
+        cvConsumer.processQueue(candidate);
+        return fileUrl;
     }
 }

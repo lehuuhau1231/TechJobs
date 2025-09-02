@@ -1,10 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Email Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f6f6;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-$END$
+<div class="container">
+    <h2>Xin chào <span th:text="${username}">User</span>,</h2>
+    <p>Bạn có một thông báo mới trong hệ thống.</p>
+    <p>Nội dung: <b th:text="${message}">Nội dung thông báo</b></p>
+    <a class="btn" th:href="${link}">Xem chi tiết</a>
+    <p style="margin-top: 20px; font-size: 12px; color: #777;">Đây là email tự động, vui lòng không trả lời.</p>
+</div>
 </body>
 </html>

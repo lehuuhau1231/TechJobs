@@ -15,6 +15,7 @@ import CreateJob from "./components/Job/CreateJob";
 import JobTracking from "./components/Job/JobTracking";
 import ApproveJob from "./components/Employer/ApproveJob";
 import CandidateApply from "./components/Employer/CandidateApply";
+import Profile from "./components/Candidate/Profile";
 
 function App() {
   const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -65,6 +66,7 @@ function App() {
                     element={<ApplicationTracking />}
                   />
                   <Route path='/job-detail/:id' element={<JobDetail />} />
+                  <Route path='/profile' element={<Profile />} />
                 </>
               ) : user.role === "EMPLOYER" ? (
                 <>
@@ -77,9 +79,7 @@ function App() {
                   />
                 </>
               ) : null
-            ) : (
-              <></>
-            )}
+            ) : null}
           </Routes>
         </BrowserRouter>
       </MyUserContext.Provider>

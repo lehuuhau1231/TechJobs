@@ -27,6 +27,15 @@ public class Bill {
     @Column(name = "amount")
     private Integer amount;
 
+    @Column(name = "txn_ref")
+    private String txnRef;
+
+    @Column(name = "transaction_no")
+    private String transactionNo;
+
+    @Column(name = "transaction_date")
+    private String transactionDate;
+
     @OneToOne
     @JoinColumn(name = "job_id")
     private Job job;

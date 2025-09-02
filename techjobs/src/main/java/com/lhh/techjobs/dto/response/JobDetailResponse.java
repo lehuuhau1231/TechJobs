@@ -1,5 +1,6 @@
 package com.lhh.techjobs.dto.response;
 
+import com.lhh.techjobs.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class JobDetailResponse {
     private Integer id;
+    private Status status;
     private String title;
     private String description;
     private String city;
@@ -36,13 +38,14 @@ public class JobDetailResponse {
     private String contractTypeName;
     private List<String> jobSkills;
 
-    public JobDetailResponse(Integer id, String title, String description, String city, String district, String address,
+    public JobDetailResponse(Integer id, Status status, String title, String description, String city, String district, String address,
                              Integer salaryMin, Integer salaryMax, String jobRequire,
                              String benefits, LocalDate startDate, LocalDate endDate,
                              LocalTime startTime, LocalTime endTime, String companyName,
                              String avatar, String cityName, String jobLevelName,
                              String jobTypeName, String contractTypeName) {
         this.id = id;
+        this.status = status;
         this.title = title;
         this.description = description;
         this.city = city;

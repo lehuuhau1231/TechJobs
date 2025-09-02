@@ -27,6 +27,7 @@ import java.util.Map;
 @Slf4j
 public class PaymentController {
     private final VNPayService vnPayService;
+    private final BillService billService;
     @Value("${vnpay.HashSecret}")
     private String hashSecret;
 
@@ -36,20 +37,20 @@ public class PaymentController {
         String paymentUrl = vnPayService.createPaymentUrl(request);
         Map<String, String> response = new HashMap<>();
         response.put("paymentUrl", paymentUrl);
-        log.info("Payment URL: {}", paymentUrl);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/vnpay-return")
     public ResponseEntity<Map<String, String>> vnpayReturn(@RequestParam Map<String, String> vnp_Params) throws Exception {
         Map<String, String> response = new HashMap<>();
-
         try {
 
             String secureHash = vnp_Params.get("vnp_SecureHash");
             String responseCode = vnp_Params.get("vnp_ResponseCode");
             String txnRef = vnp_Params.get("vnp_TxnRef");
-            String vnpAmount = vnp_Params.get("vnp_Amount");
+            String transactionNo = vnp_Params.get("vnp_TransactionNo");
+            String billId = vnp_Params.get("billId");
+            String transactionDate = vnp_Params.get("vnp_PayDate");
 
 
             System.out.println("--- VNPAY RETURN LOG ---");
@@ -57,6 +58,9 @@ public class PaymentController {
             System.out.println("vnp_SecureHash: " + secureHash);
             System.out.println("vnp_ResponseCode: " + responseCode);
             System.out.println("vnp_TxnRef: " + txnRef);
+            System.out.println("vnp_TransacitonNo: " + transactionNo);
+            System.out.println("vnp_billId: " + billId);
+            System.out.println("vnp_PayDate: " + transactionDate);
             System.out.println("-------------------------");
 
             if (secureHash == null || responseCode == null || txnRef == null) {
@@ -69,14 +73,17 @@ public class PaymentController {
 
             Map<String, String> fieldsForVerification = new HashMap<>(vnp_Params);
             fieldsForVerification.remove("vnp_SecureHash");
+            fieldsForVerification.remove("billId");
 
 
             String newSecureHash = VNPayService.hashAllFields(fieldsForVerification, hashSecret);
+            log.info("New Secure Hash: {}", newSecureHash);
 
             if (newSecureHash.equals(secureHash)) {
 
                 if ("00".equals(responseCode)) {
                     try {
+                        billService.updatePaymentBill(Integer.parseInt(billId), txnRef, transactionNo, transactionDate);
                         response.put("status", "success");
                     } catch (NumberFormatException e) {
                         System.err.println("Lỗi: Mã đơn hàng không hợp lệ. " + e.getMessage());

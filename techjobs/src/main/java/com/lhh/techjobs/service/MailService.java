@@ -22,7 +22,7 @@ public class MailService {
             context.setVariable("message", message);
             context.setVariable("link", link);
 
-            String htmlContent = templateEngine.process("mail/notification", context);
+            String htmlContent = templateEngine.process("notification", context);
 
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "UTF-8");

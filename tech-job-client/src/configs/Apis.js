@@ -20,9 +20,11 @@ export const endpoints = {
   application_pending: "/api/application/pending",
   application_status: "/api/application/status",
   user: "/api/user",
+  profile: "/api/candidate/profile",
+  upload_cv: "/api/candidate/cv",
   create_payment: "/api/create-payment",
   return_payment: "/api/vnpay-return",
-  bill: "/api/bill",
+  bill: "/api/bills",
 };
 
 export const authApis = (token) =>

@@ -9,7 +9,8 @@ import com.cloudinary.utils.ObjectUtils;
 
 
 @Configuration
-public class Cloudinary {
+@Slf4j
+public class CloudinaryConfig {
     @Value("${cloudinary.cloud-name}")
     private String cloudName;
     
@@ -21,7 +22,6 @@ public class Cloudinary {
 
     @Value("${cloudinary.secure}")
     private boolean secure;
-    
     @Bean
     public com.cloudinary.Cloudinary cloudinaryClient() {
         return new com.cloudinary.Cloudinary(ObjectUtils.asMap(

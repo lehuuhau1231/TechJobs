@@ -28,9 +28,15 @@ spring:
           auth: true
           starttls:
             enable: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+
 
 jwt:
-  signerKey: "KMPH22iU4IExFBhtdQhyZoCn2JRkZ/WJeuu26VMZsH5SXXCfOxAVQwDwrDxHov1o"
+  signerKey: ${signerKey}
 
 cloudinary:
   cloud-name: ${cloud-name}
@@ -47,4 +53,12 @@ vnpay:
   ipnUrl: ${ipnUrl}
   orderType: "billpayment"
   locale: "vn"
+
+address:
+  provincesUrl: ${provincesUrl}
+  districtsUrl: ${districtsUrl}
+
+gemini:
+  api:
+    key: ${gemini-api-key}
 

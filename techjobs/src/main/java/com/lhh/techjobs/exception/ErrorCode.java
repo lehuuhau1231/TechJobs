@@ -20,6 +20,7 @@ public enum ErrorCode {
     PHONE_EXISTS(1010, "Số điện thoại đã tồn tại", HttpStatus.BAD_REQUEST),
     EMPLOYER_ACCOUNT_NOT_ACTIVE(1011, "Employer account is not active", HttpStatus.BAD_REQUEST),
     FILE_INVALID(1012, "File invalid", HttpStatus.BAD_REQUEST),
+    FILE_NOT_FOUND(1013, "File not found", HttpStatus.BAD_REQUEST),
     ;
 
 

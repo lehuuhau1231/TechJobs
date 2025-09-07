@@ -16,6 +16,7 @@ import JobTracking from "./components/Job/JobTracking";
 import ApproveJob from "./components/Employer/ApproveJob";
 import CandidateApply from "./components/Employer/CandidateApply";
 import Profile from "./components/Candidate/Profile";
+import JobRecommendation from "./components/Candidate/JobRecommendation";
 
 function App() {
   const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -67,6 +68,10 @@ function App() {
                   />
                   <Route path='/job-detail/:id' element={<JobDetail />} />
                   <Route path='/profile' element={<Profile />} />
+                  <Route
+                    path='/job-recommendation'
+                    element={<JobRecommendation />}
+                  />
                 </>
               ) : user.role === "EMPLOYER" ? (
                 <>

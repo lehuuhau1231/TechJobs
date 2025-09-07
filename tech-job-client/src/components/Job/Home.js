@@ -357,7 +357,7 @@ const Home = () => {
                             }}
                           >
                             <img
-                              src={job.avatar}
+                              src={job.image}
                               alt={job.companyName}
                               style={{
                                 width: "100%",
@@ -525,7 +525,7 @@ const Home = () => {
               )}
 
               {/* Pagination */}
-              {jobs.length > 0 && totalPages > 1 && (
+              {jobs.length > 0 && (
                 <div
                   style={{
                     display: "flex",

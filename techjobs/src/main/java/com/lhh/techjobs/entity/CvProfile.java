@@ -17,6 +17,9 @@ public class CvProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "title", columnDefinition = "TEXT")
+    private String title;
+
     @Column(name = "skills", columnDefinition = "TEXT")
     private String skills;
 
@@ -37,4 +40,16 @@ public class CvProfile {
 
     @OneToOne(mappedBy = "cvProfile")
     private Candidate candidate;
+
+    public String getVectorContent() {
+        StringBuilder sb = new StringBuilder();
+        if (title != null) sb.append(title).append(" ");
+        if (skills != null) sb.append(skills).append(" ");
+        if (education != null) sb.append(education).append(" ");
+        if (experience != null) sb.append(experience).append(" ");
+        if (preferredLocation != null) sb.append(preferredLocation).append(" ");
+        if (preferredSalary != null) sb.append(preferredSalary).append(" ");
+        if (rawText != null) sb.append(rawText).append(" ");
+        return sb.toString().trim();
+    }
 }

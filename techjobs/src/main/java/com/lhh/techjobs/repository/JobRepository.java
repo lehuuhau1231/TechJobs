@@ -1,5 +1,6 @@
 package com.lhh.techjobs.repository;
 
+import com.lhh.techjobs.dto.redis.JobVectorDto;
 import com.lhh.techjobs.dto.response.JobStatsResponse;
 import com.lhh.techjobs.dto.response.JobTitleResponse;
 import com.lhh.techjobs.entity.Employer;
@@ -22,11 +23,14 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "j.salaryMax, " +
             "j.address, " +
             "e.companyName, " +
+            "d.name, " +
             "c.name, " +
-            "u.avatar) " +
+            "u.avatar, " +
+            "jl.name) " +
             "FROM Job j " +
             "JOIN j.employer e " +
             "JOIN e.user u " +
+            "LEFT JOIN j.district d " +
             "LEFT JOIN j.city c " +
             "LEFT JOIN j.skills s " +
             "LEFT JOIN j.jobLevel jl " +
@@ -102,4 +106,7 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "AND a.status = com.lhh.techjobs.enums.Status.PENDING " +
             "GROUP BY j.id, j.title, j.postedDate")
     List<JobStatsResponse> findApprovedJobsWithApplicationCount(@Param("employer") Employer employer);
+
+    Page<Job> findByStatus(Status status, Pageable pageable);
+
 }

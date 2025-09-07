@@ -8,20 +8,28 @@ import {
   MessageCircle,
   Search,
   Settings,
+  ThumbsUp,
   TrendingUp,
   User,
   Users,
 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import { Button, Container, Dropdown, Image } from "react-bootstrap";
+import { Button, Container, Dropdown, Image, Modal } from "react-bootstrap";
 import { MyUserContext } from "../Context/MyContext";
 import "../styles/header.css";
+import "../styles/common.css";
 import { useNavigate } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import cookies from "react-cookies";
+import { authApis, endpoints } from "../../configs/Apis";
+import ModalRequired from "./ModalRequired";
 
 const Header = () => {
   const [user, dispatch] = useContext(MyUserContext);
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("search");
+  const [showModalProfile, setShowModalProfile] = useState(false);
+  const [showModalLogin, setShowModalLogin] = useState(false);
 
   const menuItems = {
     user: [
@@ -126,46 +134,97 @@ const Header = () => {
     ],
   };
 
-  useEffect(() => {
-    fetchProvinces();
-  }, []);
-
-  const fetchProvinces = async () => {
-    try {
-      const response = await fetch();
-      const data = await response.json();
-      console.log("Provinces:", data);
-    } catch (error) {
-      console.error("Error fetching provinces:", error);
+  const handleTabChange = async (tab) => {
+    setActiveTab(tab);
+    const token = cookies.load("token");
+    console.log("tab", tab);
+    if (tab === "recommend" && token) {
+      try {
+        console.log("tab", tab);
+        const response = await authApis(token).get(endpoints.check_cv);
+        if (response.data.hasCV === false) {
+          setShowModalProfile(true);
+        } else {
+          navigate("/job-recommendation");
+        }
+      } catch (error) {
+        console.error("Error checking CV:", error);
+      }
+    } else if (tab === "search" && token) {
+      navigate("/");
+    } else if (tab === "recommend" && !token) {
+      setShowModalLogin(true);
     }
   };
 
   return (
-    <Container>
-      <div
-        style={{
-          padding: "12px 20px",
-          backgroundColor: "#ffffff",
-          borderBottom: "1px solid #e5e7eb",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <div
-          style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
-          onClick={() => navigate("/")}
-        >
-          <span style={{ fontSize: "20px", marginRight: "8px" }}>⚡</span>
-          <span style={{ fontWeight: "bold", fontSize: "16px" }}>Tech Job</span>
-        </div>
+    <>
+      <Container>
+        {/* Login Modal */}
+        {showModalLogin && (
+          <ModalRequired
+            message='Bạn cần đăng nhập để thực hiện hành động này.'
+            redirectPath='/login?next=/job-recommendation'
+            messageRedirect='Đến trang đăng nhập'
+            showModal={showModalLogin}
+            setShowModal={setShowModalLogin}
+          />
+        )}
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <button className='button button-active'>
-            <Search size={12} />
-            Find Jobs
-          </button>
-          {/* <button className='button button-inactive'>
+        {showModalProfile && (
+          <ModalRequired
+            message='Bạn cần cập nhật hồ sơ để thực hiện hành động này.'
+            redirectPath='/profile'
+            messageRedirect='Đến trang hồ sơ'
+            showModal={showModalProfile}
+            setShowModal={setShowModalProfile}
+          />
+        )}
+
+        <div
+          style={{
+            padding: "12px 20px",
+            backgroundColor: "#ffffff",
+            borderBottom: "1px solid #e5e7eb",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              cursor: "pointer",
+            }}
+            onClick={() => navigate("/")}
+          >
+            <span style={{ fontSize: "20px", marginRight: "8px" }}>⚡</span>
+            <span style={{ fontWeight: "bold", fontSize: "16px" }}>
+              Tech Job
+            </span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <Button
+              className={`${
+                activeTab === "search" ? "button" : "button-tab-inactive"
+              }`}
+              onClick={() => handleTabChange("search")}
+            >
+              <Search size={12} />
+              Tìm việc làm
+            </Button>
+            <Button
+              className={`${
+                activeTab === "recommend" ? "button" : "button-tab-inactive"
+              }`}
+              onClick={() => handleTabChange("recommend")}
+            >
+              <ThumbsUp size={12} />
+              Việc làm phù hợp
+            </Button>
+            {/* <button className='button button-inactive'>
             <Users size={12} />
             Find Talent
           </button>
@@ -177,73 +236,77 @@ const Header = () => {
             <TrendingUp size={12} />
             Upload Job
           </button> */}
-          <Bell size={16} style={{ color: "#6b7280", cursor: "pointer" }} />
-          <MessageCircle
-            size={16}
-            style={{ color: "#6b7280", cursor: "pointer" }}
-          />
-          <Settings size={16} style={{ color: "#6b7280", cursor: "pointer" }} />
-          {user ? (
-            <>
-              <Dropdown align='end'>
-                <Dropdown.Toggle
-                  as='div'
-                  id='dropdown-user'
-                  bsPrefix='custom-toggle'
-                  className='p-0 border-0 shadow-none bg-transparent'
-                >
-                  <Image
-                    src={user.avatar}
-                    alt='User Avatar'
-                    className='image'
-                  />
-                </Dropdown.Toggle>
+            <Bell size={16} style={{ color: "#6b7280", cursor: "pointer" }} />
+            <MessageCircle
+              size={16}
+              style={{ color: "#6b7280", cursor: "pointer" }}
+            />
+            <Settings
+              size={16}
+              style={{ color: "#6b7280", cursor: "pointer" }}
+            />
+            {user ? (
+              <>
+                <Dropdown align='end'>
+                  <Dropdown.Toggle
+                    as='div'
+                    id='dropdown-user'
+                    bsPrefix='custom-toggle'
+                    className='p-0 border-0 shadow-none bg-transparent'
+                  >
+                    <Image
+                      src={user.avatar}
+                      alt='User Avatar'
+                      className='image'
+                    />
+                  </Dropdown.Toggle>
 
-                <Dropdown.Menu>
-                  {user.role === "CANDIDATE"
-                    ? menuItems.user.map((item, index) =>
-                        item.isDivider ? (
-                          <Dropdown.Divider key={`divider-${index}`} />
-                        ) : (
-                          <Dropdown.Item
-                            key={index}
-                            onClick={item.action}
-                            className={item.className}
-                          >
-                            {item.icon}
-                            {item.text}
-                          </Dropdown.Item>
+                  <Dropdown.Menu>
+                    {user.role === "CANDIDATE"
+                      ? menuItems.user.map((item, index) =>
+                          item.isDivider ? (
+                            <Dropdown.Divider key={`divider-${index}`} />
+                          ) : (
+                            <Dropdown.Item
+                              key={index}
+                              onClick={item.action}
+                              className={item.className}
+                            >
+                              {item.icon}
+                              {item.text}
+                            </Dropdown.Item>
+                          )
                         )
-                      )
-                    : user.role === "EMPLOYER"
-                    ? menuItems.employer.map((item, index) =>
-                        item.isDivider ? (
-                          <Dropdown.Divider key={`divider-${index}`} />
-                        ) : (
-                          <Dropdown.Item
-                            key={index}
-                            onClick={item.action}
-                            className={item.className}
-                          >
-                            {item.icon}
-                            {item.text}
-                          </Dropdown.Item>
+                      : user.role === "EMPLOYER"
+                      ? menuItems.employer.map((item, index) =>
+                          item.isDivider ? (
+                            <Dropdown.Divider key={`divider-${index}`} />
+                          ) : (
+                            <Dropdown.Item
+                              key={index}
+                              onClick={item.action}
+                              className={item.className}
+                            >
+                              {item.icon}
+                              {item.text}
+                            </Dropdown.Item>
+                          )
                         )
-                      )
-                    : null}
-                </Dropdown.Menu>
-              </Dropdown>
-            </>
-          ) : (
-            <>
-              <Button className='button' onClick={() => navigate("/login")}>
-                Đăng nhập
-              </Button>
-            </>
-          )}
+                      : null}
+                  </Dropdown.Menu>
+                </Dropdown>
+              </>
+            ) : (
+              <>
+                <Button className='button' onClick={() => navigate("/login")}>
+                  Đăng nhập
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </Container>
+      </Container>
+    </>
   );
 };
 

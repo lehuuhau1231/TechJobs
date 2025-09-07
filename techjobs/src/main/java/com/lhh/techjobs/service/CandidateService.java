@@ -80,4 +80,16 @@ public class CandidateService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return this.candidateRepository.findCandidateProfileByEmail(email);
     }
+
+    public Map<String, Boolean> checkCV() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String cv = this.candidateRepository.checkCVProfileIdByUserEmail(email);
+        Map<String, Boolean> result = new HashMap<>();
+        if(cv==null) {
+            result.put("hasCV", false);
+            return result;
+        }
+        result.put("hasCV", true);
+        return result;
+    }
 }

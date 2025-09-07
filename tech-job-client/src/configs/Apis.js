@@ -25,6 +25,8 @@ export const endpoints = {
   create_payment: "/api/create-payment",
   return_payment: "/api/vnpay-return",
   bill: "/api/bills",
+  smart_recommendation: "/api/smart-recommendation/jobs",
+  check_cv: "/api/candidate/check-cv",
 };
 
 export const authApis = (token) =>

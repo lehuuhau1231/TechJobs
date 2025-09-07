@@ -74,7 +74,7 @@ public class CVConsumer {
 
     // ===== 3) Map DTO -> Entity -> Save =====
     private Candidate saveToDb(CvExtractedResponse dto, String rawText, Candidate candidate) {
-        String skillsJson = "[]";
+        String skillsJson = "";
         try {
             skillsJson = objectMapper.writeValueAsString(dto.getSkills());
         } catch (Exception ignore) { }

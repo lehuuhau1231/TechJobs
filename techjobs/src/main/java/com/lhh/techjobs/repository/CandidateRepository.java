@@ -2,6 +2,7 @@ package com.lhh.techjobs.repository;
 
 import com.lhh.techjobs.dto.response.CandidateProfileResponse;
 import com.lhh.techjobs.entity.Candidate;
+import com.lhh.techjobs.entity.CvProfile;
 import com.lhh.techjobs.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,17 @@ public interface CandidateRepository extends JpaRepository<Candidate, Integer> {
             "JOIN c.user u " +
             "WHERE u.email = :email")
     CandidateProfileResponse findCandidateProfileByEmail(@Param("email") String email);
+
+    @Query("SELECT p " +
+            "FROM Candidate c " +
+            "JOIN c.cvProfile p " +
+            "JOIN c.user u " +
+            "WHERE u.email = :email")
+    CvProfile findCvProfileIdByUserEmail(@Param("email") String email);
+
+    @Query("SELECT c.cv " +
+            "FROM Candidate c " +
+            "JOIN c.user u " +
+            "WHERE u.email = :email")
+    String checkCVProfileIdByUserEmail(@Param("email") String email);
 }

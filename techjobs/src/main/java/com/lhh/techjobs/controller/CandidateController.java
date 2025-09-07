@@ -51,4 +51,10 @@ public class CandidateController {
         CandidateProfileResponse profile = candidateService.getCandidateProfileByEmail();
         return ResponseEntity.ok(profile);
     }
+
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @GetMapping("/check-cv")
+    public ResponseEntity<Map<String, Boolean>> checkCV() {
+        return ResponseEntity.ok(candidateService.checkCV());
+    }
 }

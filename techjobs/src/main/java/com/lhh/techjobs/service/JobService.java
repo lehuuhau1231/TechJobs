@@ -40,6 +40,7 @@ public class JobService {
     ContractTypeRepository contractTypeRepository;
     SkillRepository skillRepository;
     JobMapper jobMapper;
+    JobVectorService jobVectorService; // Thêm JobVectorService để đồng bộ lên Redis
 
     public Page<JobResponse> searchJobs(Map<String, String> params) {
         int page = 0;
@@ -167,6 +168,14 @@ public class JobService {
                 log.info("Tìm thấy {} skills", skills.size());
                 savedJob.setSkills(skills);
                 jobRepository.save(savedJob);
+            }
+
+            // Đồng bộ job lên Redis Vector Database
+            try {
+                jobVectorService.syncJobToRedis(savedJob.getId());
+                log.info("Đã đồng bộ job ID {} lên Redis Vector Database", savedJob.getId());
+            } catch (Exception e) {
+                log.warn("Không thể đồng bộ job lên Redis: {}", e.getMessage());
             }
 
             log.info("Hoàn thành tạo job với ID: {}", savedJob.getId());

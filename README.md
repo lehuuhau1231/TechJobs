@@ -12,6 +12,7 @@ The platform provides job posting, application management, and candidate profile
 - Profile management: upload **avatar** and **CV** (stored in **Cloudinary**).
 - AI-powered CV parsing to extract relevant information automatically.
 - Apply for jobs online.
+- Built a job recommendation feature that matches users’ CVs with suitable job postings using Redis Stack (vector search + embedding)
 
 ### 🏢 For Recruiters
 - Post and manage job listings.

@@ -4,9 +4,12 @@ import com.lhh.techjobs.dto.request.ApplicationRequest;
 import com.lhh.techjobs.dto.request.ApplicationStatusRequest;
 import com.lhh.techjobs.dto.request.ApplicationFilterRequest;
 import com.lhh.techjobs.dto.request.PendingStatusApplicationRequest;
+import com.lhh.techjobs.dto.request.UpdateContactedRequest;
 import com.lhh.techjobs.dto.response.ApplicationEmployerResponse;
 import com.lhh.techjobs.dto.response.ApplicationFilterResponse;
 import com.lhh.techjobs.dto.response.PageResponse;
+import com.lhh.techjobs.dto.response.CandidateApplicationDetailResponse;
+import com.lhh.techjobs.dto.response.CandidateContactResponse;
 import com.lhh.techjobs.service.ApplicationService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -18,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/application")
@@ -60,5 +64,34 @@ public class ApplicationController {
                 .totalPages(applications.getTotalPages())
                 .build();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/check-applied/{jobId}")
+    public ResponseEntity<Map<String, Boolean>> checkIfApplied(@PathVariable Integer jobId) {
+        Map<String, Boolean> result = applicationService.hasAppliedForJob(jobId);
+        return ResponseEntity.ok(result);
+    }
+
+    @PreAuthorize("hasRole('EMPLOYER')")
+    @GetMapping("/candidate/{candidateId}/{applicationId}")
+    public ResponseEntity<CandidateApplicationDetailResponse> getCandidateApplicationDetail(
+            @PathVariable Integer candidateId,
+            @PathVariable Integer applicationId) {
+        CandidateApplicationDetailResponse response = applicationService.getCandidateApplicationDetail(candidateId, applicationId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('EMPLOYER')")
+    @GetMapping("/approved-candidate/{jobId}")
+    public ResponseEntity<List<CandidateContactResponse>> getApprovedCandidateByApplicationId(
+            @PathVariable Integer jobId) {
+        List<CandidateContactResponse> candidate = applicationService.getApprovedCandidateByApplicationId(jobId);
+        return ResponseEntity.ok(candidate);
+    }
+
+    @PreAuthorize("hasRole('EMPLOYER')")
+    @PatchMapping("/contacted")
+    public void updateContactedStatus(@RequestBody @Valid UpdateContactedRequest request) {
+        applicationService.updateContactedStatus(request.getApplicationId());
     }
 }

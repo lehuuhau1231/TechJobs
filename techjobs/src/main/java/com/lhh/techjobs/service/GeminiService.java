@@ -41,7 +41,7 @@ public class GeminiService {
                 Không giải thích gì thêm. Không dùng markdown. Không thêm text ngoài JSON.
                 """.formatted(cvText);
             GenerateContentResponse response = client.models.generateContent(
-                    "gemini-2.5-flash", // model mới & nhanh
+                    "gemini-2.5-flash",
                     prompt,
                     null
             );

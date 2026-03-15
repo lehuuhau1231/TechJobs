@@ -50,14 +50,6 @@ const Header = () => {
         action: () => navigate("/application-tracking"),
       },
       {
-        path: "/application-tracking",
-        icon: <ClipboardClock size={20} style={{ marginRight: "8px" }} />,
-        text: "Thông tin cá nhân",
-        isDivider: false,
-        className: "",
-        action: () => navigate("/profile"),
-      },
-      {
         isDivider: true,
       },
       {
@@ -65,7 +57,10 @@ const Header = () => {
         text: "Đăng xuất",
         isDivider: false,
         className: "text-danger",
-        action: () => dispatch({ type: "logout" }),
+        action: () => {
+          navigate("/");
+          dispatch({ type: "logout" });
+        },
       },
     ],
     employer: [
@@ -101,7 +96,10 @@ const Header = () => {
         text: "Đăng xuất",
         isDivider: false,
         className: "text-danger",
-        action: () => dispatch({ type: "logout" }),
+        action: () => {
+          navigate("/");
+          dispatch({ type: "logout" });
+        },
       },
     ],
     admin: [

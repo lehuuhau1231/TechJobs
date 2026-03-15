@@ -43,5 +43,5 @@ public interface BillRepository extends JpaRepository<Bill, Integer> {
             "JOIN b.job j " +
             "JOIN j.employer e " +
             "WHERE b.status = :status")
-    List<BillUnpaidResponse> getBillUnpaid(@Param("status") BillStatus status);
+    List<BillUnpaidResponse> getBillPending(@Param("status") BillStatus status);
 }

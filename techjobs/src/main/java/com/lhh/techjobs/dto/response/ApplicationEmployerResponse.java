@@ -18,4 +18,5 @@ public class ApplicationEmployerResponse {
     private String message;
     private String candidateFullName;
     private String candidateAvatar;
+    private Integer candidateId;
 }

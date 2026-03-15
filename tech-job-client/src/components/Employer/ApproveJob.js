@@ -34,8 +34,8 @@ const ApproveJob = () => {
     return format(new Date(dateString), "MMM dd, yyyy");
   };
 
-  const viewCandidates = (jobId) => {
-    navigate(`/employer/job/${jobId}/candidates`);
+  const viewCandidates = (jobId, applicationId) => {
+    navigate(`/employer/job/${jobId}/${applicationId}/candidates`);
   };
 
   return (
@@ -90,7 +90,9 @@ const ApproveJob = () => {
                         <Button
                           variant='outline-primary'
                           size='sm'
-                          onClick={() => viewCandidates(job.id)}
+                          onClick={() =>
+                            viewCandidates(job.id, job.applicationId)
+                          }
                           disabled={job.applicationCount === 0}
                         >
                           <Eye size={14} className='me-1' />

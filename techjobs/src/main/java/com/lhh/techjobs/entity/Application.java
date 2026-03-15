@@ -38,4 +38,7 @@ public class Application {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @Column(name = "contacted")
+    private Boolean contacted;
 }

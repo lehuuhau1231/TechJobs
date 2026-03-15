@@ -17,6 +17,7 @@ import ApproveJob from "./components/Employer/ApproveJob";
 import CandidateApply from "./components/Employer/CandidateApply";
 import Profile from "./components/Candidate/Profile";
 import JobRecommendation from "./components/Candidate/JobRecommendation";
+import CandidateDetail from "./components/Employer/CandidateDetail";
 
 function App() {
   const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -79,8 +80,12 @@ function App() {
                   <Route path='/job-tracking' element={<JobTracking />} />
                   <Route path='/approve-job' element={<ApproveJob />} />
                   <Route
-                    path='/employer/job/:jobId/candidates'
+                    path='/employer/job/:jobId/:applicationId/candidates'
                     element={<CandidateApply />}
+                  />
+                  <Route
+                    path='/employer/candidate-detail/:candidateId/:applicationId'
+                    element={<CandidateDetail />}
                   />
                 </>
               ) : null

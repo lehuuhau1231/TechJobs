@@ -75,3 +75,9 @@ address:
 gemini:
   api:
     key: ${gemini-api-key}
+
+embedding:
+  type: "FLOAT32"
+  dimension: 768
+  distance-metric: "COSINE"
+  model: "gemini-embedding-001"

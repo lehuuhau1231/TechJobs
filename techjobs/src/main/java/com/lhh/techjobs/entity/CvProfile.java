@@ -3,6 +3,7 @@ package com.lhh.techjobs.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -41,15 +42,36 @@ public class CvProfile {
     @OneToOne(mappedBy = "cvProfile")
     private Candidate candidate;
 
-    public String getVectorContent() {
-        StringBuilder sb = new StringBuilder();
-        if (title != null) sb.append(title).append(" ");
-        if (skills != null) sb.append(skills).append(" ");
-        if (education != null) sb.append(education).append(" ");
-        if (experience != null) sb.append(experience).append(" ");
-        if (preferredLocation != null) sb.append(preferredLocation).append(" ");
-        if (preferredSalary != null) sb.append(preferredSalary).append(" ");
-        if (rawText != null) sb.append(rawText).append(" ");
-        return sb.toString().trim();
+    public String buildVectorContent() {
+        List<String> parts = new ArrayList<>();
+
+        if (title != null && !title.isBlank()) {
+            parts.add("Title: " + title);
+            parts.add(title); // boost title
+        }
+
+        if (skills != null && !skills.isBlank()) {
+            parts.add("Skills: " + skills);
+            parts.add(skills); // boost skills
+        }
+
+        if (education != null && !education.isBlank()) {
+            parts.add("Education: " + education);
+        }
+
+        if (experience != null && !experience.isBlank()) {
+            parts.add("Experience: " + experience);
+        }
+
+        if (preferredLocation != null && !preferredLocation.isBlank()) {
+            parts.add("Preferred location: " + preferredLocation);
+        }
+
+        if (preferredSalary != null && !preferredSalary.isBlank()) {
+            parts.add("Preferred salary: " + preferredSalary);
+        }
+
+        return String.join(" | ", parts);
     }
+
 }

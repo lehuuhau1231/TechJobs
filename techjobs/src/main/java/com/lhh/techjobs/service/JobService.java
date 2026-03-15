@@ -109,7 +109,7 @@ public class JobService {
         job.setEmployer(employer);
 
         try {
-            // Liên kết City
+            // Link City
             if (request.getCityId() != null) {
                 log.info("Tìm city với ID: {}", request.getCityId());
                 City city = cityRepository.findById(request.getCityId())
@@ -118,7 +118,7 @@ public class JobService {
                 log.info("Tìm thấy city: {}", city.getName());
             }
 
-            // Liên kết District
+            // Link District
             if (request.getDistrictId() != null) {
                 log.info("Tìm district với ID: {}", request.getDistrictId());
                 District district = districtRepository.findById(request.getDistrictId())
@@ -127,7 +127,7 @@ public class JobService {
                 log.info("Tìm thấy district: {}", district.getName());
             }
 
-            // Liên kết JobLevel
+            // Link JobLevel
             if (request.getJobLevelId() != null) {
                 log.info("Tìm jobLevel với ID: {}", request.getJobLevelId());
                 JobLevel jobLevel = jobLevelRepository.findById(request.getJobLevelId())
@@ -136,7 +136,7 @@ public class JobService {
                 log.info("Tìm thấy jobLevel: {}", jobLevel.getName());
             }
 
-            // Liên kết JobType
+            // Link JobType
             if (request.getJobTypeId() != null) {
                 log.info("Tìm jobType với ID: {}", request.getJobTypeId());
                 JobType jobType = jobTypeRepository.findById(request.getJobTypeId())
@@ -145,7 +145,7 @@ public class JobService {
                 log.info("Tìm thấy jobType: {}", jobType.getName());
             }
 
-            // Liên kết ContractType
+            // Link ContractType
             if (request.getContractTypeId() != null) {
                 log.info("Tìm contractType với ID: {}", request.getContractTypeId());
                 ContractType contractType = contractTypeRepository.findById(request.getContractTypeId())
@@ -161,7 +161,7 @@ public class JobService {
             Job savedJob = jobRepository.save(job);
             log.info("Job đã được lưu với ID: {}", savedJob.getId());
 
-            // Liên kết Skills
+            // Link Skills
             if (request.getJobSkillIds() != null && !request.getJobSkillIds().isEmpty()) {
                 log.info("Tìm skills với các ID: {}", request.getJobSkillIds());
                 List<Skill> skills = skillRepository.findAllById(request.getJobSkillIds());
@@ -175,7 +175,7 @@ public class JobService {
                 jobVectorService.syncJobToRedis(savedJob.getId());
                 log.info("Đã đồng bộ job ID {} lên Redis Vector Database", savedJob.getId());
             } catch (Exception e) {
-                log.warn("Không thể đồng bộ job lên Redis: {}", e.getMessage());
+                log.error("Không thể đồng bộ job lên Redis: {}", e.getMessage());
             }
 
             log.info("Hoàn thành tạo job với ID: {}", savedJob.getId());

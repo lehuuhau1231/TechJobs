@@ -10,6 +10,8 @@ DROP TABLE IF EXISTS district;
 DROP TABLE IF EXISTS city;
 DROP TABLE IF EXISTS job_level;
 DROP TABLE IF EXISTS job_type;
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS conversations;
 DROP TABLE IF EXISTS candidate;
 DROP TABLE IF EXISTS cv_profile;
 DROP TABLE IF EXISTS contract_type;
@@ -19,6 +21,7 @@ DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS skill;
 DROP TABLE IF EXISTS language;
 DROP TABLE IF EXISTS level_language;
+DROP TABLE IF EXISTS it_careers;
 
 -- 1. Bảng LevelLanguage
 CREATE TABLE level_language (
@@ -82,6 +85,30 @@ CREATE TABLE candidate (
    cv_profile_id INT UNIQUE,
    CONSTRAINT fk_candidate_user FOREIGN KEY (user_id) REFERENCES user(id),
    FOREIGN KEY (cv_profile_id) REFERENCES cv_profile(id) 
+);
+
+-- 2. Tạo Bảng Conversations (Cuộc hội thoại)
+CREATE TABLE conversations (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    candidate_id INT NOT NULL, -- ID của user từ hệ thống Auth
+    title VARCHAR(255),
+    status ENUM('OPEN', 'CLOSED','ARCHIVED'),
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    FOREIGN KEY (candidate_id) REFERENCES candidate(id) 
+);
+
+-- 3. Tạo Bảng Messages (Chi tiết tin nhắn)
+CREATE TABLE messages (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    conversation_id INT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP,
+    
+    -- Khóa ngoại liên kết tới bảng conversations
+        FOREIGN KEY(conversation_id) 
+        REFERENCES conversations(id) 
+        ON DELETE CASCADE
 );
 
 -- 7. Insert Candidate
@@ -225,89 +252,126 @@ INSERT INTO district VALUES
 (59, 'Huyện Hòa Vang', 3),
 (60, 'Huyện Hoàng Sa', 3);
 
--- 7. Bảng Job
 CREATE TABLE job (
+
  id INT PRIMARY KEY AUTO_INCREMENT,
+
  title VARCHAR(255) NOT NULL,
+
  description TEXT NOT NULL,
+
  salary_min DECIMAL(10,2) NOT NULL,
+
  salary_max DECIMAL(10,2) NOT NULL,
+
  job_require TEXT NOT NULL,
+
  benefits TEXT NOT NULL,
+
  status ENUM('PENDING', 'APPROVED','CANCELED') NOT NULL,
+
  created_date TIMESTAMP NOT NULL,
+
+ updated_at TIMESTAMP,
+
+ vector_updated_at TIMESTAMP,
+
  posted_date TIMESTAMP NULL,
+
  address VARCHAR(200) NOT NULL,
+
  age_from INT NOT NULL,
+
  age_to INT NOT NULL,
+
  start_date DATE NOT NULL,
+
  end_date DATE NOT NULL,
+
  start_time TIME NOT NULL,
+
  end_time TIME NOT NULL,
+
  employer_id INT,
+
  city_id INT,
+
  district_id INT,
+
  job_level_id INT,
+
  job_type_id INT,
+
  contract_type_id INT,
+
  FOREIGN KEY (employer_id) REFERENCES employer(id),
+
  FOREIGN KEY (city_id) REFERENCES city(id),
+
  FOREIGN KEY (district_id) REFERENCES district(id),
+
  FOREIGN KEY (job_level_id) REFERENCES job_level(id),
+
  FOREIGN KEY (job_type_id) REFERENCES job_type(id),
+
  FOREIGN KEY (contract_type_id) REFERENCES contract_type(id)
+
 );
 
+-- 7. Bảng Job
+INSERT INTO job (
+    id, title, description, salary_min, salary_max, job_require, benefits, 
+    status, created_date, updated_at, vector_updated_at, posted_date, 
+    address, age_from, age_to, start_date, end_date, start_time, 
+    end_time, employer_id, city_id, district_id, job_level_id, job_type_id, contract_type_id
+) VALUES 
+(1, 'Java Developer', 'Develop backend services using Spring Boot', 1000, 2000, 'Java, Spring Boot, SQL', 'Đi chơi 1 năm 2 lần', 'APPROVED', NOW(), NOW(), NOW(), NOW(), 'Hồ Chí Minh', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 1, 1, 1, 1, 1),
 
--- 9. Insert Job
-INSERT INTO job VALUES 
-(1, 'Java Developer', 'Develop backend services using Spring Boot', 1000, 2000, 'Java, Spring Boot, SQL', 'Đi chơi 1 năm 2 lần', 'APPROVED', NOW(), NOW(), 'Hồ Chí minh', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 1, 1, 1,1),
-(2, 'Frontend Developer', 'Develop user interface using React', 800, 1500, 'JavaScript, React, HTML, CSS', 'Đi chơi 1 năm 2 lần', 'CANCELED', NOW(), NOW(), 'Hà Nội', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 40, 1, 1,1),
-(3, 'Full Stack Developer', 'Develop both frontend and backend', 1200, 2500, 'Java, Spring Boot, React, SQL', 'Đi chơi 1 năm 2 lần', 'PENDING', NOW(), NOW(), 'Đà Nẵng', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 3, 54, 1, 1,1),
-(4, 'Senior Frontend Developer (Angular, ReactJS)', '<ol><li data-list="ordered"><span class="ql-ui" contenteditable="false"></span> Thu thập, phân tích yêu cầu từ người dùng và đội ngũ sản phẩm, xây dựng bản thảo UI/UX</li><li data-list="ordered"><span class="ql-ui" contenteditable="false"></span>Thiết kế kiến trúc Frontend, quản lý state (Redux/Context), routing, form validation</li><li data-list="ordered"><span class="ql-ui" contenteditable="false"></span>Tích hợp với API từ Backend, đảm bảo bảo mật (OWASP, HTTPS/TLS, CORS, CSP)</li><li data-list="ordered"><span class="ql-ui" contenteditable="false"></span>Tối ưu hiệu năng (performance, SEO), áp dụng best practices</li><li data-list="ordered"><span class="ql-ui" contenteditable="false"></span>Thực hiện unit test, integration test</li><li data-list="ordered"><span class="ql-ui" contenteditable="false"></span>Review code FE các thành viên trong nhóm</li><li data-list="ordered"><span class="ql-ui" contenteditable="false"></span>Cập nhật change-log, release notes, phối hợp với backend và product team</li><li data-list="ordered"><span class="ql-ui" contenteditable="false"></span>Các công việc khác theo phân công của quản lý </li></ol>',
- 1200, 2500, '<ol><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Tốt nghiệp ĐH ngành CNTT/Phần mềm</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>≥3 năm kinh nghiệm FE development</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Kinh nghiệm với Angular từ v10 trở đi</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Có kinh nghiệm design website trên nền Odoo-ERP</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Thành thạo JavaScript, TypeScript, React, Angular</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Hiểu sâu UI/UX và responsive design</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Từng xây dựng component library nội bộ</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Kinh nghiệm tối ưu performance, SEO cho high-traffic website</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Am hiểu bảo mật web (OWASP, HTTPS/TLS, CORS, CSP)</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Thành thạo Git, Agile/Scrum workflow</li></ol><p><br></p>',
- '<ol><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Thu nhập: thỏa thuận, cạnh tranh theo năng lực;</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Phúc lợi: BHXH, BHYT, BHTN, Team Building, New Year Party, Lương thưởng tháng 13, thưởng quà Tết, thưởng sinh nhật cá nhân, thưởng sinh nhật công ty, thưởng của Công Đoàn nhân các ngày lễ, thưởng tháng 14-15-16… theo kết quả kinh doanh hàng năm của công ty, nghỉ phép 01 ngày/ tháng, đồng phục làm việc... Nhân viên gắn bó từ 01 năm trở lên được chế độ hưởng chương trình bảo hiểm sức khỏe NBV Care;</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Môi trường: trẻ trung, năng động, nhiều hoạt động học hỏi và phát triển;</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Thời gian làm việc: Thứ Hai đến Thứ Sáu, 8:30 – 17:30 hoặc theo hoạt động kinh doanh;</li><li data-list="bullet"><span class="ql-ui" contenteditable="false"></span>Văn phòng làm việc tại: Tầng 1, Vincom Cộng Hòa, 15-17 Cộng Hòa, Phường 4, Tân Bình, Thành phố Hồ Chí Minh.</li></ol>',
- 'APPROVED', NOW(), NOW(), 'Tầng 1, Vincom Cộng Hòa, 15-17 Cộng Hòa, Phường 4', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 3, 54, 1, 1,1),
- (5, 'Backend Java Intern', '<ol><li>Học cách xây dựng API bằng Spring Boot</li><li>Hỗ trợ fix bug cho hệ thống</li></ol>', 200, 400, '<ol><li>Sinh viên CNTT năm 3, 4</li><li>Hiểu cơ bản Java, SQL</li></ol>', '<ol><li>Cơ hội trở thành nhân viên chính thức</li><li>Team building</li></ol>', 'APPROVED', NOW(), NOW(), '12 Nguyễn Văn Bảo, Gò Vấp, HCM', 20, 25, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 10, 1, 1, 1),
+(2, 'Frontend Developer', 'Develop user interface using React', 800, 1500, 'JavaScript, React, HTML, CSS', 'Đi chơi 1 năm 2 lần', 'CANCELED', NOW(), NOW(), NOW(), NOW(), 'Hà Nội', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 2, 40, 1, 1, 1),
 
-(6, 'Frontend React Fresher', '<ol><li>Phát triển giao diện web với ReactJS</li><li>Tối ưu UI/UX</li></ol>', 400, 800, '<ol><li>Tốt nghiệp CNTT</li><li>Có project React cơ bản</li></ol>', '<ol><li>BHYT, BHXH</li><li>Thưởng tháng 13</li></ol>', 'APPROVED', NOW(), NOW(), '25 Lê Lợi, Quận 1, HCM', 21, 26, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 5, 2, 1, 1),
+(3, 'Full Stack Developer', 'Develop both frontend and backend', 1200, 2500, 'Java, Spring Boot, React, SQL', 'Đi chơi 1 năm 2 lần', 'PENDING', NOW(), NOW(), NOW(), NOW(), 'Đà Nẵng', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 3, 54, 1, 1, 1),
 
-(7, 'Junior PHP Developer', '<ol><li>Xây dựng website với Laravel</li><li>Viết REST API</li></ol>', 600, 1200, '<ol><li>1 năm kinh nghiệm PHP</li><li>Biết MySQL</li></ol>', '<ol><li>Môi trường trẻ trung</li><li>Thưởng theo dự án</li></ol>', 'APPROVED', NOW(), NOW(), '78 Trần Phú, Hải Châu, Đà Nẵng', 22, 28, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 3, 22, 3, 1, 1),
+(4, 'Senior Frontend Developer (Angular, ReactJS)', '<ol><li>Xây dựng bản thảo UI/UX</li><li>Thiết kế kiến trúc Frontend</li><li>Tích hợp API</li></ol>', 1200, 2500, '≥3 năm kinh nghiệm FE, Angular, React', 'Phúc lợi hấp dẫn, bảo hiểm sức khỏe', 'APPROVED', NOW(), NOW(), NOW(), NOW(), 'Tầng 1, Vincom Cộng Hòa, Tân Bình, HCM', 18, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 3, 54, 1, 1, 1),
 
-(8, 'Middle .NET Developer', '<ol><li>Phát triển hệ thống ERP</li><li>Tích hợp API</li></ol>', 1000, 1800, '<ol><li>≥3 năm .NET</li><li>Kinh nghiệm với SQL Server</li></ol>', '<ol><li>Thưởng hiệu suất</li><li>Chế độ bảo hiểm</li></ol>', 'APPROVED', NOW(), NOW(), '21 Nguyễn Văn Linh, Thanh Khê, Đà Nẵng', 25, 35, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 3, 30, 4, 1, 1),
+(5, 'Backend Java Intern', '<ol><li>Học cách xây dựng API bằng Spring Boot</li><li>Hỗ trợ fix bug</li></ol>', 200, 400, 'Sinh viên CNTT năm 3, 4, hiểu Java', 'Cơ hội lên chính thức', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '12 Nguyễn Văn Bảo, Gò Vấp, HCM', 20, 25, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 1, 10, 1, 1, 1),
 
-(9, 'Senior Mobile Developer (Flutter)', '<ol><li>Phát triển ứng dụng iOS/Android bằng Flutter</li><li>Tối ưu hiệu năng</li></ol>', 1500, 2800, '<ol><li>≥5 năm Mobile</li><li>Thành thạo Flutter</li></ol>', '<ol><li>Lương cạnh tranh</li><li>Bảo hiểm sức khỏe</li></ol>', 'APPROVED', NOW(), NOW(), '102 Hoàng Hoa Thám, Tân Bình, HCM', 27, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 18, 5, 1, 1),
+(6, 'Frontend React Fresher', '<ol><li>Phát triển giao diện web</li></ol>', 400, 800, 'Tốt nghiệp CNTT, biết React', 'BHYT, BHXH', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '25 Lê Lợi, Quận 1, HCM', 21, 26, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 1, 5, 2, 1, 1),
 
-(10, 'Data Analyst Intern', '<ol><li>Thu thập và xử lý dữ liệu</li><li>Hỗ trợ trực quan hóa dữ liệu</li></ol>', 200, 500, '<ol><li>Sinh viên năm cuối</li><li>Biết Excel/SQL</li></ol>', '<ol><li>Cơ hội học hỏi</li><li>Tham gia workshop</li></ol>', 'APPROVED', NOW(), NOW(), '35 Nguyễn Huệ, Quận 1, HCM', 20, 25, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 3, 1, 1, 1),
+(7, 'Junior PHP Developer', '<ol><li>Xây dựng website với Laravel</li></ol>', 600, 1200, '1 năm kinh nghiệm PHP', 'Thưởng theo dự án', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '78 Trần Phú, Hải Châu, Đà Nẵng', 22, 28, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 3, 22, 3, 1, 1),
 
-(11, 'Fresher QA Engineer', '<ol><li>Viết test case</li><li>Kiểm thử chức năng web/mobile</li></ol>', 400, 700, '<ol><li>Có kiến thức kiểm thử</li><li>Cẩn thận, chi tiết</li></ol>', '<ol><li>Làm việc 5 ngày/tuần</li><li>Hỗ trợ ăn trưa</li></ol>', 'APPROVED', NOW(), NOW(), '89 Xã Đàn, Đống Đa, Hà Nội', 21, 26, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 45, 2, 1, 1),
+(8, 'Middle .NET Developer', '<ol><li>Phát triển hệ thống ERP</li></ol>', 1000, 1800, '≥3 năm .NET', 'Thưởng hiệu suất', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '21 Nguyễn Văn Linh, Đà Nẵng', 25, 35, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 3, 30, 4, 1, 1),
 
-(12, 'Junior Business Analyst', '<ol><li>Làm việc với khách hàng</li><li>Viết tài liệu nghiệp vụ</li></ol>', 600, 1200, '<ol><li>1 năm BA</li><li>Kỹ năng giao tiếp tốt</li></ol>', '<ol><li>BHYT, BHXH</li><li>Lương tháng 13</li></ol>', 'APPROVED', NOW(), NOW(), '12 Láng Hạ, Ba Đình, Hà Nội', 23, 30, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 50, 3, 1, 1),
+(9, 'Senior Mobile Developer (Flutter)', '<ol><li>Phát triển app iOS/Android</li></ol>', 1500, 2800, '≥5 năm Mobile, Flutter', 'Lương cạnh tranh', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '102 Hoàng Hoa Thám, Tân Bình, HCM', 27, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 1, 18, 5, 1, 1),
 
-(13, 'Middle DevOps Engineer', '<ol><li>Quản lý CI/CD</li><li>Triển khai hệ thống Cloud</li></ol>', 1200, 2000, '<ol><li>≥3 năm DevOps</li><li>Kinh nghiệm Docker, Kubernetes</li></ol>', '<ol><li>Bonus KPI</li><li>Hỗ trợ chứng chỉ</li></ol>', 'APPROVED', NOW(), NOW(), '42 Nguyễn Hữu Cảnh, Bình Thạnh, HCM', 25, 35, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 14, 4, 1, 1),
+(10, 'Data Analyst Intern', '<ol><li>Xử lý dữ liệu</li></ol>', 200, 500, 'Sinh viên năm cuối, biết SQL', 'Tham gia workshop', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '35 Nguyễn Huệ, Quận 1, HCM', 20, 25, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 1, 3, 1, 1, 1),
 
-(14, 'Senior AI Engineer', '<ol><li>Xây dựng mô hình Machine Learning</li><li>Tối ưu hệ thống AI</li></ol>', 2000, 3500, '<ol><li>≥5 năm AI</li><li>Thông thạo Python, TensorFlow</li></ol>', '<ol><li>Lương thưởng cao</li><li>Đào tạo nâng cao</li></ol>', 'APPROVED', NOW(), NOW(), '10 Duy Tân, Cầu Giấy, Hà Nội', 28, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 36, 5, 1, 1),
+(11, 'Fresher QA Engineer', 'Kiểm thử chức năng', 400, 700, 'Kiến thức kiểm thử', 'Ăn trưa miễn phí', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '89 Xã Đàn, Hà Nội', 21, 26, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 2, 45, 2, 1, 1),
 
-(15, 'Backend NodeJS Intern', '<ol><li>Học phát triển API bằng NodeJS</li><li>Hỗ trợ unit test</li></ol>', 200, 400, '<ol><li>Sinh viên CNTT</li><li>Có kiến thức cơ bản JS</li></ol>', '<ol><li>Cơ hội được đào tạo</li><li>Team trẻ trung</li></ol>', 'APPROVED', NOW(), NOW(), '15 Võ Văn Ngân, Thủ Đức, HCM', 20, 24, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 8, 1, 1, 1),
+(12, 'Junior Business Analyst', 'Viết tài liệu nghiệp vụ', 600, 1200, '1 năm BA', 'Lương tháng 13', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '12 Láng Hạ, Ba Đình, Hà Nội', 23, 30, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 2, 50, 3, 1, 1),
 
-(16, 'Fresher UI/UX Designer', '<ol><li>Thiết kế giao diện website/app</li><li>Phối hợp team FE</li></ol>', 400, 700, '<ol><li>Có kiến thức UI/UX</li><li>Biết Figma</li></ol>', '<ol><li>Môi trường sáng tạo</li><li>Đào tạo kỹ năng</li></ol>', 'APPROVED', NOW(), NOW(), '68 Nguyễn Trãi, Thanh Xuân, Hà Nội', 21, 26, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 44, 2, 1, 1),
+(13, 'Middle DevOps Engineer', 'Quản lý CI/CD', 1200, 2000, '≥3 năm DevOps, Docker', 'Hỗ trợ chứng chỉ', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '42 Nguyễn Hữu Cảnh, HCM', 25, 35, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 1, 14, 4, 1, 1),
 
-(17, 'Junior Golang Developer', '<ol><li>Phát triển API tốc độ cao</li><li>Tích hợp microservices</li></ol>', 700, 1300, '<ol><li>1 năm Go</li><li>Biết Docker</li></ol>', '<ol><li>Thưởng dự án</li><li>Bảo hiểm đầy đủ</li></ol>', 'APPROVED', NOW(), NOW(), '33 Điện Biên Phủ, Bình Thạnh, HCM', 23, 30, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 11, 3, 1, 1),
+(14, 'Senior AI Engineer', 'Xây dựng mô hình ML', 2000, 3500, '≥5 năm AI, Python', 'Đào tạo nâng cao', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '10 Duy Tân, Cầu Giấy, Hà Nội', 28, 40, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 2, 36, 5, 1, 1),
 
-(18, 'Middle Data Engineer', '<ol><li>Xây dựng pipeline dữ liệu</li><li>Tối ưu hệ thống ETL</li></ol>', 1200, 2000, '<ol><li>≥3 năm Data Engineer</li><li>Kinh nghiệm Hadoop, Spark</li></ol>', '<ol><li>Lương thưởng hấp dẫn</li><li>Tham gia hội thảo</li></ol>', 'APPROVED', NOW(), NOW(), '27 Nguyễn Văn Cừ, Quận 5, HCM', 25, 34, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 7, 4, 1, 1),
+(15, 'Backend NodeJS Intern', 'Học phát triển API NodeJS', 200, 400, 'Sinh viên CNTT', 'Team trẻ trung', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '15 Võ Văn Ngân, Thủ Đức, HCM', 20, 24, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 1, 8, 1, 1, 1),
 
-(19, 'Senior Project Manager', '<ol><li>Quản lý dự án phần mềm</li><li>Làm việc với khách hàng</li></ol>', 1800, 3200, '<ol><li>≥5 năm PM</li><li>Kỹ năng quản lý team</li></ol>', '<ol><li>Thưởng quý</li><li>Làm việc linh hoạt</li></ol>', 'APPROVED', NOW(), NOW(), '123 Phạm Văn Đồng, Bắc Từ Liêm, Hà Nội', 28, 42, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 55, 5, 1, 1),
+(16, 'Fresher UI/UX Designer', 'Thiết kế giao diện', 400, 700, 'Biết Figma', 'Môi trường sáng tạo', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '68 Nguyễn Trãi, Hà Nội', 21, 26, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 2, 44, 2, 1, 1),
 
-(20, 'Backend Python Intern', '<ol><li>Học Flask/Django</li><li>Viết unit test</li></ol>', 200, 450, '<ol><li>Sinh viên CNTT</li><li>Biết Python cơ bản</li></ol>', '<ol><li>Cơ hội đào tạo</li><li>Mentor hỗ trợ</li></ol>', 'APPROVED', NOW(), NOW(), '45 Nguyễn Thị Minh Khai, Quận 3, HCM', 20, 24, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 1, 6, 1, 1, 1),
+(17, 'Junior Golang Developer', 'Phát triển API tốc độ cao', 700, 1300, '1 năm Go', 'Thưởng dự án', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '33 Điện Biên Phủ, HCM', 23, 30, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 1, 11, 3, 1, 1),
 
-(21, 'Fresher Cloud Engineer', '<ol><li>Học AWS/Azure</li><li>Triển khai dịch vụ cloud</li></ol>', 500, 900, '<ol><li>Tốt nghiệp CNTT</li><li>Kiến thức cơ bản Cloud</li></ol>', '<ol><li>Đào tạo chứng chỉ</li><li>Bonus dự án</li></ol>', 'APPROVED', NOW(), NOW(), '19 Nguyễn Văn Cừ, Long Biên, Hà Nội', 21, 26, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 47, 2, 1, 1),
+(18, 'Middle Data Engineer', 'Xây dựng pipeline dữ liệu', 1200, 2000, '≥3 năm Data Engineer', 'Lương thưởng hấp dẫn', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '27 Nguyễn Văn Cừ, Quận 5, HCM', 25, 34, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 1, 7, 4, 1, 1),
 
-(22, 'Junior Security Engineer', '<ol><li>Thực hiện pentest</li><li>Phân tích log hệ thống</li></ol>', 700, 1400, '<ol><li>1 năm security</li><li>Hiểu OWASP</li></ol>', '<ol><li>Bảo hiểm sức khỏe</li><li>Thưởng theo dự án</li></ol>', 'APPROVED', NOW(), NOW(), '66 Nguyễn Văn Linh, Hải Châu, Đà Nẵng', 23, 30, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 3, 27, 3, 1, 1),
+(19, 'Senior Project Manager', 'Quản lý dự án phần mềm', 1800, 3200, '≥5 năm PM', 'Làm việc linh hoạt', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '123 Phạm Văn Đồng, Hà Nội', 28, 42, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 2, 55, 5, 1, 1),
 
-(23, 'Middle Fullstack Developer', '<ol><li>Phát triển cả FE và BE</li><li>Tích hợp microservices</li></ol>', 1200, 2100, '<ol><li>≥3 năm JavaScript</li><li>Kinh nghiệm NodeJS + React</li></ol>', '<ol><li>Lương thưởng cạnh tranh</li><li>Chế độ bảo hiểm</li></ol>', 'APPROVED', NOW(), NOW(), '22 Hoàng Diệu, Hải Châu, Đà Nẵng', 25, 35, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 3, 33, 4, 1, 1),
+(20, 'Backend Python Intern', 'Học Flask/Django', 200, 450, 'Biết Python cơ bản', 'Mentor hỗ trợ', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '45 Nguyễn Thị Minh Khai, HCM', 20, 24, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 1, 6, 1, 1, 1),
 
-(24, 'Senior System Architect', '<ol><li>Thiết kế kiến trúc hệ thống</li><li>Tối ưu scalability</li></ol>', 2500, 4000, '<ol><li>≥8 năm kinh nghiệm</li><li>Kỹ năng kiến trúc hệ thống</li></ol>', '<ol><li>Lương cao</li><li>Chế độ phúc lợi đầy đủ</li></ol>', 'APPROVED', NOW(), NOW(), '11 Trần Duy Hưng, Cầu Giấy, Hà Nội', 30, 45, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00',1, 2, 39, 5, 1, 1);
+(21, 'Fresher Cloud Engineer', 'Triển khai dịch vụ cloud', 500, 900, 'Kiến thức cơ bản Cloud', 'Đào tạo chứng chỉ', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '19 Nguyễn Văn Cừ, Hà Nội', 21, 26, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 2, 47, 2, 1, 1),
 
+(22, 'Junior Security Engineer', 'Phân tích log hệ thống', 700, 1400, '1 năm security', 'Bảo hiểm sức khỏe', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '66 Nguyễn Văn Linh, Đà Nẵng', 23, 30, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 3, 27, 3, 1, 1),
+
+(23, 'Middle Fullstack Developer', 'Phát triển FE và BE', 1200, 2100, '≥3 năm JavaScript', 'Chế độ đầy đủ', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '22 Hoàng Diệu, Đà Nẵng', 25, 35, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 3, 33, 4, 1, 1),
+
+(24, 'Senior System Architect', 'Thiết kế kiến trúc hệ thống', 2500, 4000, '≥8 năm kinh nghiệm', 'Lương cao ngất', 'APPROVED', NOW(), NOW(), NOW(), NOW(), '11 Trần Duy Hưng, Hà Nội', 30, 45, '2025-08-10', '2025-09-10', '08:00:00', '17:00:00', 1, 2, 39, 5, 1, 1);
 CREATE TABLE bill (
   id INT PRIMARY KEY AUTO_INCREMENT,
   created_date TIMESTAMP NOT NULL,
@@ -350,6 +414,7 @@ CREATE TABLE application (
  message TEXT,
  cv VARCHAR(255),
  status ENUM('PENDING', 'APPROVED','CANCELED') NOT NULL,
+ contacted BOOLEAN,
  FOREIGN KEY (candidate_id) REFERENCES candidate(id) ,
  FOREIGN KEY (job_id) REFERENCES job(id) 
 );
@@ -660,9 +725,9 @@ INSERT INTO foreign_language (id, language_id, level_id, candidate_id) VALUES
 
 -- 13. Insert Application
 INSERT INTO application VALUES 
-(1, 1, 1, NOW(), 'I am very interested in this Java Developer position', null, 'APPROVED'),
-(2, 1, 3, NOW(), 'I would like to apply for the Full Stack Developer role', null, 'CANCELED'),
-(3, 2, 2, NOW(), 'I am excited about this Frontend Developer opportunity', null, 'PENDING');
+(1, 1, 1, NOW(), 'I am very interested in this Java Developer position', null, 'APPROVED', 1),
+(2, 1, 3, NOW(), 'I would like to apply for the Full Stack Developer role', null, 'CANCELED', 0),
+(3, 2, 2, NOW(), 'I am excited about this Frontend Developer opportunity', null, 'PENDING', 0);
 
 -- 14. Insert JobAlert
 INSERT INTO job_alert (id, candidate_id, job_id, notification_status) VALUES 
@@ -670,3 +735,63 @@ INSERT INTO job_alert (id, candidate_id, job_id, notification_status) VALUES
 (2, 1, 2, true),
 (3, 2, 2, true),
 (4, 2, 3, false);
+
+CREATE TABLE it_careers (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    job_title VARCHAR(255) NOT NULL,
+    key_skills TEXT NOT NULL,
+    character_traits TEXT NOT NULL,
+    holland_code VARCHAR(10)
+);
+
+INSERT INTO it_careers (job_title, key_skills, character_traits, holland_code) VALUES
+('AI/ML Engineer', 'Python, PyTorch, Math, Algorithms, TensorFlow', 'Tư duy nghiên cứu, kiên nhẫn, tò mò', 'IRC'),
+('Backend Developer', 'Java, Spring Boot, SQL, Microservices, Hibernate', 'Tư duy logic, giải quyết vấn đề, kỷ luật', 'RIC'),
+('Frontend Developer', 'React, VueJS, HTML/CSS, JavaScript, TypeScript', 'Tỉ mỉ, có gu thẩm mỹ tốt, sáng tạo', 'RIC'),
+('Mobile Developer', 'Flutter, Swift, Kotlin, React Native, Firebase', 'Thích sản phẩm thực tế, năng động, thích ứng nhanh', 'RIC'),
+('DevOps Engineer', 'Docker, Kubernetes, AWS, CI/CD, Jenkins', 'Thích tự động hóa, chịu áp lực tốt, bình tĩnh', 'RIC'),
+('Data Analyst', 'SQL, Python, PowerBI, Statistics, Excel', 'Nhạy bén số liệu, cẩn thận, trung thực', 'ICE'),
+('Data Scientist', 'R, Python, Big Data, Deep Learning, Statistics', 'Thích khám phá, tò mò, kiên định', 'IRC'),
+('Cybersecurity Analyst', 'Network, Pentest, SOC, Linux, Wireshark', 'Cẩn thận, tư duy phòng thủ, bảo mật', 'IRS'),
+('UI/UX Designer', 'Figma, User Research, Wireframing, Adobe XD', 'Thấu cảm, sáng tạo, quan sát tỉ mỉ', 'AIS'),
+('Business Analyst (BA)', 'Requirement Gathering, SQL, UML, Jira', 'Giao tiếp tốt, tư duy hệ thống, linh hoạt', 'EIC'),
+('QA/QC Engineer', 'Automation Test, Selenium, Jira, Manual Test', 'Kỹ tính, cầu toàn, kiên nhẫn', 'CIR'),
+('Cloud Architect', 'Azure, Google Cloud, Networking, Infrastructure', 'Tầm nhìn hệ thống, bao quát, chiến lược', 'RIE'),
+('Game Developer', 'Unity, C++, C#, Physics, Shader', 'Sáng tạo, yêu thích trải nghiệm, kiên trì', 'ARI'),
+('Blockchain Developer', 'Solidity, Rust, Cryptography, P2P Network', 'Tư duy thuật toán, bảo mật, đổi mới', 'IRC'),
+('Embedded Engineer', 'C, C++, Microcontrollers, RTOS, IoT', 'Kiên trì, tư duy phần cứng, chi tiết', 'RIC'),
+('System Administrator', 'Windows Server, Linux, Networking, Security', 'Trách nhiệm, thực tế, bình tĩnh', 'RCI'),
+('Database Admin (DBA)', 'Oracle, MySQL, Backup/Recovery, Performance Tuning', 'Cẩn thận, bảo mật dữ liệu, chính xác', 'CIR'),
+('Product Manager', 'Product Vision, Roadmap, Agile, User Centric', 'Lãnh đạo, quyết đoán, thấu hiểu khách hàng', 'ECI'),
+('IT Project Manager', 'PMP, Agile/Scrum, Risk Management, Budgeting', 'Quản lý thời gian, điều phối, giao tiếp', 'ECR'),
+('Solution Architect', 'Design Patterns, System Design, Scalability', 'Kinh nghiệm dày dạn, bao quát, phân tích', 'RIE'),
+('Fullstack Developer', 'Node.js, React, PostgreSQL, API Design', 'Đa năng, ham học hỏi, linh hoạt', 'RIC'),
+('Data Engineer', 'Spark, Hadoop, ETL, Data Pipeline, Airflow', 'Logic, thích xây dựng hệ thống, bền bỉ', 'RIC'),
+('Security Engineer', 'Encryption, Firewall, Incident Response, Python', 'Phân tích sâu, nhạy bén, trung thực', 'IRS'),
+('Bridge SE (BrSE)', 'Japanese/English, Coding, N2, Management', 'Giao tiếp liên văn hóa, kết nối, trách nhiệm', 'ESC'),
+('Technical Architect', 'Tech Stack Selection, Scalability, High Availability', 'Tư duy chiến lược kỹ thuật, điềm đạm', 'RIE'),
+('Mobile Game Designer', 'Game Logic, Storytelling, UI, Concept Art', 'Sáng tạo, hiểu tâm lý người chơi, bay bổng', 'ASI'),
+('AI Researcher', 'Research Paper, Advanced Math, Deep Learning', 'Học thuật, kiên định, tư duy phản biện', 'IAR'),
+('IoT Developer', 'Sensors, MQTT, C/C++, Hardware, ESP32', 'Tò mò, thích vạn vật kết nối, thực hành', 'RIC'),
+('Automation Test Eng', 'Java/Python, Appium, Cucumber, Jenkins', 'Tư duy lập trình tốt, tỉ mỉ, logic', 'RIC'),
+('Network Engineer', 'Cisco, Routing, Switching, Firewall', 'Kỹ thuật thực tế, chính xác, cẩn trọng', 'RCI'),
+('Information Architect', 'Content Structure, Taxonomy, UX Research', 'Tổ chức tốt, tư duy logic, hệ thống', 'ICE'),
+('Scrum Master', 'Coaching, Facilitation, Agile, Conflict Resolution', 'Kiên nhẫn, hỗ trợ mọi người, tinh tế', 'SAE'),
+('ERP Consultant', 'SAP, Oracle ERP, Business Process, Finance', 'Phân tích quy trình, thực tế, tư vấn', 'ECI'),
+('SEO Specialist', 'Technical SEO, Keyword Research, Analytics', 'Phân tích xu hướng, bền bỉ, thích nghi', 'EIC'),
+('Growth Hacker', 'Data-driven Marketing, Coding, Experiments', 'Đột phá, nhạy bén thị trường, quyết liệt', 'EAI'),
+('Cloud Security Eng', 'IAM, Cloud Governance, Security, Compliance', 'Cẩn trọng, am hiểu đám mây, tuân thủ', 'IRC'),
+('Firmware Engineer', 'Low-level C, Assembly, Debugging, Hardware', 'Tư duy máy móc, kiên nhẫn, chính xác', 'RIC'),
+('Technical Writer', 'Documentation, API Guide, Copywriting', 'Diễn đạt tốt, kiên nhẫn, tỉ mỉ', 'CSI'),
+('Support Engineer (L3)', 'Troubleshooting, Log analysis, Customer Service', 'Bình tĩnh, xử lý vấn đề, thấu cảm', 'RSI'),
+('Site Reliability Eng', 'Python, Go, SRE Principles, Observability', 'Tư duy hệ thống ổn định, chủ động', 'RIC'),
+('NLP Engineer', 'BERT, GPT, Tokenization, Linguistics', 'Ngôn ngữ học, thuật toán, tư duy sâu', 'IRC'),
+('Computer Vision Eng', 'OpenCV, CNN, Image Processing, YOLO', 'Quan sát hình học tốt, logic, chính xác', 'IRC'),
+('AR/VR Developer', 'C#, Unity, 3D Modeling, Blender', 'Tư duy không gian, sáng tạo, thực nghiệm', 'ARI'),
+('Hardware Designer', 'PCB Design, Altium, Electronics, Simulation', 'Kỹ thuật điện, chi tiết, kiên trì', 'RIC'),
+('IT Auditor', 'Compliance, ISO 27001, Risk, Audit Process', 'Tuân thủ, liêm chính, công bằng', 'CEI'),
+('Presales Engineer', 'Technical Demo, Presentation, Solution Selling', 'Thuyết phục, hiểu kỹ thuật, năng động', 'ESI'),
+('Digital Forensic', 'Evidence Collection, Investigation, Law', 'Phân tích tội phạm, công tâm, kỷ luật', 'IRE'),
+('Robotics Engineer', 'ROS, Control Theory, Mechanical, C++', 'Thích cơ khí và phần mềm, sáng tạo', 'RIC'),
+('Salesforce Dev', 'Apex, SOQL, CRM Logic, LWC', 'Tập trung quy trình khách hàng, cẩn thận', 'RCE'),
+('Prompt Engineer', 'LLM, Prompting, Fine-tuning, Evaluation', 'Thử nghiệm, ngôn ngữ tốt, sáng tạo', 'AIR');

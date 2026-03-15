@@ -58,15 +58,15 @@ public class BillController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{billId}/approve")
-    public void approveBill(@PathVariable Integer billId) throws Exception {
-        billService.updateBillStatus(billId, BillStatus.PAID);
+    @PatchMapping("/{billId}/{jobId}/approve")
+    public void approveBill(@PathVariable Integer billId, @PathVariable Integer jobId) throws Exception {
+        billService.updateBillStatus(billId, jobId, BillStatus.PAID);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{billId}/reject")
-    public void rejectBill(@PathVariable Integer billId) throws Exception {
-        String response = billService.updateBillStatus(billId, BillStatus.REFUNDED);
+    @PatchMapping("/{billId}/{jobId}/reject")
+    public void rejectBill(@PathVariable Integer billId, @PathVariable Integer jobId) throws Exception {
+        String response = billService.updateBillStatus(billId, jobId, BillStatus.REFUNDED);
         log.info("response:{}", response);
     }
 }

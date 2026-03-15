@@ -1,9 +1,11 @@
 package com.lhh.techjobs.mapper;
 
+import com.lhh.techjobs.dto.redis.JobVectorDTO;
 import com.lhh.techjobs.dto.request.JobCreateRequest;
 import com.lhh.techjobs.entity.Job;
 import com.lhh.techjobs.enums.Status;
 import com.lhh.techjobs.repository.*;
+import com.lhh.techjobs.repository.projection.JobVectorProjection;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,4 +31,6 @@ public interface JobMapper {
     @Mapping(target = "contractType", ignore = true)
     @Mapping(target = "skills", ignore = true)
     Job toJob(JobCreateRequest request);
+
+    JobVectorDTO toJobVectorDTO(JobVectorProjection job);
 }

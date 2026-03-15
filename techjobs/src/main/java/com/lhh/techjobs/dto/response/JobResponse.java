@@ -23,6 +23,8 @@ public class JobResponse {
     private String image;
     private String jobLevelName;
     private List<String> jobSkills;
+    private Integer matchPercentage;
+    private String explanation;
 
     public JobResponse(Integer id, String title, Integer salaryMin, Integer salaryMax,
                        String address, String companyName, String district, String city, String image, String jobLevelName) {

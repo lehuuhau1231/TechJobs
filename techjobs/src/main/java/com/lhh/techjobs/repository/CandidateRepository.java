@@ -25,7 +25,7 @@ public interface CandidateRepository extends JpaRepository<Candidate, Integer> {
             "JOIN c.cvProfile p " +
             "JOIN c.user u " +
             "WHERE u.email = :email")
-    CvProfile findCvProfileIdByUserEmail(@Param("email") String email);
+    CvProfile findCvProfileByEmail(@Param("email") String email);
 
     @Query("SELECT c.cv " +
             "FROM Candidate c " +

@@ -16,4 +16,5 @@ public class JobStatsResponse {
     private String title;
     private LocalDateTime postedDate;
     private Long applicationCount;
+    private Integer applicationId;
 }

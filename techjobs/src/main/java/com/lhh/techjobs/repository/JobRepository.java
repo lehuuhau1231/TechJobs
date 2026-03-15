@@ -1,6 +1,6 @@
 package com.lhh.techjobs.repository;
 
-import com.lhh.techjobs.dto.redis.JobVectorDto;
+import com.lhh.techjobs.dto.redis.JobVectorDTO;
 import com.lhh.techjobs.dto.response.JobStatsResponse;
 import com.lhh.techjobs.dto.response.JobTitleResponse;
 import com.lhh.techjobs.entity.Employer;
@@ -8,9 +8,11 @@ import com.lhh.techjobs.entity.Job;
 import com.lhh.techjobs.dto.response.JobDetailResponse;
 import com.lhh.techjobs.dto.response.JobResponse;
 import com.lhh.techjobs.enums.Status;
+import com.lhh.techjobs.repository.projection.JobVectorProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -43,6 +45,7 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "AND (:jobType IS NULL OR jt.name = :jobType) " +
             "AND (:contractType IS NULL OR ct.name = :contractType) " +
             "AND (j.status = com.lhh.techjobs.enums.Status.APPROVED) " +
+            "AND j.endDate >= CURRENT_DATE " +
             "GROUP BY j.id, j.title, j.salaryMin, j.salaryMax, j.address, e.companyName, c.name, u.avatar")
     Page<JobResponse> searchJobs(@Param("city") String city,
                                @Param("title") String title,
@@ -54,7 +57,9 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
 
     @Query("SELECT s.name FROM Job j " +
             "JOIN j.skills s " +
-            "WHERE j.id = :jobId")
+            "WHERE j.id = :jobId " +
+            "AND j.endDate >= CURRENT_DATE " +
+            "AND j.status = com.lhh.techjobs.enums.Status.APPROVED")
     List<String> findJobSkillsByJobId(@Param("jobId") Integer jobId);
 
     @Query("SELECT new com.lhh.techjobs.dto.response.JobDetailResponse(j.id, " +
@@ -98,15 +103,44 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "WHERE j.status = :status ")
     List<JobTitleResponse> findAllJobTitles(@Param("status") Status status);
 
-    @Query("SELECT new com.lhh.techjobs.dto.response.JobStatsResponse(j.id, j.title, j.postedDate, COUNT(a)) " +
+    @Query("SELECT new com.lhh.techjobs.dto.response.JobStatsResponse(j.id, j.title, j.postedDate, COUNT(a), a.id) " +
             "FROM Job j " +
             "JOIN j.jobApplications a " +
             "WHERE j.status = com.lhh.techjobs.enums.Status.APPROVED " +
             "AND j.employer = :employer " +
             "AND a.status = com.lhh.techjobs.enums.Status.PENDING " +
-            "GROUP BY j.id, j.title, j.postedDate")
+            "AND j.endDate >= CURRENT_DATE " +
+            "GROUP BY j.id, j.title, j.postedDate, a.id")
     List<JobStatsResponse> findApprovedJobsWithApplicationCount(@Param("employer") Employer employer);
 
-    Page<Job> findByStatus(Status status, Pageable pageable);
+    @Query(value ="""
+            SELECT
+                    j.id as id,
+                    j.title as title,
+                    j.description as description,
+                    j.salary_min as salaryMin,
+                    j.salary_max as salaryMax,
+                    jl.name as jobLevel,
+                    c.name as city,
+                    d.name as district,
+                    u.avatar as image,
+                    GROUP_CONCAT(s.name) as skills
+                FROM job j
+                LEFT JOIN job_level jl ON j.job_level_id = jl.id
+                LEFT JOIN city c ON j.city_id = c.id
+                LEFT JOIN district d ON j.district_id = d.id
+                LEFT JOIN employer e ON j.employer_id = e.id
+                LEFT JOIN user u ON e.user_id = u.id
+                LEFT JOIN job_skill js ON j.id = js.job_id
+                LEFT JOIN skill s ON js.skill_id = s.id
+                WHERE j.status = :status
+                AND j.vector_updated_at IS NULL
+                GROUP BY j.id
+                LIMIT :pageSize
+    """, nativeQuery = true)
+    List<JobVectorProjection> findByStatus(Status status, @Param("pageSize") int pageSize);
 
+    @Modifying
+    @Query("UPDATE Job j SET j.vectorUpdatedAt = CURRENT_TIMESTAMP WHERE j.id IN :jobIds")
+    void updateVectorUpdatedAtForJobs(@Param("jobIds") List<Integer> jobIds);
 }

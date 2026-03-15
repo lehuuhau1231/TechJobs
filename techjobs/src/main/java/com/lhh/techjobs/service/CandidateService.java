@@ -93,3 +93,4 @@ public class CandidateService {
         return result;
     }
 }
+

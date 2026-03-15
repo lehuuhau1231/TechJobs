@@ -1,10 +1,14 @@
 package com.lhh.techjobs.service;
 
-import com.lhh.techjobs.dto.redis.JobVectorDto;
+import com.lhh.techjobs.dto.redis.CareerChatbotDTO;
+import com.lhh.techjobs.dto.redis.JobVectorDTO;
 import com.lhh.techjobs.entity.Job;
 import com.lhh.techjobs.entity.Skill;
 import com.lhh.techjobs.enums.Status;
+import com.lhh.techjobs.mapper.JobMapper;
+import com.lhh.techjobs.repository.ITCareerRepository;
 import com.lhh.techjobs.repository.JobRepository;
+import com.lhh.techjobs.repository.projection.JobVectorProjection;
 import com.lhh.techjobs.repository.redis.JobVectorRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,63 +29,50 @@ public class JobVectorService {
     private final JobRepository jobRepository;
     private final JobVectorRepository jobVectorRepository;
     private final JobRedisService jobRedisService;
+    private final JobMapper jobMapper;
 
     /**
      * Đồng bộ tất cả job từ MySQL lên Redis Vector Database
      */
+    @Transactional
     public void syncAllJobsToRedis() {
-        log.info("Bắt đầu đồng bộ tất cả job lên Redis Vector Database");
+        log.info("Starting to synchronize all job to Redis Vector Database...");
 
         int pageSize = 50;
-        int pageNumber = 0;
-        Page<Job> jobPage;
+        List<JobVectorProjection> jobs;
         int totalSynced = 0;
+        int batchNumber = 0;
 
         do {
-            jobPage = jobRepository.findByStatus(Status.APPROVED, PageRequest.of(pageNumber, pageSize));
-            List<JobVectorDto> jobVectors = jobPage.getContent().stream()
-                    .map(this::convertToJobVectorDto)
-                    .collect(Collectors.toList());
-            jobVectors.stream().forEach(jobVector -> {
-                System.out.println(jobVector);
-            });
-            jobRedisService.saveAllJob(jobVectors);
+            jobs = jobRepository.findByStatus(Status.APPROVED, pageSize);
+            List<JobVectorDTO> jobVectors = jobs.stream().map(jobMapper::toJobVectorDTO).toList();
+            jobRedisService.saveAllJob(jobVectors, "job: ");
+
+            List<Integer> jobIds = jobs.stream().map(JobVectorProjection::getId).toList();
+
+            if(jobIds.isEmpty()) break;
+
+            jobRepository.updateVectorUpdatedAtForJobs(jobIds);
+
             totalSynced += jobVectors.size();
-            log.info("Đã đồng bộ {} job, trang {}, tổng cộng: {}", jobVectors.size(), pageNumber + 1, totalSynced);
+            batchNumber++;
+            log.info("Synchronized {} jobs to Redis in {} batch", jobVectors.size(), batchNumber);
 
-            pageNumber++;
-        } while (jobPage.hasNext());
+        } while (jobs.size() == pageSize);
 
-        log.info("Hoàn thành đồng bộ {} job lên Redis Vector Database", totalSynced);
+        log.info("Completed synchronize {} job to vector database Redis", totalSynced);
     }
-
     /**
      * Đồng bộ một job cụ thể lên Redis Vector Database
      */
     public void syncJobToRedis(Integer jobId) {
-        log.info("Đồng bộ job ID {} lên Redis Vector Database", jobId);
+        log.info("Synchronizing jobID: {} to Redis", jobId);
 
         jobRepository.findById(jobId).ifPresent(job -> {
-            JobVectorDto jobVectorDto = convertToJobVectorDto(job);
+            JobVectorDTO jobVectorDto = convertToJobVectorDto(job);
             jobVectorRepository.saveJob(jobVectorDto);
             log.info("Đã đồng bộ job ID {} lên Redis", jobId);
         });
-    }
-
-    /**
-     * Tìm kiếm job dựa trên vector similarity
-     */
-    public List<JobVectorDto> searchJobs(String query, int limit) {
-        log.info("Tìm kiếm job với query: '{}', limit: {}", query, limit);
-        return jobVectorRepository.searchJobsByVector(query, limit);
-    }
-
-    /**
-     * Xóa job khỏi Redis khi job bị xóa trong MySQL
-     */
-    public void deleteJobFromRedis(Integer jobId) {
-        log.info("Xóa job ID {} khỏi Redis", jobId);
-        jobVectorRepository.deleteJob(jobId);
     }
 
     /**
@@ -95,21 +87,17 @@ public class JobVectorService {
     /**
      * Chuyển đổi entity Job thành JobVectorDto để lưu vào Redis
      */
-    private JobVectorDto convertToJobVectorDto(Job job) {
-        return JobVectorDto.builder()
+    private JobVectorDTO convertToJobVectorDto(Job job) {
+        return JobVectorDTO.builder()
                 .id(job.getId())
                 .title(job.getTitle())
                 .description(job.getDescription())
                 .salaryMin(job.getSalaryMin())
                 .salaryMax(job.getSalaryMax())
-                .jobLevelName(job.getJobLevel() != null ? job.getJobLevel().getName() : null)
-                .cityName(job.getCity() != null ? job.getCity().getName() : null)
-                .districtName(job.getDistrict() != null ? job.getDistrict().getName() : null)
-                .skillNames(job.getSkills() != null ?
-                        job.getSkills().stream()
-                                .map(Skill::getName)
-                                .collect(Collectors.toList()) :
-                        null)
+                .jobLevel(job.getJobLevel().getName())
+                .city(job.getCity().getName())
+                .district(job.getDistrict().getName())
+                .skills(job.getSkills().stream().map(Skill::getName).collect(Collectors.joining(", ")))
                 .image(job.getEmployer().getUser().getAvatar())
                 .build();
     }

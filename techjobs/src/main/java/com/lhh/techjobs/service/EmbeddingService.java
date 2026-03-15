@@ -4,13 +4,18 @@ import com.google.genai.Client;
 import com.google.genai.types.ContentEmbedding;
 import com.google.genai.types.EmbedContentConfig;
 import com.google.genai.types.EmbedContentResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class EmbeddingService {
+    @Value("${embedding.model}")
+    private String embeddingModel;
+
     private final Client client;
 
     public EmbeddingService(@Value("${gemini.api.key}") String apiKey) {
@@ -23,18 +28,14 @@ public class EmbeddingService {
         try {
             EmbedContentConfig config = EmbedContentConfig.builder().build();
 
-            // Gọi API embedContent với cú pháp đúng
-            EmbedContentResponse response = client.models.embedContent("models/embedding-001", text, config);
-
-            // Gemini API trả về embedding trong response object
+            EmbedContentResponse response = client.models.embedContent(embeddingModel, text, config);
+            System.out.println("response: " + response);
             if (response != null && response.embeddings() != null && response.embeddings().isPresent()) {
                 List<ContentEmbedding> embeddings = response.embeddings().get();
 
                 if (!embeddings.isEmpty()) {
-                    // Lấy embedding đầu tiên
                     List<Float> values = embeddings.getFirst().values().orElse(null);
 
-                    // Chuyển sang mảng float[]
                     float[] result = new float[values.size()];
                     for (int i = 0; i < values.size(); i++) {
                         result[i] = values.get(i).floatValue();
@@ -42,9 +43,9 @@ public class EmbeddingService {
                     return result;
                 }
             }
-
         } catch (Exception e) {
-            throw new RuntimeException("Lỗi khi tạo embedding: " + e.getMessage(), e);
+            log.error("Error creating embedding", e);
+            throw new RuntimeException("Error creating embedding", e);
         }
         return new float[0];
     }

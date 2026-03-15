@@ -23,6 +23,6 @@ public class RecommendationSmartJobController {
     @GetMapping("/jobs")
     public ResponseEntity<List<JobResponse>> smartSearchJobs() {
 
-        return ResponseEntity.ok(recommendationService.recommendationFromCV());
+        return ResponseEntity.ok(recommendationService.recommendationJobFromCV());
     }
 }

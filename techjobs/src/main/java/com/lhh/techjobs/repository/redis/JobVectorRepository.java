@@ -1,13 +1,12 @@
 package com.lhh.techjobs.repository.redis;
 
-import com.lhh.techjobs.dto.redis.JobVectorDto;
+import com.lhh.techjobs.dto.redis.JobVectorDTO;
 import com.lhh.techjobs.service.EmbeddingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.JedisPooled;
-import redis.clients.jedis.UnifiedJedis;
 import redis.clients.jedis.search.Document;
 import redis.clients.jedis.search.Query;
 import redis.clients.jedis.search.SearchResult;
@@ -31,12 +30,12 @@ public class JobVectorRepository {
     private final JedisPooled jedis;
 
 
-    public void saveJob(JobVectorDto jobVectorDto) {
+    public void saveJob(JobVectorDTO jobVectorDto) {
         try {
             String key = PREFIX_KEY + jobVectorDto.getId();
 
             // Tạo embedding vector từ nội dung job
-            String vectorContent = jobVectorDto.getVectorContent();
+            String vectorContent = jobVectorDto.buildVectorContent();
             float[] embedding = embeddingService.getEmbedding(vectorContent);
 
             Map<String, Object> jobMap = new HashMap<>();
@@ -45,11 +44,11 @@ public class JobVectorRepository {
             jobMap.put("description", jobVectorDto.getDescription() != null ? jobVectorDto.getDescription() : "");
             jobMap.put("salaryMin", jobVectorDto.getSalaryMin() != null ? jobVectorDto.getSalaryMin().toString() : "0");
             jobMap.put("salaryMax", jobVectorDto.getSalaryMax() != null ? jobVectorDto.getSalaryMax().toString() : "0");
-            jobMap.put("jobLevelName", jobVectorDto.getJobLevelName() != null ? jobVectorDto.getJobLevelName() : "");
-            jobMap.put("cityName", jobVectorDto.getCityName() != null ? jobVectorDto.getCityName() : "");
-            jobMap.put("districtName", jobVectorDto.getDistrictName() != null ? jobVectorDto.getDistrictName() : "");
+            jobMap.put("jobLevelName", jobVectorDto.getJobLevel() != null ? jobVectorDto.getJobLevel() : "");
+            jobMap.put("cityName", jobVectorDto.getCity() != null ? jobVectorDto.getCity() : "");
+            jobMap.put("districtName", jobVectorDto.getDistrict() != null ? jobVectorDto.getDistrict() : "");
 //            jobMap.put("skillNames", String.join(",", jobVectorDto.getSkillNames() != null ? jobVectorDto.getSkillNames() : new ArrayList<>()));
-            jobMap.put("skillNames", jobVectorDto.getSkillNames());
+            jobMap.put("skillNames", jobVectorDto.getSkills());
             jobMap.put("vector_content", vectorContent);
 
             // Chuyển float[] thành byte[] để lưu vào Redis
@@ -87,11 +86,11 @@ public class JobVectorRepository {
             Map<String, String> jobData = jedis.hgetAll(key);
 
             if (jobData.isEmpty()) {
-                System.out.println("❌ Không tìm thấy job trong Redis");
+                System.out.println("Không tìm thấy job trong Redis");
                 return;
             }
 
-            System.out.println("✅ Thông tin job:");
+            System.out.println("Thông tin job:");
             jobData.forEach((k, v) -> {
                 if ("embedding".equals(k)) {
                     System.out.println(k + " = (Base64 length) " + v.length());
@@ -106,15 +105,15 @@ public class JobVectorRepository {
         }
     }
 
-    public void saveJobs(List<JobVectorDto> jobs) {
+    public void saveJobs(List<JobVectorDTO> jobs) {
         log.info("Bắt đầu lưu {} job vào Redis vector database", jobs.size());
-        for (JobVectorDto job : jobs) {
+        for (JobVectorDTO job : jobs) {
             saveJob(job);
         }
         log.info("Hoàn thành lưu {} job vào Redis vector database", jobs.size());
     }
 
-    public List<JobVectorDto> searchJobsByVector(String query, int limit) {
+    public List<JobVectorDTO> searchJobsByVector(String query, int limit) {
         try {
             // Tạo embedding cho query tìm kiếm
             float[] queryEmbedding = embeddingService.getEmbedding(query);
@@ -138,7 +137,7 @@ public class JobVectorRepository {
                     .limit(0, limit);
 
             SearchResult result = jedis.ftSearch(INDEX_NAME, q);
-            List<JobVectorDto> jobs = new ArrayList<>();
+            List<JobVectorDTO> jobs = new ArrayList<>();
 
             for (Document doc : result.getDocuments()) {
                 Map<String, Object> properties = new HashMap<>();
@@ -148,22 +147,18 @@ public class JobVectorRepository {
                     properties.put(entry.getKey(), entry.getValue());
                 }
 
-                List<String> skillsList = new ArrayList<>();
-                String skillsStr = (String) properties.get("skillNames");
-                if (skillsStr != null && !skillsStr.isEmpty()) {
-                    skillsList = List.of(skillsStr.split(","));
-                }
+                String skills = (String) properties.get("skillNames");
 
-                JobVectorDto job = JobVectorDto.builder()
+                JobVectorDTO job = JobVectorDTO.builder()
                         .id(Integer.parseInt((String) properties.get("id")))
                         .title((String) properties.get("title"))
                         .description((String) properties.get("description"))
                         .salaryMin(Integer.parseInt((String) properties.get("salaryMin")))
                         .salaryMax(Integer.parseInt((String) properties.get("salaryMax")))
-                        .jobLevelName((String) properties.get("jobLevelName"))
-                        .cityName((String) properties.get("cityName"))
-                        .districtName((String) properties.get("districtName"))
-                        .skillNames(skillsList)
+                        .jobLevel((String) properties.get("jobLevelName"))
+                        .city((String) properties.get("cityName"))
+                        .district((String) properties.get("districtName"))
+                        .skills(skills)
                         .build();
 
                 jobs.add(job);

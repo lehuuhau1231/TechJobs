@@ -47,6 +47,7 @@ const JobDetail = () => {
   const [applyError, setApplyError] = useState("");
   const [applySuccess, setApplySuccess] = useState(false);
   const [alertSuccess, setAlertSuccess] = useState(false);
+  const [isApplied, setIsApplied] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -64,7 +65,22 @@ const JobDetail = () => {
     };
 
     fetchJobDetail();
-  }, [id]);
+    checkApplied();
+  }, []);
+
+  const checkApplied = async () => {
+    const token = cookies.load("token");
+    if (token) {
+      try {
+        const response = await authApis(token).get(
+          `${endpoints.check_applied}/${id}`
+        );
+        setIsApplied(response.data.hasApplied);
+      } catch (error) {
+        console.error("Error checking application status:", error);
+      }
+    }
+  };
 
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
@@ -238,9 +254,9 @@ const JobDetail = () => {
                 <Button
                   className='apply-btn mb-2 w-100 button'
                   onClick={handleApplyClick}
-                  disabled={job.status !== "APPROVED"}
+                  disabled={job.status !== "APPROVED" || isApplied}
                 >
-                  Ứng tuyển ngay
+                  {isApplied ? "Đã ứng tuyển" : "Ứng tuyển ngay"}
                 </Button>
                 <Button
                   variant='outline'
@@ -408,9 +424,9 @@ const JobDetail = () => {
                 <Button
                   className='apply-btn w-100 mt-2 button'
                   onClick={handleApplyClick}
-                  disabled={job.status !== "APPROVED"}
+                  disabled={job.status !== "APPROVED" || isApplied}
                 >
-                  Ứng tuyển ngay
+                  {isApplied ? "Đã ứng tuyển" : "Ứng tuyển ngay"}
                 </Button>
                 <Button
                   variant='outline'

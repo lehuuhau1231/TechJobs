@@ -9,6 +9,8 @@ import com.lhh.techjobs.dto.request.PendingStatusApplicationRequest;
 import com.lhh.techjobs.dto.response.ApplicationEmployerResponse;
 import com.lhh.techjobs.dto.response.ApplicationFilterResponse;
 import com.lhh.techjobs.dto.response.InfoMailResponse;
+import com.lhh.techjobs.dto.response.CandidateApplicationDetailResponse;
+import com.lhh.techjobs.dto.response.CandidateContactResponse;
 import com.lhh.techjobs.entity.Application;
 import com.lhh.techjobs.entity.Candidate;
 import com.lhh.techjobs.entity.Employer;
@@ -88,8 +90,11 @@ public class ApplicationService {
         Application application = applicationRepository.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Application not found with id: " + request.getId()));
         application.setStatus(request.getStatus());
+        application.setContacted(false);
         InfoMailResponse infoEmail = applicationRepository.findInfoToSendMail(request.getId());
         String subject = "Thông báo về trạng thái ứng tuyển";
+
+        System.out.println("email: " + infoEmail.getEmail());
 
         String message;
         String link = "http://localhost:3000/job-detail/" + infoEmail.getJobId();
@@ -120,5 +125,33 @@ public class ApplicationService {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
 
         return applicationRepository.findApplicationsByJobIdAndEmployer(request.getJobId(), employer, pageable);
+    }
+
+    public Map<String, Boolean> hasAppliedForJob(Integer jobId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Candidate candidate = candidateRepository.findByUserEmail(email);
+
+        if (candidate == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        boolean applied = applicationRepository.existsByCandidateIdAndJobId(candidate, jobId);
+        return Map.of("hasApplied", applied);
+    }
+
+    public CandidateApplicationDetailResponse getCandidateApplicationDetail(Integer candidateId, Integer applicationId) {
+        return applicationRepository.findCandidateApplicationDetail(candidateId, applicationId);
+    }
+
+    public List<CandidateContactResponse> getApprovedCandidateByApplicationId(Integer jobId) {
+        return applicationRepository.findApprovedCandidateByApplicationId(jobId, Status.APPROVED);
+    }
+
+    public void updateContactedStatus(Integer applicationId) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found with id: " + applicationId));
+
+        application.setContacted(true);
+        applicationRepository.save(application);
     }
 }

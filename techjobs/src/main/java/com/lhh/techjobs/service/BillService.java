@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.Year;
@@ -24,6 +25,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Transactional
 public class BillService {
     VNPayService VNPayService;
     BillRepository billRepository;
@@ -47,11 +49,15 @@ public class BillService {
                 .build();
     }
 
-    public String updateBillStatus(Integer billId, BillStatus billStatus) throws Exception {
+    public String updateBillStatus(Integer billId, Integer jobId, BillStatus billStatus) throws Exception {
         log.info("Update bill status with id {}", billId);
         Bill bill = billRepository.findById(billId)
                 .orElseThrow(() -> new RuntimeException("Bill not found with id: " + billId));
         bill.setStatus(billStatus);
+
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found with id: " + jobId));
+        job.setStatus(Status.APPROVED);
 
         if(billStatus.equals(BillStatus.REFUNDED)) {
             return VNPayService.refundVNPay(String.valueOf(billId), bill.getTxnRef(), bill.getTransactionNo(), bill.getAmount(), bill.getTransactionDate());
@@ -111,6 +117,6 @@ public class BillService {
     }
 
     public List<BillUnpaidResponse> getBillPending(){
-        return billRepository.getBillUnpaid(BillStatus.PENDING);
+        return billRepository.getBillPending(BillStatus.PENDING);
     }
 }

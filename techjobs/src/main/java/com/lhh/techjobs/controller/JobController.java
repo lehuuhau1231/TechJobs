@@ -28,7 +28,7 @@ public class JobController {
 
     @GetMapping
     public ResponseEntity<PageResponse<JobResponse>> searchJobs(@RequestParam Map<String, String> params) {
-        var jobPage = jobService.searchJobs(params);
+        var jobPage = jobService.   searchJobs(params);
         var response = PageResponse.<JobResponse>builder()
                 .content(jobPage.getContent())
                 .page(jobPage.getNumber())

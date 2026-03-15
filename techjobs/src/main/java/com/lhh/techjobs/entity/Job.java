@@ -64,6 +64,12 @@ public class Job {
     
     @Column(name = "created_date")
     private LocalDateTime createdDate;
+
+    @Column(name = "updated_date")
+    private LocalDateTime updatedDate;
+
+    @Column(name = "vector_updated_at")
+    private LocalDateTime vectorUpdatedAt;
     
     @Column(name = "posted_date", nullable = true)
     private LocalDateTime postedDate;

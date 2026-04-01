@@ -3,8 +3,6 @@ package com.lhh.techjobs.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.genai.Client;
-import com.lhh.techjobs.dto.response.JobExplainResponse;
 import com.lhh.techjobs.dto.response.JobResponse;
 import com.lhh.techjobs.entity.CvProfile;
 import com.lhh.techjobs.entity.User;
@@ -35,9 +33,7 @@ import java.util.stream.Collectors;
 public class RecommendationService {
     private final JedisPooled jedis;
     private final EmbeddingService embeddingService;
-    private final ChatModel chatModel;
     private final CandidateRepository candidateRepository;
-    private final ObjectMapper objectMapper;
 
     private static final String INDEX_NAME = "jobIdx";
 
@@ -71,20 +67,7 @@ public class RecommendationService {
 
         List<JobResponse> jobResponses = mapSearchResult(result);
 
-        String prompt = buildExplainPrompt(jobResponses, cvProfile);
-
-        ChatResponse chatResponse = chatModel.call(new Prompt(prompt));
-        try {
-            List<JobExplainResponse> jobExplainResponses = objectMapper.readValue(chatResponse.getResult().getOutput().getText(),
-                    new TypeReference<List<JobExplainResponse>>() {});
-        } catch (JsonProcessingException e) {
-            log.error("Error parsing job explain gemini response: {}", e.getMessage());
-            throw new RuntimeException(e);
-        }
-
         return jobResponses;
-
-
     }
 
     private List<JobResponse> mapSearchResult(SearchResult result) {
@@ -114,32 +97,5 @@ public class RecommendationService {
                         (int) (1 - Double.parseDouble(doc.getString("score")) * 100)
                 )
                 .build();
-    }
-
-    private String buildExplainPrompt(List<JobResponse> jobs, CvProfile cvProfile) {
-        String jobText = jobs.stream().map(job -> """
-                jobID: %d
-                title: %s
-                city: %s
-                district: %s
-                jobLevel: %s
-                skills: %s
-                """.formatted(job.getId(), job.getTitle(), job.getCity(), job.getDistrict(), job.getJobLevelName(), job.getJobSkills()))
-                .collect(Collectors.joining("\n"));
-
-        return """
-                Dưới đây là thông tin ứng viên:
-                %s
-    
-                Danh sách công việc:
-                %s
-    
-                Hãy trả về JSON dạng:
-                [
-                  { "jobId": "...", "explanation": "..." }
-                ]
-                Giải thích ngắn gọn 1-2 câu vì sao phù hợp.
-                Không trả về text ngoài JSON.
-                """.formatted(cvProfile.buildVectorContent(), jobText);
     }
 }

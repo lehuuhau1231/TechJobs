@@ -18,6 +18,8 @@ import CandidateApply from "./components/Employer/CandidateApply";
 import Profile from "./components/Candidate/Profile";
 import JobRecommendation from "./components/Candidate/JobRecommendation";
 import CandidateDetail from "./components/Employer/CandidateDetail";
+import "../src/components/styles/variable.css";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -93,6 +95,7 @@ function App() {
           </Routes>
         </BrowserRouter>
       </MyUserContext.Provider>
+      <Toaster position='top-right' reverseOrder={false} />
     </>
   );
 }

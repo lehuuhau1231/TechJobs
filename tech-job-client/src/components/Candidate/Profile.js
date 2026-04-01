@@ -24,13 +24,14 @@ import cookies from "react-cookies";
 import Header from "../layout/Header";
 import UploadCVInterface from "./UploadCVInterface";
 import UploadCVModal from "./UploadCVModal";
+import toast from "react-hot-toast";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", content: "" });
   const [token, setToken] = useState(cookies.load("token"));
-  const [showReplaceCVModal, setShowReplaceCVModal] = useState(false);
+  const [showCVModal, setShowCVModal] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -56,20 +57,16 @@ const Profile = () => {
     window.open(url, "_blank");
   };
 
+  useEffect(() => {
+    if (message.content) {
+      toast.success(message.content);
+    }
+  }, [message]);
+
   return (
     <>
       <Header />
       <Container className='my-5'>
-        {message.content && (
-          <Alert
-            variant={message.type}
-            dismissible
-            onClose={() => setMessage({ type: "", content: "" })}
-          >
-            {message.content}
-          </Alert>
-        )}
-
         {profile && (
           <Row>
             <Col md={4}>
@@ -137,7 +134,7 @@ const Profile = () => {
                         <Button
                           variant='primary'
                           className='w-100'
-                          onClick={() => setShowReplaceCVModal(true)}
+                          onClick={() => setShowCVModal(true)}
                         >
                           Thay đổi CV
                         </Button>
@@ -146,7 +143,11 @@ const Profile = () => {
                   </Card.Body>
                 </Card>
               ) : (
-                <UploadCVInterface />
+                <UploadCVInterface
+                  setMessage={setMessage}
+                  setShowModal={setShowCVModal}
+                />
+                // <UploadCVModal />
               )}
             </Col>
 
@@ -215,12 +216,13 @@ const Profile = () => {
             </Col>
           </Row>
         )}
-        {
+        {showCVModal && (
           <UploadCVModal
-            showReplaceCVModal={showReplaceCVModal}
-            setShowReplaceCVModal={setShowReplaceCVModal}
+            showCVModal={showCVModal}
+            setShowCVModal={setShowCVModal}
+            setMessage={setMessage}
           />
-        }
+        )}
       </Container>
     </>
   );

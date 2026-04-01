@@ -4,12 +4,11 @@ import { Button, Card, Form } from "react-bootstrap";
 import cookies from "react-cookies";
 import { authApis, endpoints } from "../../configs/Apis";
 
-const UploadCVInterface = () => {
+const UploadCVInterface = ({ setMessage, setShowModal }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [cvFile, setCvFile] = useState(null);
-  const [message, setMessage] = useState({ type: "", content: "" });
 
   const [token, setToken] = useState(cookies.load("token"));
   const handleFileChange = (e) => {
@@ -66,6 +65,7 @@ const UploadCVInterface = () => {
       });
     } finally {
       setUploadLoading(false);
+      setShowModal(false);
     }
   };
   return (

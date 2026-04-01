@@ -28,6 +28,12 @@ public class ITCareer {
     @Column(name = "character_traits", columnDefinition = "TEXT")
     private String characterTraits;
 
+    @Column(name = "interests", columnDefinition = "TEXT")
+    private String interests;
+
+    @Column(name = "work_styles", columnDefinition = "TEXT")
+    private String workStyles;
+
     @Column(name = "holland_code")
     private String hollandCode;
 

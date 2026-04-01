@@ -26,25 +26,22 @@ public class CareerVectorService {
         log.info("Starting to synchronize all careers to Redis Vector Database...");
 
         int pageSize = 50;
-        int pageNumber = 0;
         int totalSynced = 0;
         Page<CareerChatbotDTO> careers;
 
         do {
-            careers = itCareerRepository.findTop50ByVectorUpdatedAtIsNull(PageRequest.of(pageNumber, pageSize));
+            careers = itCareerRepository.findTop50ByVectorUpdatedAtIsNull(PageRequest.of(0, pageSize));
             List<CareerChatbotDTO> careerList = careers.getContent();
             if(careers.isEmpty()) break;
-            jobRedisService.saveAllJob(careerList, "career: ");
+            jobRedisService.saveAllJob(careerList, "career:");
 
             List<Integer> careerIds = careerList.stream().map(career -> Integer.parseInt(career.getId())).toList();
             if(careerIds.isEmpty()) break;
             itCareerRepository.updateVectorUpdatedAtForCareers(careerIds);
 
             totalSynced += careerList.size();
-            pageNumber++;
-            log.info("Synchronized: {} size, page size: {}, total page: {}", careerList.size(), pageNumber + 1, totalSynced);
+            log.info("Synchronized: {} size, total synced: {}", careerList.size(), totalSynced);
 
-            pageNumber++;
         } while (careers.hasNext());
 
         log.info("Completed synchronize {} career to vector database Redis", totalSynced);

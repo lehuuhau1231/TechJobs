@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
-console.log("API Base URL:", BASE_URL);
 
 export const endpoints = {
   login: "auth/token",
@@ -31,6 +30,8 @@ export const endpoints = {
   bill: "/api/bills",
   smart_recommendation: "/api/smart-recommendation/jobs",
   check_cv: "/api/candidate/check-cv",
+  search_career: "/api/career/search-careers",
+  get_recent_message: "/api/chat-session",
 };
 
 export const authApis = (token) =>

@@ -35,9 +35,9 @@ public class CareerChatbotDTO implements Vectorizable{
     public Map<String, String> toMap() {
         return Map.of(
                 "id", stringify(id),
-                "jobTitle", jobTitle,
-                "keySkills", safeLowerCase(keySkills),
-                "characterTraits", safeLowerCase(characterTraits)
+                "jobTitle", stringify(jobTitle),
+                "keySkills", stringify(safeLowerCase(keySkills)),
+                "characterTraits", stringify(safeLowerCase(characterTraits))
         );
     }
 

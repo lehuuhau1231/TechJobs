@@ -27,14 +27,14 @@ public class CvProfile {
     @Column(name = "education", columnDefinition = "TEXT")
     private String education;
 
+    @Column(name = "major", columnDefinition = "TEXT")
+    private String major;
+
     @Column(name = "experience", columnDefinition = "TEXT")
     private String experience;
 
     @Column(name = "preferred_location", columnDefinition = "TEXT")
     private String preferredLocation;
-
-    @Column(name = "preferred_salary", columnDefinition = "TEXT")
-    private String preferredSalary;
 
     @Column(name = "raw_text", columnDefinition = "TEXT")
     private String rawText;
@@ -67,11 +67,15 @@ public class CvProfile {
             parts.add("Preferred location: " + preferredLocation);
         }
 
-        if (preferredSalary != null && !preferredSalary.isBlank()) {
-            parts.add("Preferred salary: " + preferredSalary);
-        }
-
         return String.join(" | ", parts);
+    }
+
+    public String buildCareerVectorContent() {
+        return """
+        Skills: %s |
+        Experience: %s |
+        Major: %s.
+        """.formatted(skills, experience, major);
     }
 
 }

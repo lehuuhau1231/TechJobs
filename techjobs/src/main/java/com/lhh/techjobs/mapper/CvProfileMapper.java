@@ -6,6 +6,7 @@ import com.lhh.techjobs.entity.CvProfile;
 import com.lhh.techjobs.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface CvProfileMapper {
@@ -14,4 +15,10 @@ public interface CvProfileMapper {
     @Mapping(target = "candidate", ignore = true)
     @Mapping(target = "rawText", ignore = true)
     CvProfile toCvProfile(CvExtractedResponse request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "skills", ignore = true)
+    @Mapping(target = "candidate", ignore = true)
+    @Mapping(target = "rawText", ignore = true)
+    void updateCvProfile(CvExtractedResponse request, @MappingTarget CvProfile entity);
 }

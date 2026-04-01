@@ -21,6 +21,8 @@ public class CareerChatbotIndexSchema extends IndexSchema{
                         TextField.of("id"),
                         TextField.of("jobTitle"),
                         TextField.of("keySkills"),
+                        TextField.of("interests"),
+                        TextField.of("workStyles"),
                         TextField.of("characterTraits"),
 
                         // Vector field: FLAT + COSINE, dim = 768

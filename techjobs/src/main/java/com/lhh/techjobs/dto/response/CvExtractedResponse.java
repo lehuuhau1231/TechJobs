@@ -7,16 +7,12 @@ import java.util.List;
 
 @Data
 public class CvExtractedResponse {
-    private String name;
-    private String email;
-    private String phone;
+    private String title;
     private List<String> skills;
     private String education;
+    private String major;
     private String experience;
 
     @JsonProperty("preferred_location")
     private String preferredLocation;
-
-    @JsonProperty("preferred_salary")
-    private String preferredSalary;
 }

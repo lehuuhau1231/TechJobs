@@ -10,6 +10,14 @@ public class CareerResponse {
     private Integer id;
     private String jobTitle;
     private String keySkills;
+    private String interests;
+    private String workStyles;
     private String characterTraits;
-    private Integer matchPercentage;
+    private Double score;
+
+    public String formatCareerDescription() {
+        return """
+                Title: %s, keySkills: %s, interests: %s, workStyles: %s
+                """.formatted(jobTitle, keySkills, interests, workStyles);
+    }
 }

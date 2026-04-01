@@ -23,6 +23,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import cookies from "react-cookies";
 import { authApis, endpoints } from "../../configs/Apis";
 import ModalRequired from "./ModalRequired";
+import "../styles/variable.css";
 
 const Header = () => {
   const [user, dispatch] = useContext(MyUserContext);
@@ -206,20 +207,22 @@ const Header = () => {
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <Button
               className={`${
-                activeTab === "search" ? "button" : "button-tab-inactive"
+                activeTab === "search" ? "custom-button" : "button-tab-inactive"
               }`}
               onClick={() => handleTabChange("search")}
             >
-              <Search size={12} />
+              <Search size={16} className='me-1' />
               Tìm việc làm
             </Button>
             <Button
               className={`${
-                activeTab === "recommend" ? "button" : "button-tab-inactive"
+                activeTab === "recommend"
+                  ? "custom-button"
+                  : "button-tab-inactive"
               }`}
               onClick={() => handleTabChange("recommend")}
             >
-              <ThumbsUp size={12} />
+              <ThumbsUp size={16} className='me-1' />
               Việc làm phù hợp
             </Button>
             {/* <button className='button button-inactive'>
@@ -273,30 +276,33 @@ const Header = () => {
                               {item.icon}
                               {item.text}
                             </Dropdown.Item>
-                          )
+                          ),
                         )
                       : user.role === "EMPLOYER"
-                      ? menuItems.employer.map((item, index) =>
-                          item.isDivider ? (
-                            <Dropdown.Divider key={`divider-${index}`} />
-                          ) : (
-                            <Dropdown.Item
-                              key={index}
-                              onClick={item.action}
-                              className={item.className}
-                            >
-                              {item.icon}
-                              {item.text}
-                            </Dropdown.Item>
+                        ? menuItems.employer.map((item, index) =>
+                            item.isDivider ? (
+                              <Dropdown.Divider key={`divider-${index}`} />
+                            ) : (
+                              <Dropdown.Item
+                                key={index}
+                                onClick={item.action}
+                                className={item.className}
+                              >
+                                {item.icon}
+                                {item.text}
+                              </Dropdown.Item>
+                            ),
                           )
-                        )
-                      : null}
+                        : null}
                   </Dropdown.Menu>
                 </Dropdown>
               </>
             ) : (
               <>
-                <Button className='button' onClick={() => navigate("/login")}>
+                <Button
+                  className='custom-button'
+                  onClick={() => navigate("/login")}
+                >
                   Đăng nhập
                 </Button>
               </>

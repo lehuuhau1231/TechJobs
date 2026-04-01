@@ -9,14 +9,19 @@
 }
 
 .button-tab-active {
-  background-color: "#4338ca";
+  background-color: var(--primary-color);
   color: "white";
 }
 
 .button-tab-inactive {
   background: transparent;
   color: black;
-  border: solid 1px #4338ca;
+  border: solid 1px var(--primary-color);
+}
+
+.button-tab-inactive:hover {
+  background-color: var(--primary-color);
+  color: white;
 }
 
 .image {

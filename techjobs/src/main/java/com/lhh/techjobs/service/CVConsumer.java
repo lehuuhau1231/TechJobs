@@ -79,7 +79,13 @@ public class CVConsumer {
             skillsJson = objectMapper.writeValueAsString(dto.getSkills());
         } catch (Exception ignore) { }
 
-        CvProfile entity = cvProfileMapper.toCvProfile(dto);
+        CvProfile entity = candidate.getCvProfile();
+
+        if(entity == null) {
+            entity = cvProfileMapper.toCvProfile(dto);
+        } else {
+            cvProfileMapper.updateCvProfile(dto, entity);
+        }
         entity.setSkills(skillsJson);
         entity.setRawText(rawText);
         cvProfileRepository.save(entity);

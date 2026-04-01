@@ -1,112 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Header from "../layout/Header";
 import Apis, { endpoints } from "../../configs/Apis";
-import { Button, Container } from "react-bootstrap";
+import {
+  Button,
+  Container,
+  Row,
+  Col,
+  Card,
+  Badge,
+  Pagination,
+} from "react-bootstrap";
 import "../styles/common.css";
-import { Eraser } from "lucide-react";
+import "./home/Home.css";
 import Loading from "../layout/Loading";
 import { useNavigate } from "react-router-dom";
+import ChatbotCareerRecommend from "../Candidate/ChatbotCareerRecommend/ChatbotCareerRecommend";
+import JobFilter from "./home/JobFilter";
 
 const Home = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState(null);
-  const [jobSkill, setJobSkill] = useState(null);
-  const [jobLevel, setJobLevel] = useState(null);
-  const [jobType, setJobType] = useState(null);
-  const [contractType, setContractType] = useState(null);
-  const [city, setCity] = useState(null);
   const [jobAlert, setJobAlert] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const [jobLevels, setJobLevels] = useState([]);
-  const [jobTypes, setJobTypes] = useState([]);
-  const [contractTypes, setContractTypes] = useState([]);
-  const [cities, setCities] = useState([]);
-
+  const filtersRef = useRef({});
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchJob();
-    fetchJobLevels();
-    fetchJobTypes();
-    fetchContractTypes();
-    fetchCities();
-  }, []);
-
-  useEffect(() => {
-    fetchJob();
-  }, [currentPage]);
-
-  const resetFilters = () => {
-    setTitle(null);
-    setJobSkill(null);
-    setJobType(null);
-    setJobLevel(null);
-    setContractType(null);
-    setCity(null);
-    fetchJob();
-  };
-
-  // Fetch các dữ liệu cho dropdown
-  const fetchJobLevels = async () => {
-    try {
-      const response = await Apis.get(endpoints.job_levels);
-      if (response.status === 200) {
-        setJobLevels(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching job levels:", error);
-    }
-  };
-
-  const fetchJobTypes = async () => {
-    try {
-      const response = await Apis.get(endpoints.job_types);
-      if (response.status === 200) {
-        setJobTypes(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching job types:", error);
-    }
-  };
-
-  const fetchContractTypes = async () => {
-    try {
-      const response = await Apis.get(endpoints.contract_types);
-      if (response.status === 200) {
-        setContractTypes(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching contract types:", error);
-    }
-  };
-
-  const fetchCities = async () => {
-    try {
-      const response = await Apis.get(endpoints.cities);
-      if (response.status === 200) {
-        setCities(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching cities:", error);
-    }
-  };
-
-  const fetchJob = async () => {
+  const fetchJob = useCallback(async (filters = filtersRef.current, page = currentPage) => {
     try {
       setLoading(true);
 
-      let url = `${endpoints.job}?page=${currentPage}`;
+      let url = `${endpoints.job}?page=${page}`;
 
-      if (title) url += `&title=${title}`;
-      if (jobSkill) url += `&jobSkill=${jobSkill}`;
-      if (jobLevel) url += `&jobLevel=${jobLevel}`;
-      if (jobType) url += `&jobType=${jobType}`;
-      if (contractType) url += `&contractType=${contractType}`;
-      if (city) url += `&city=${city}`;
-      console.log("Fetching jobs with URL:", url);
+      if (filters.title) url += `&title=${filters.title}`;
+      if (filters.jobSkill) url += `&jobSkill=${filters.jobSkill}`;
+      if (filters.jobLevel) url += `&jobLevel=${filters.jobLevel}`;
+      if (filters.jobType) url += `&jobType=${filters.jobType}`;
+      if (filters.contractType) url += `&contractType=${filters.contractType}`;
+      if (filters.city) url += `&city=${filters.city}`;
+
       const response = await Apis.get(url);
 
       if (response.status === 200) {
@@ -121,249 +54,73 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage]);
 
-  const handleSearch = () => {
+  useEffect(() => {
+    fetchJob();
+  }, []);
+
+  useEffect(() => {
+    fetchJob(filtersRef.current, currentPage);
+  }, [currentPage]);
+
+  const handleSearch = useCallback((filters) => {
+    filtersRef.current = filters;
     if (currentPage !== 1) {
       setCurrentPage(1);
     } else {
-      fetchJob();
+      fetchJob(filters);
     }
+  }, [currentPage, fetchJob]);
+
+  const handleReset = useCallback(() => {
+    filtersRef.current = {};
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    } else {
+      fetchJob({});
+    }
+  }, [currentPage, fetchJob]);
+
+  const renderPagination = () => {
+    const items = [];
+    for (let page = 1; page <= totalPages; page++) {
+      items.push(
+        <Pagination.Item
+          key={page}
+          active={currentPage === page}
+          onClick={() => setCurrentPage(page)}
+        >
+          {page}
+        </Pagination.Item>,
+      );
+    }
+    return items;
   };
 
   return (
     <>
       <Header />
       <Container>
-        <div style={{ display: "flex", minHeight: "calc(100vh - 60px)" }}>
-          {/* Main Content - Modified job listings with 2 columns */}
-          <div style={{ flex: 1, padding: "20px" }}>
-            {/* Search Bar */}
-            <div
-              style={{
-                marginBottom: "24px",
-                backgroundColor: "#F9FAFB",
-                borderRadius: "8px",
-                padding: "16px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  marginBottom: "16px",
-                  gap: "8px",
-                }}
-              >
-                <div
-                  style={{
-                    flex: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    backgroundColor: "#ffffff",
-                    borderRadius: "4px",
-                    border: "1px solid #E5E7EB",
-                    padding: "0 12px",
-                  }}
-                >
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='16'
-                    height='16'
-                    fill='#9CA3AF'
-                    viewBox='0 0 16 16'
-                    style={{ marginRight: "8px" }}
-                  >
-                    <path d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z' />
-                  </svg>
-                  <input
-                    type='text'
-                    placeholder='Tên công việc'
-                    style={{
-                      border: "none",
-                      padding: "10px 0",
-                      outline: "none",
-                      width: "100%",
-                      fontSize: "14px",
-                    }}
-                    value={title || ""}
-                    onChange={(e) => setTitle(e.target.value || null)}
-                  />
-                </div>
-                <button
-                  style={{
-                    backgroundColor: "#4F46E5",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    padding: "0 16px",
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    fontWeight: "500",
-                  }}
-                  onClick={handleSearch}
-                >
-                  Search
-                </button>
-              </div>
+        <div className='home-layout'>
+          <div className='home-main'>
+            <JobFilter onSearch={handleSearch} onReset={handleReset} />
 
-              {/* Advanced Filters Row */}
-              <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  flexWrap: "wrap",
-                }}
-              >
-                {/* Job Level Select */}
-                <select
-                  style={{
-                    flex: "1 1 200px",
-                    padding: "8px 12px",
-                    borderRadius: "4px",
-                    border: "1px solid #E5E7EB",
-                    fontSize: "14px",
-                    outline: "none",
-                  }}
-                  value={jobLevel || ""}
-                  onChange={(e) => setJobLevel(e.target.value || null)}
-                >
-                  <option value=''>Tất cả cấp bật</option>
-                  {jobLevels.map((level) => (
-                    <option key={level.id} value={level.name}>
-                      {level.name}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Job Type Select */}
-                <select
-                  style={{
-                    flex: "1 1 200px",
-                    padding: "8px 12px",
-                    borderRadius: "4px",
-                    border: "1px solid #E5E7EB",
-                    fontSize: "14px",
-                    outline: "none",
-                  }}
-                  value={jobType || ""}
-                  onChange={(e) => setJobType(e.target.value || null)}
-                >
-                  <option value=''>Tất cả loại công việc</option>
-                  {jobTypes.map((type) => (
-                    <option key={type.id} value={type.name}>
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Contract Type Select */}
-                <select
-                  style={{
-                    flex: "1 1 200px",
-                    padding: "8px 12px",
-                    borderRadius: "4px",
-                    border: "1px solid #E5E7EB",
-                    fontSize: "14px",
-                    outline: "none",
-                  }}
-                  value={contractType || ""}
-                  onChange={(e) => setContractType(e.target.value || null)}
-                >
-                  <option value=''>Tất cả loại hợp đồng</option>
-                  {contractTypes.map((type) => (
-                    <option key={type.id} value={type.name}>
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-
-                {/* City Select */}
-                <select
-                  style={{
-                    flex: "1 1 200px",
-                    padding: "8px 12px",
-                    borderRadius: "4px",
-                    border: "1px solid #E5E7EB",
-                    fontSize: "14px",
-                    outline: "none",
-                  }}
-                  value={city || ""}
-                  onChange={(e) => setCity(e.target.value || null)}
-                >
-                  <option value=''>Tất cả thành phố</option>
-                  {cities.map((cityItem) => (
-                    <option key={cityItem.id} value={cityItem.name}>
-                      {cityItem.name}
-                    </option>
-                  ))}
-                </select>
-                <Button className='button' onClick={resetFilters}>
-                  <Eraser size={16} />
-                  Xóa bộ lọc
-                </Button>
-              </div>
-            </div>
-
-            {/* Filter Tags */}
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "8px",
-                marginBottom: "20px",
-              }}
-            >
-              {/* Filter Pills would go here */}
-            </div>
-
-            {/* Job Listings - Now with 2 columns */}
-            <div className='container-fluid p-0'>
+            {/* Job Listings */}
+            <Container fluid className='p-0'>
               {loading ? (
                 <Loading />
               ) : jobs.length > 0 ? (
-                <div className='row row-cols-1 row-cols-md-2 g-4'>
+                <Row xs={1} md={2} className='g-4'>
                   {jobs.map((job) => (
-                    <div className='col' key={job.id}>
-                      <div
-                        style={{
-                          backgroundColor: "#ffffff",
-                          borderRadius: "8px",
-                          padding: "16px",
-                          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-                          transition: "transform 0.2s, box-shadow 0.2s",
-                          cursor: "pointer",
-                          height: "100%",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = "translateY(-2px)";
-                          e.currentTarget.style.boxShadow =
-                            "0 4px 6px rgba(0, 0, 0, 0.1)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = "translateY(0)";
-                          e.currentTarget.style.boxShadow =
-                            "0 1px 3px rgba(0, 0, 0, 0.1)";
-                        }}
-                      >
-                        <div style={{ display: "flex", gap: "16px" }}>
+                    <Col key={job.id}>
+                      <Card className='home-job-card'>
+                        <Card.Body className='home-job-card-body'>
                           {/* Company Logo */}
-                          <div
-                            style={{
-                              width: "60px",
-                              height: "60px",
-                              flexShrink: 0,
-                              borderRadius: "4px",
-                              overflow: "hidden",
-                            }}
-                          >
+                          <div className='home-company-logo'>
                             <img
                               src={job.image}
                               alt={job.companyName}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                              }}
                               onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src =
@@ -373,82 +130,34 @@ const Home = () => {
                           </div>
 
                           {/* Job Details */}
-                          <div style={{ flex: 1 }}>
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "flex-start",
-                              }}
-                            >
+                          <div className='home-job-details'>
+                            <div className='home-job-header'>
                               <div>
-                                <h3
-                                  style={{
-                                    margin: "0 0 5px",
-                                    fontSize: "18px",
-                                    fontWeight: "600",
-                                  }}
-                                >
-                                  {job.title}
-                                </h3>
-                                <p
-                                  style={{
-                                    margin: "0 0 10px",
-                                    color: "#4B5563",
-                                    fontSize: "14px",
-                                  }}
-                                >
+                                <h3 className='home-job-title'>{job.title}</h3>
+                                <p className='home-job-company'>
                                   {job.companyName}
                                 </p>
                               </div>
                               <div>
-                                <span
-                                  style={{
-                                    display: "block",
-                                    fontWeight: "600",
-                                    color: "#4F46E5",
-                                    textAlign: "right",
-                                    fontSize: "16px",
-                                  }}
-                                >
+                                <span className='home-job-salary'>
                                   ${job.salaryMin} - ${job.salaryMax}
                                 </span>
-                                <span
-                                  style={{
-                                    fontSize: "12px",
-                                    color: "#6B7280",
-                                    display: "block",
-                                    textAlign: "right",
-                                  }}
-                                >
+                                <span className='home-job-salary-period'>
                                   Monthly
                                 </span>
                               </div>
                             </div>
 
                             {/* Location */}
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                marginBottom: "10px",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  fontSize: "13px",
-                                  color: "#6B7280",
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
+                            <div className='home-job-location'>
+                              <span className='home-job-location-text'>
                                 <svg
                                   xmlns='http://www.w3.org/2000/svg'
                                   width='16'
                                   height='16'
                                   fill='currentColor'
                                   viewBox='0 0 16 16'
-                                  style={{ marginRight: "4px" }}
+                                  className='home-job-location-icon'
                                 >
                                   <path d='M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z' />
                                 </svg>
@@ -457,33 +166,14 @@ const Home = () => {
                             </div>
 
                             {/* Skills */}
-                            <div
-                              style={{
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: "8px",
-                              }}
-                            >
+                            <div className='home-job-skills'>
                               {job.jobSkills?.map((skill, index) => (
-                                <span
-                                  key={index}
-                                  style={{
-                                    backgroundColor: "#F3F4F6",
-                                    borderRadius: "4px",
-                                    fontSize: "12px",
-                                    padding: "4px 8px",
-                                    color: "#4B5563",
-                                    height: "24px",
-                                  }}
-                                >
+                                <Badge key={index} className='home-skill-badge'>
                                   {skill}
-                                </span>
+                                </Badge>
                               ))}
                               <Button
-                                className='button'
-                                style={{
-                                  marginLeft: "auto",
-                                }}
+                                className='custom-button apply-button home-detail-btn'
                                 onClick={() =>
                                   navigate(`/job-detail/${job.id}`)
                                 }
@@ -492,97 +182,43 @@ const Home = () => {
                               </Button>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
+                        </Card.Body>
+                      </Card>
+                    </Col>
                   ))}
-                </div>
+                </Row>
               ) : (
-                <div
-                  style={{
-                    textAlign: "center",
-                    padding: "40px",
-                    color: "#6B7280",
-                  }}
-                >
+                <div className='home-empty-state'>
                   <p>No jobs found matching your criteria.</p>
-                  <button
-                    onClick={resetFilters}
-                    style={{
-                      backgroundColor: "transparent",
-                      color: "#4F46E5",
-                      border: "1px solid #4F46E5",
-                      padding: "6px 12px",
-                      borderRadius: "4px",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                      marginTop: "10px",
-                    }}
+                  <Button
+                    className='home-clear-filter-btn'
+                    onClick={handleReset}
                   >
                     Clear filters
-                  </button>
+                  </Button>
                 </div>
               )}
 
               {/* Pagination */}
               {jobs.length > 0 && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    marginTop: "32px",
-                  }}
-                >
-                  <nav>
-                    <ul className='pagination'>
-                      <li
-                        className={`page-item ${
-                          currentPage === 1 ? "disabled" : ""
-                        }`}
-                      >
-                        <button
-                          className='page-link'
-                          onClick={() => setCurrentPage(currentPage - 1)}
-                          disabled={currentPage === 1}
-                        >
-                          Previous
-                        </button>
-                      </li>
-                      {[...Array(totalPages).keys()].map((page) => (
-                        <li
-                          key={page + 1}
-                          className={`page-item ${
-                            currentPage === page + 1 ? "active" : ""
-                          }`}
-                        >
-                          <button
-                            className='page-link'
-                            onClick={() => setCurrentPage(page + 1)}
-                          >
-                            {page + 1}
-                          </button>
-                        </li>
-                      ))}
-                      <li
-                        className={`page-item ${
-                          currentPage === totalPages ? "disabled" : ""
-                        }`}
-                      >
-                        <button
-                          className='page-link'
-                          onClick={() => setCurrentPage(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                        >
-                          Next
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
+                <div className='home-pagination-wrapper'>
+                  <Pagination>
+                    <Pagination.Prev
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    />
+                    {renderPagination()}
+                    <Pagination.Next
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    />
+                  </Pagination>
                 </div>
               )}
-            </div>
+            </Container>
           </div>
         </div>
+        <ChatbotCareerRecommend />
       </Container>
     </>
   );

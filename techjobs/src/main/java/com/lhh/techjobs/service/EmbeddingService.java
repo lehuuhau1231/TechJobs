@@ -26,10 +26,11 @@ public class EmbeddingService {
 
     public float[] getEmbedding(String text) {
         try {
-            EmbedContentConfig config = EmbedContentConfig.builder().build();
+            EmbedContentConfig config = EmbedContentConfig.builder()
+                    .outputDimensionality(768)
+                    .build();
 
             EmbedContentResponse response = client.models.embedContent(embeddingModel, text, config);
-            System.out.println("response: " + response);
             if (response != null && response.embeddings() != null && response.embeddings().isPresent()) {
                 List<ContentEmbedding> embeddings = response.embeddings().get();
 

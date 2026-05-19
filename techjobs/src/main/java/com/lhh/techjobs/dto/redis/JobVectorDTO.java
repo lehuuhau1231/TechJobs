@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +25,8 @@ public class JobVectorDTO implements Vectorizable{
     private String district;
     private String image;
     private String skills;
+    private String softSkill;
+    private String jobDetailUrl;
 
     @Override
     public String getId() {
@@ -33,31 +37,45 @@ public class JobVectorDTO implements Vectorizable{
     @Override
     public String buildVectorContent() {
         return String.format("""
-                Job title: %s | Description: %s | Level: %s | City: %s | District: %s | Skills: %s
+                Job title: %s | Description: %s | Level: %s | City: %s | District: %s | Skills: %s | Soft skills: %s
                 """,
-                title, description, jobLevel, city, district, ", ", skills);
+                title, description, jobLevel, city, district, skills, softSkill);
     }
 
     @Override
     public Map<String, String> toMap() {
-        return Map.of(
-                "id", stringify(id),
-                "title", title,
-                "city", safeLowerCase(city),
-                "salaryMin", stringify(salaryMin),
-                "salaryMax", stringify(salaryMax),
-                "jobLevelName", jobLevel,
-                "districtName", district,
-                "skillNames", skills,
-                "image", image
-        );
+        Map<String, String> map = new HashMap<>();
+
+        map.put("id", safeString(id));
+        map.put("title", safeString(title));
+        map.put("city", safeLower(city));
+        map.put("salaryMin", safeString(salaryMin));
+        map.put("salaryMax", safeString(salaryMax));
+        map.put("jobLevelName", safeString(jobLevel));
+        map.put("districtName", safeString(district));
+        map.put("skillNames", safeString(skills));
+        map.put("image", safeString(image));
+        map.put("softSkill", safeString(softSkill));
+
+        return map;
     }
 
-    private String stringify(Object value) {
-        return value != null ? value.toString() : "";
+    @Override
+    public Map<String, String> toMapWithUrl(String baseUrl) {
+        Map<String, String> map = toMap();
+
+        if (id != null) {
+            map.put("jobDetailUrl", baseUrl + id);
+        }
+
+        return map;
     }
 
-    private String safeLowerCase(String value) {
-        return value != null ? value.toLowerCase() : null;
+    private String safeString(Object value) {
+        return value == null ? "" : value.toString();
+    }
+
+    private String safeLower(String value) {
+        return value == null ? "" : value.toLowerCase();
     }
 }

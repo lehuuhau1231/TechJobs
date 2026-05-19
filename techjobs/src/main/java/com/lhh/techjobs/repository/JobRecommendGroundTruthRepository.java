@@ -1,7 +1,14 @@
 package com.lhh.techjobs.repository;
 
+import com.lhh.techjobs.entity.JobRecommendGroundTruth;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface JobRecommendGroundTruth extends JpaRepository<JobRecommendGroundTruth, Integer> {
+import java.util.List;
 
+public interface JobRecommendGroundTruthRepository extends JpaRepository<JobRecommendGroundTruth, Integer> {
+
+    List<JobRecommendGroundTruth> findByCvProfileId(Integer cvProfileId);
+
+    List<JobRecommendGroundTruth> findByCvProfileIdAndRelevanceScoreGreaterThanEqual(
+            Integer cvProfileId, Integer minScore);
 }

@@ -9,11 +9,12 @@ import {
   Card,
   Badge,
   Pagination,
+  Spinner,
 } from "react-bootstrap";
 import "../styles/common.css";
 import "./home/Home.css";
 import Loading from "../layout/Loading";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ChatbotCareerRecommend from "../Candidate/ChatbotCareerRecommend/ChatbotCareerRecommend";
 import JobFilter from "./home/JobFilter";
 
@@ -27,34 +28,46 @@ const Home = () => {
   const filtersRef = useRef({});
   const navigate = useNavigate();
 
-  const fetchJob = useCallback(async (filters = filtersRef.current, page = currentPage) => {
-    try {
-      setLoading(true);
+  const fetchJob = useCallback(
+    async (filters = filtersRef.current, page = currentPage) => {
+      try {
+        setLoading(true);
 
-      let url = `${endpoints.job}?page=${page}`;
+        let url = `${endpoints.job}?page=${page}`;
 
-      if (filters.title) url += `&title=${filters.title}`;
-      if (filters.jobSkill) url += `&jobSkill=${filters.jobSkill}`;
-      if (filters.jobLevel) url += `&jobLevel=${filters.jobLevel}`;
-      if (filters.jobType) url += `&jobType=${filters.jobType}`;
-      if (filters.contractType) url += `&contractType=${filters.contractType}`;
-      if (filters.city) url += `&city=${filters.city}`;
+        if (filters.title) url += `&title=${filters.title}`;
+        if (filters.jobSkill) url += `&jobSkill=${filters.jobSkill}`;
+        if (filters.jobLevel) url += `&jobLevel=${filters.jobLevel}`;
+        if (filters.jobType) url += `&jobType=${filters.jobType}`;
+        if (filters.contractType)
+          url += `&contractType=${filters.contractType}`;
+        if (filters.city) url += `&city=${filters.city}`;
 
-      const response = await Apis.get(url);
+        const response = await Apis.get(url);
 
-      if (response.status === 200) {
-        setJobs(response.data.content);
-        setTotalPages(response.data.totalPages);
-      } else {
+        if (response.status === 200) {
+          setJobs((preJob) =>
+            currentPage === 1
+              ? response.data.content
+              : [...preJob, ...response.data.content],
+          );
+          setTotalPages(response.data.totalPages);
+        } else {
+          setJobAlert(true);
+        }
+      } catch (e) {
+        console.log("Error fetching Job: ", e);
         setJobAlert(true);
+      } finally {
+        setLoading(false);
       }
-    } catch (e) {
-      console.log("Error fetching Job: ", e);
-      setJobAlert(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentPage]);
+    },
+    [currentPage],
+  );
+
+  useEffect(() => {
+    console.log("job counts: ", jobs.length);
+  }, [jobs]);
 
   useEffect(() => {
     fetchJob();
@@ -64,14 +77,17 @@ const Home = () => {
     fetchJob(filtersRef.current, currentPage);
   }, [currentPage]);
 
-  const handleSearch = useCallback((filters) => {
-    filtersRef.current = filters;
-    if (currentPage !== 1) {
-      setCurrentPage(1);
-    } else {
-      fetchJob(filters);
-    }
-  }, [currentPage, fetchJob]);
+  const handleSearch = useCallback(
+    (filters) => {
+      filtersRef.current = filters;
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        fetchJob(filters);
+      }
+    },
+    [currentPage, fetchJob],
+  );
 
   const handleReset = useCallback(() => {
     filtersRef.current = {};
@@ -98,6 +114,18 @@ const Home = () => {
     return items;
   };
 
+  const loadMore = (e) => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const formatVND = (value) =>
+    new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
+
   return (
     <>
       <Header />
@@ -108,7 +136,7 @@ const Home = () => {
 
             {/* Job Listings */}
             <Container fluid className='p-0'>
-              {loading ? (
+              {loading && currentPage === 1 ? (
                 <Loading />
               ) : jobs.length > 0 ? (
                 <Row xs={1} md={2} className='g-4'>
@@ -140,7 +168,8 @@ const Home = () => {
                               </div>
                               <div>
                                 <span className='home-job-salary'>
-                                  ${job.salaryMin} - ${job.salaryMax}
+                                  {formatVND(job.salaryMin)} -{" "}
+                                  {formatVND(job.salaryMax)}
                                 </span>
                                 <span className='home-job-salary-period'>
                                   Monthly
@@ -172,14 +201,15 @@ const Home = () => {
                                   {skill}
                                 </Badge>
                               ))}
-                              <Button
-                                className='custom-button apply-button home-detail-btn'
-                                onClick={() =>
-                                  navigate(`/job-detail/${job.id}`)
-                                }
+                              <Link
+                                to={`/job-detail/${job.id}`}
+                                target='_blank'
+                                className='apply-button home-detail-btn'
                               >
-                                Chi tiết
-                              </Button>
+                                <Button className='custom-button '>
+                                  Chi tiết
+                                </Button>
+                              </Link>
                             </div>
                           </div>
                         </Card.Body>
@@ -200,19 +230,23 @@ const Home = () => {
               )}
 
               {/* Pagination */}
-              {jobs.length > 0 && (
-                <div className='home-pagination-wrapper'>
-                  <Pagination>
-                    <Pagination.Prev
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                      disabled={currentPage === 1}
-                    />
-                    {renderPagination()}
-                    <Pagination.Next
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                    />
-                  </Pagination>
+              {jobs.length > 0 && currentPage < totalPages && (
+                <div className='d-flex justify-content-center mt-4 mb-4'>
+                  <Button
+                    onClick={loadMore}
+                    className='custom-button'
+                    disabled={
+                      loading || currentPage >= totalPages ? true : false
+                    }
+                  >
+                    Xem thêm
+                    {loading && (
+                      <Spinner
+                        animation='border'
+                        className='spinner-in-button'
+                      />
+                    )}
+                  </Button>
                 </div>
               )}
             </Container>

@@ -41,6 +41,11 @@ public class CareerChatbotDTO implements Vectorizable{
         );
     }
 
+    @Override
+    public Map<String, String> toMapWithUrl(String baseUrl) {
+        return null;
+    }
+
     private String stringify(Object value) {
         return value != null ? value.toString() : "";
     }

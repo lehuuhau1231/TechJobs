@@ -21,6 +21,7 @@ const ApproveJob = () => {
     setLoading(true);
     try {
       const token = cookies.load("token");
+      console.log("endpoints.approve_job:", endpoints.approve_job);
       const res = await authApis(token).get(endpoints.approve_job);
       setJobs(res.data);
     } catch (ex) {

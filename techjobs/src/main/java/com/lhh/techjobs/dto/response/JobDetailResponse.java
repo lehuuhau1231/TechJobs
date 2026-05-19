@@ -37,13 +37,15 @@ public class JobDetailResponse {
     private String jobTypeName;
     private String contractTypeName;
     private List<String> jobSkills;
+    private String rejectReason;
+    private String fieldErrors;
 
     public JobDetailResponse(Integer id, Status status, String title, String description, String city, String district, String address,
                              Integer salaryMin, Integer salaryMax, String jobRequire,
                              String benefits, LocalDate startDate, LocalDate endDate,
                              LocalTime startTime, LocalTime endTime, String companyName,
                              String avatar, String cityName, String jobLevelName,
-                             String jobTypeName, String contractTypeName) {
+                             String jobTypeName, String contractTypeName, String rejectReason, String fieldErrors) {
         this.id = id;
         this.status = status;
         this.title = title;
@@ -65,5 +67,7 @@ public class JobDetailResponse {
         this.jobLevelName = jobLevelName;
         this.jobTypeName = jobTypeName;
         this.contractTypeName = contractTypeName;
+        this.rejectReason = rejectReason;
+        this.fieldErrors = fieldErrors;
     }
 }

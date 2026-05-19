@@ -4,6 +4,8 @@ import "./ChatbotCareerRecommend.css";
 import "../../styles/common.css";
 import { authApis, endpoints } from "../../../configs/Apis";
 import cookies from "react-cookies";
+import ReactMarkdown from "react-markdown";
+import { MessageCircle } from "lucide-react";
 
 const ChatbotCareerRecommend = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,8 +53,19 @@ const ChatbotCareerRecommend = () => {
       if (questionGenerated.status === 200) {
         setChatSessionId(questionGenerated.data.chatSessionId);
         addMessage(questionGenerated.data);
+      } else if (questionGenerated.status === 429) {
+        addMessage({
+          text: "Xin lỗi, ban đang gửi quá nhiều yêu cầu trong 1 phút. Vui lòng thử lại sau.",
+          sender: "ASSISTANT",
+        });
       }
     } catch (err) {
+      if (err.status === 429) {
+        addMessage({
+          text: "Xin lỗi, ban đang gửi quá nhiều yêu cầu trong 1 phút. Vui lòng thử lại sau.",
+          sender: "ASSISTANT",
+        });
+      }
       console.error("Error sending message to bot:", err);
     } finally {
       setDisableSend(false);
@@ -67,74 +80,96 @@ const ChatbotCareerRecommend = () => {
   return (
     <div className='chatbot-container'>
       {isOpen && (
-        <Card className='chatbot-window'>
-          <Card.Header className='d-flex justify-content-between align-items-center text-white primary-background-color'>
-            <span className='fw-bold'>Tư vấn nghề nghiệp</span>
+        <div className='chatbot-window'>
+          <div className='chatbot-header'>
+            <div className='d-flex align-items-center gap-2'>
+              <MessageCircle size={20} />
+              <span className='fw-bold' style={{ fontSize: "0.95rem" }}>
+                Trợ lý nghề nghiệp
+              </span>
+            </div>
             <Button
               variant='close'
               onClick={toggleChat}
               className='btn-close-white'
               aria-label='Đóng'
+              style={{ boxShadow: "none" }}
             />
-          </Card.Header>
-          <Card.Body className='chatbot-body'>
+          </div>
+          <div className='chatbot-body'>
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`mb-2 p-2 rounded ${
-                  msg.sender === "USER"
-                    ? "primary-background-color text-white text-end ms-auto chat-message"
-                    : "bg-light text-start me-auto text-dark chat-message"
+                className={`chat-message ${
+                  msg.sender === "USER" ? "message-user" : "message-assistant"
                 }`}
-                dangerouslySetInnerHTML={{ __html: msg.text }}
-              ></div>
+              >
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
+              </div>
             ))}
 
             {typing && (
-              <div className='d-flex align-items-center'>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Spinner
-                    key={i}
-                    animation='grow'
-                    size='sm'
-                    className='ms-1'
-                  />
-                ))}
+              <div className='d-flex gap-2 p-2 align-items-center'>
+                <div
+                  className='spinner-grow spinner-grow-sm text-primary'
+                  role='status'
+                  style={{ width: "8px", height: "8px" }}
+                ></div>
+                <div
+                  className='spinner-grow spinner-grow-sm text-primary'
+                  role='status'
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    animationDelay: "0.2s",
+                  }}
+                ></div>
+                <div
+                  className='spinner-grow spinner-grow-sm text-primary'
+                  role='status'
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    animationDelay: "0.4s",
+                  }}
+                ></div>
               </div>
             )}
             <div ref={messageBottomRef}></div>
-          </Card.Body>
-          <Card.Footer className='bg-white'>
+          </div>
+          <div className='chatbot-footer'>
             <Form onSubmit={handleSend}>
               <InputGroup>
                 <Form.Control
                   type='text'
-                  placeholder='Nhập tin nhắn...'
+                  placeholder='Hỏi tôi về công việc...'
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
-                  className='message-input'
+                  className='message-input-custom'
                 />
                 <Button
                   type='submit'
-                  className='custom-button'
+                  variant='link'
+                  className='text-primary p-0 ms-2'
                   disabled={disableSend}
+                  style={{ boxShadow: "none" }}
                 >
-                  <i class='bi bi-send'></i>
+                  <i
+                    className='bi bi-send-fill'
+                    style={{ fontSize: "1.5rem" }}
+                  ></i>
                 </Button>
               </InputGroup>
             </Form>
-          </Card.Footer>
-        </Card>
+          </div>
+        </div>
       )}
 
-      {/* Nút bong bóng chat hiển thị khi isOpen = false */}
+      {/* Toggle Button */}
       {!isOpen && (
-        <Button
-          className='rounded-circle shadow d-flex align-items-center justify-content-center chatbot-button custom-button primary-color'
-          onClick={toggleChat}
-        >
-          <i class='bi bi-robot chatbot-icon'></i>
-        </Button>
+        <button className='chatbot-toggle-button' onClick={toggleChat}>
+          <i className='bi bi-robot' style={{ fontSize: "1.8rem" }}></i>
+        </button>
       )}
     </div>
   );

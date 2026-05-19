@@ -13,4 +13,6 @@ public class JobTitleResponse {
     private Integer id;
     private String title;
     private LocalDateTime createdDate;
+    private String rejectReason;
+    private String fieldErrors;
 }

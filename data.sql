@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS foreign_language;
 DROP TABLE IF EXISTS job_skill;
 DROP TABLE IF EXISTS candidate_skill;
 DROP TABLE IF EXISTS bill;
+DROP TABLE IF EXISTS job_recommendation_ground_truth;
 DROP TABLE IF EXISTS job;
 DROP TABLE IF EXISTS district;
 DROP TABLE IF EXISTS city;
@@ -55,12 +56,20 @@ CREATE TABLE user (
 );
 
 -- 4. Insert User (CANDIDATE)
-INSERT INTO user VALUES 
-(1, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate1@gmail.com', '0123456789','phường 13', 'Quận 1', 'Ho Chi Minh','CANDIDATE'),
-(2, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate2@gmail.com', '0123456790','phường 15', 'Quận 5', 'Ho Chi Minh','CANDIDATE'),
-(3, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'employer1@gmail.com', '0987654321','phường 13', 'Hanoi', 'Cau Giay','EMPLOYER'),
-(4, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'employer2@gmail.com', '0987654391','phường 13', 'Hanoi', 'Cau Giay','EMPLOYER'),
-(5, '$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'admin@gmail.com', '0987654322','phường 13', 'District 3', 'Cau Giay','ADMIN');
+INSERT INTO user (password, avatar, email, phone, address, district, city, role) VALUES 
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate1@gmail.com', '0123456789','phường 13', 'Quận 1', 'Ho Chi Minh','CANDIDATE'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'candidate2@gmail.com', '0123456790','phường 15', 'Quận 5', 'Ho Chi Minh','CANDIDATE'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'employer1@gmail.com', '0987654321','phường 13', 'Hanoi', 'Cau Giay','EMPLOYER'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'employer2@gmail.com', '0987654391','phường 13', 'Hanoi', 'Cau Giay','EMPLOYER'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://png.pngtree.com/element_pic/16/11/03/dda587d35b48fd01947cf38931323161.jpg', 'admin@gmail.com', '0987654322','phường 13', 'District 3', 'Cau Giay','ADMIN'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://picsum.photos/200?random=3', 'candidate3@gmail.com', '0912347833', '45 Nguyen Trai', 'District 5', 'Ho Chi Minh', 'CANDIDATE'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://picsum.photos/200?random=4', 'candidate4@gmail.com', '0987654324', '12 Le Loi', 'District 1', 'Ho Chi Minh', 'CANDIDATE'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://picsum.photos/200?random=5', 'candidate5@gmail.com', '0901122335', '78 Tran Hung Dao', 'District 3', 'Ho Chi Minh', 'CANDIDATE'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://picsum.photos/200?random=6', 'candidate6@gmail.com', '0933445566', '9 Vo Van Tan', 'District 10', 'Ho Chi Minh', 'CANDIDATE'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://picsum.photos/200?random=7', 'candidate7@gmail.com', '0977889907', '101 Hai Ba Trung', 'District 1', 'Ha Noi', 'CANDIDATE'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://picsum.photos/200?random=8', 'candidate8@gmail.com', '0922334458', '66 Pham Ngu Lao', 'District 1', 'Da Nang', 'CANDIDATE'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://picsum.photos/200?random=9', 'candidate9@gmail.com', '0966554439', '23 Dien Bien Phu', 'Binh Thanh', 'Ho Chi Minh', 'CANDIDATE'),
+('$2a$10$l1OgCBN.SZJR0YdI0NW4EuMJdBWoaDxVsv.gZazqUKyoPh4JjgSJ.', 'https://picsum.photos/200?random=10', 'candidate10@gmail.com', '0944221100', '5 Nguyen Hue', 'District 1', 'Ho Chi Minh', 'CANDIDATE');
 
 
 CREATE TABLE cv_profile (
@@ -111,9 +120,20 @@ CREATE TABLE message (
 );
 
 -- 7. Insert Candidate
-INSERT INTO candidate VALUES 
-(1, 'Le Huu Hau', 'I am a Java developer with 3 years of experience', '1995-01-01', 'https://res.cloudinary.com/dndsrbf9s/image/upload/v1757130130/b55p56xfeshntstkd1iw.pdf', 1, null),
-(2, 'Dang Van Binh', 'I am a frontend developer passionate about React', '1995-01-01', null, 2, null);
+INSERT INTO candidate 
+(full_name, self_description, birth_date, cv, user_id, cv_profile_id)
+VALUES
+('Nguyễn Minh Tuấn', 'Fresher Backend Developer, học Java Spring Boot', '2002-01-01', 'https://randomuser.me/api/portraits/men/11.jpg', 1, NULL),
+('Trần Thị Ngọc Anh', 'Frontend Developer intern, biết ReactJS', '2001-05-12', 'https://randomuser.me/api/portraits/women/12.jpg', 2, NULL),
+
+('Lê Hoàng Nam', 'Backend Developer với kinh nghiệm NodeJS', '2000-03-20', 'https://randomuser.me/api/portraits/men/13.jpg', 6, NULL),
+('Phạm Quỳnh Như', 'UI/UX Designer, sử dụng Figma thành thạo', '1999-07-15', 'https://randomuser.me/api/portraits/women/14.jpg', 7, NULL),
+('Hoàng Đức Huy', 'Fullstack Developer (React + Spring Boot)', '2001-09-09', 'https://randomuser.me/api/portraits/men/15.jpg', 8, NULL),
+('Võ Thị Thanh Trúc', 'Data Analyst, làm việc với Python và SQL', '2002-11-11', 'https://randomuser.me/api/portraits/women/16.jpg', 9, NULL),
+('Đặng Quốc Bảo', 'Mobile Developer Flutter', '2000-12-25', 'https://randomuser.me/api/portraits/men/17.jpg', 10, NULL),
+('Bùi Gia Hân', 'Manual Tester, viết test case tốt', '2001-08-08', 'https://randomuser.me/api/portraits/women/18.jpg', 11, NULL),
+('Đỗ Minh Khang', 'DevOps Engineer (Docker, CI/CD)', '1998-04-18', 'https://randomuser.me/api/portraits/men/19.jpg', 12, NULL),
+('Nguyễn Khánh Linh', 'AI/ML Engineer, làm việc với NLP', '2002-06-30', 'https://randomuser.me/api/portraits/women/20.jpg', 13, NULL);
 
 
 -- 6. Bảng Employer
@@ -252,69 +272,37 @@ INSERT INTO district VALUES
 (60, 'Huyện Hoàng Sa', 3);
 
 CREATE TABLE job (
-
  id INT PRIMARY KEY AUTO_INCREMENT,
-
  title VARCHAR(255) NOT NULL,
-
  description TEXT NOT NULL,
-
  salary_min DECIMAL(15,2) NOT NULL,
-
  salary_max DECIMAL(15,2) NOT NULL,
-
  job_require TEXT NOT NULL,
-
  benefits TEXT NOT NULL,
-
  status ENUM('PENDING', 'APPROVED','CANCELED') NOT NULL,
-
  created_date TIMESTAMP NOT NULL,
-
  updated_at TIMESTAMP,
-
  vector_updated_at TIMESTAMP,
-
  posted_date TIMESTAMP NULL,
-
  address VARCHAR(200) NOT NULL,
-
  age_from INT NOT NULL,
-
  age_to INT NOT NULL,
-
  start_date DATE NOT NULL,
-
  end_date DATE NOT NULL,
-
  start_time TIME NOT NULL,
-
  end_time TIME NOT NULL,
-
  employer_id INT,
-
  city_id INT,
-
  district_id INT,
-
  job_level_id INT,
-
  job_type_id INT,
-
  contract_type_id INT,
-
  FOREIGN KEY (employer_id) REFERENCES employer(id),
-
  FOREIGN KEY (city_id) REFERENCES city(id),
-
  FOREIGN KEY (district_id) REFERENCES district(id),
-
  FOREIGN KEY (job_level_id) REFERENCES job_level(id),
-
  FOREIGN KEY (job_type_id) REFERENCES job_type(id),
-
  FOREIGN KEY (contract_type_id) REFERENCES contract_type(id)
-
 );
 
 -- 7. Bảng Job
@@ -1145,3 +1133,14 @@ INSERT INTO it_careers (job_title, key_skills, character_traits, interests, work
 ('Robotics Engineer', 'ROS, Control Theory, Mechanical, C++', 'Thích cơ khí và phần mềm, sáng tạo', 'robotics, cơ khí, AI', 'thực hành, sáng tạo', 'RIC'),
 ('Salesforce Dev', 'Apex, SOQL, CRM Logic, LWC', 'Tập trung quy trình khách hàng, cẩn thận', 'CRM, kinh doanh, hệ thống', 'có cấu trúc, hướng khách hàng', 'RCE'),
 ('Prompt Engineer', 'LLM, Prompting, Fine-tuning, Evaluation', 'Thử nghiệm, ngôn ngữ tốt, sáng tạo', 'AI, ngôn ngữ, experimentation', 'sáng tạo, thử nghiệm', 'AIR');
+
+CREATE TABLE IF NOT EXISTS job_recommendation_ground_truth (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    cv_profile_id INT NOT NULL,
+    job_id INT NOT NULL,
+    relevance_score INT CHECK (relevance_score BETWEEN 1 AND 10),
+    match_reason VARCHAR(255),
+    
+	FOREIGN KEY (cv_profile_id) REFERENCES cv_profile(id) ON DELETE CASCADE,
+    FOREIGN KEY (job_id) REFERENCES job(id) ON DELETE CASCADE
+);

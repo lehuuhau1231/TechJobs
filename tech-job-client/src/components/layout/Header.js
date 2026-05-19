@@ -205,17 +205,17 @@ const Header = () => {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <Button
-              className={`${
+            <button
+              className={`button-tab ${
                 activeTab === "search" ? "custom-button" : "button-tab-inactive"
               }`}
               onClick={() => handleTabChange("search")}
             >
               <Search size={16} className='me-1' />
               Tìm việc làm
-            </Button>
-            <Button
-              className={`${
+            </button>
+            <button
+              className={`button-tab ${
                 activeTab === "recommend"
                   ? "custom-button"
                   : "button-tab-inactive"
@@ -224,7 +224,7 @@ const Header = () => {
             >
               <ThumbsUp size={16} className='me-1' />
               Việc làm phù hợp
-            </Button>
+            </button>
             {/* <button className='button button-inactive'>
             <Users size={12} />
             Find Talent

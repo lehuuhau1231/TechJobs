@@ -1,10 +1,7 @@
 package com.lhh.techjobs.service;
 
 import com.lhh.techjobs.dto.request.JobCreateRequest;
-import com.lhh.techjobs.dto.response.JobDetailResponse;
-import com.lhh.techjobs.dto.response.JobResponse;
-import com.lhh.techjobs.dto.response.JobStatsResponse;
-import com.lhh.techjobs.dto.response.JobTitleResponse;
+import com.lhh.techjobs.dto.response.*;
 import com.lhh.techjobs.entity.*;
 import com.lhh.techjobs.enums.Status;
 import com.lhh.techjobs.mapper.JobMapper;
@@ -19,6 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.Map;
 @Slf4j
 public class JobService {
     JobRepository jobRepository;
-    int PAGE_SIZE = 5;
+    int PAGE_SIZE = 20;
     EmployerRepository employerRepository;
     CityRepository cityRepository;
     DistrictRepository districtRepository;
@@ -41,6 +41,12 @@ public class JobService {
     SkillRepository skillRepository;
     JobMapper jobMapper;
     JobVectorService jobVectorService; // Thêm JobVectorService để đồng bộ lên Redis
+    JobAsyncProcessor jobAsyncProcessor;
+
+    private static final List<String> BANNED_KEYWORDS = List.of(
+            "lừa đảo", "đa cấp", "việc nhẹ lương cao", "cờ bạc", "cá độ",
+            "game bài", "đánh bài", "rửa tiền", "mại dâm", "đồi trụy", "chất cấm", "ma túy"
+    );
 
     public Page<JobResponse> searchJobs(Map<String, String> params) {
         int page = 0;
@@ -97,7 +103,6 @@ public class JobService {
     public int createJob(JobCreateRequest request) {
         log.info("Bắt đầu tạo job mới với request: {}", request);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        log.info("Email người dùng đang đăng nhập: {}", email);
 
         Employer employer = employerRepository.findByUserEmail(email);
         if (employer == null) {
@@ -170,15 +175,19 @@ public class JobService {
                 jobRepository.save(savedJob);
             }
 
-            // Đồng bộ job lên Redis Vector Database
-            try {
-                jobVectorService.syncJobToRedis(savedJob.getId());
-                log.info("Đã đồng bộ job ID {} lên Redis Vector Database", savedJob.getId());
-            } catch (Exception e) {
-                log.error("Không thể đồng bộ job lên Redis: {}", e.getMessage());
-            }
 
             log.info("Hoàn thành tạo job với ID: {}", savedJob.getId());
+
+            if(TransactionSynchronizationManager.isActualTransactionActive()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        log.info("Transaction committed, synchronizing job ID {} to Redis", savedJob.getId());
+                        jobAsyncProcessor.processModerationAsync(savedJob.getId());
+                    }
+                });
+            }
+
             return savedJob.getId();
         } catch (Exception e) {
             log.error("Lỗi khi tạo job: {}", e.getMessage(), e);
@@ -186,9 +195,139 @@ public class JobService {
         }
     }
 
+    @Transactional
+    public void updateJob(Integer id, JobCreateRequest request) {
+        log.info("Bắt đầu cập nhật công việc ID: {} với request: {}", id, request);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy công việc với ID: " + id));
+
+        // Kiểm tra xem nhà tuyển dụng hiện tại có sở hữu công việc này không
+        if (!job.getEmployer().getUser().getEmail().equals(email)) {
+            throw new RuntimeException("Bạn không có quyền chỉnh sửa công việc này.");
+        }
+
+        // Cập nhật các trường cơ bản
+        job.setTitle(request.getTitle());
+        job.setDescription(request.getDescription());
+        job.setAddress(request.getAddress());
+        job.setAgeFrom(request.getAgeFrom());
+        job.setAgeTo(request.getAgeTo());
+        job.setStartDate(request.getStartDate());
+        job.setEndDate(request.getEndDate());
+        job.setStartTime(request.getStartTime());
+        job.setEndTime(request.getEndTime());
+        job.setSalaryMin(request.getSalaryMin());
+        job.setSalaryMax(request.getSalaryMax());
+        job.setJobRequire(request.getJobRequire());
+        job.setBenefits(request.getBenefits());
+
+        // Reset trạng thái duyệt
+        job.setStatus(Status.PENDING);
+        job.setRejectReason(null);
+        job.setFieldErrors(null);
+
+        // Cập nhật City
+        if (request.getCityId() != null) {
+            City city = cityRepository.findById(request.getCityId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy thành phố với ID: " + request.getCityId()));
+            job.setCity(city);
+        } else {
+            job.setCity(null);
+        }
+
+        // Cập nhật District
+        if (request.getDistrictId() != null) {
+            District district = districtRepository.findById(request.getDistrictId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy quận/huyện với ID: " + request.getDistrictId()));
+            job.setDistrict(district);
+        } else {
+            job.setDistrict(null);
+        }
+
+        // Cập nhật JobLevel
+        if (request.getJobLevelId() != null) {
+            JobLevel jobLevel = jobLevelRepository.findById(request.getJobLevelId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy cấp bậc công việc với ID: " + request.getJobLevelId()));
+            job.setJobLevel(jobLevel);
+        } else {
+            job.setJobLevel(null);
+        }
+
+        // Cập nhật JobType
+        if (request.getJobTypeId() != null) {
+            JobType jobType = jobTypeRepository.findById(request.getJobTypeId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy loại công việc với ID: " + request.getJobTypeId()));
+            job.setJobType(jobType);
+        } else {
+            job.setJobType(null);
+        }
+
+        // Cập nhật ContractType
+        if (request.getContractTypeId() != null) {
+            ContractType contractType = contractTypeRepository.findById(request.getContractTypeId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy loại hợp đồng với ID: " + request.getContractTypeId()));
+            job.setContractType(contractType);
+        } else {
+            job.setContractType(null);
+        }
+
+        // Cập nhật Skills
+        if (request.getJobSkillIds() != null && !request.getJobSkillIds().isEmpty()) {
+            List<Skill> skills = skillRepository.findAllById(request.getJobSkillIds());
+            job.setSkills(skills);
+        } else {
+            job.setSkills(null);
+        }
+
+        Job savedJob = jobRepository.save(job);
+        log.info("Cập nhật công việc thành công với ID: {}", savedJob.getId());
+
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    log.info("Transaction committed, starting re-moderation for job ID {}", savedJob.getId());
+                    jobAsyncProcessor.processModerationAsync(savedJob.getId());
+                }
+            });
+        }
+    }
+
     public List<JobStatsResponse> getApprovedJobsWithApplicationCount() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Employer employer = employerRepository.findByUserEmail(email);
         return jobRepository.findApprovedJobsWithApplicationCount(employer);
+    }
+
+    public Page<com.lhh.techjobs.dto.response.JobChatbotResponse> getJobsForChatbot(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return jobRepository.findJobsForChatbot(pageable);
+    }
+
+    @Transactional
+    public void approveJob(Integer jobId) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy công việc với ID: " + jobId));
+        job.setStatus(Status.APPROVED);
+        jobRepository.save(job);
+    }
+
+    @Transactional
+    public void rejectJob(Integer jobId) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy công việc với ID: " + jobId));
+        job.setStatus(Status.CANCELED);
+        jobRepository.save(job);
+    }
+
+    public List<JobResponse> getPendingJobs() {
+        List<JobResponse> jobs = jobRepository.findJobsByStatus(Status.PENDING);
+        // Lấy skills cho từng job
+        jobs.forEach(job -> {
+            job.setJobSkills(jobRepository.findJobSkillsByJobId(job.getId()));
+        });
+        return jobs;
     }
 }

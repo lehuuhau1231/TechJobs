@@ -13,6 +13,19 @@ const JobRecommendation = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const formatSalary = (min, max) => {
+    if (min !== undefined && min !== null && max !== undefined && max !== null) {
+      return `${Number(min).toLocaleString("en-US")} đ - ${Number(max).toLocaleString("en-US")} đ`;
+    }
+    if (min !== undefined && min !== null) {
+      return `Từ ${Number(min).toLocaleString("en-US")} đ`;
+    }
+    if (max !== undefined && max !== null) {
+      return `Đến ${Number(max).toLocaleString("en-US")} đ`;
+    }
+    return "Thương lượng";
+  };
+
   const fetchRecommendedJobs = async () => {
     try {
       setLoading(true);
@@ -79,7 +92,7 @@ const JobRecommendation = () => {
                               </div>
                               <div className='salary-info'>
                                 <span className='salary-range'>
-                                  ${job.salaryMin} - ${job.salaryMax}
+                                  {formatSalary(job.salaryMin, job.salaryMax)}
                                 </span>
                                 <span className='salary-period'>Monthly</span>
                               </div>

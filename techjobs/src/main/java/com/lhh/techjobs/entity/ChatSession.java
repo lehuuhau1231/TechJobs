@@ -23,14 +23,8 @@ public class ChatSession {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "work_styles")
-    private String workStyles;
-
-    @Column(name = "character_traits")
-    private String characterTraits;
-
-    @Column(name = "interests")
-    private String interests;
+    @Column(name = "soft_skill")
+    private String softSkill;
 
     @Column(name = "question_count")
     @Builder.Default

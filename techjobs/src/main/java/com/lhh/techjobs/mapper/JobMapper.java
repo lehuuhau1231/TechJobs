@@ -32,5 +32,6 @@ public interface JobMapper {
     @Mapping(target = "skills", ignore = true)
     Job toJob(JobCreateRequest request);
 
+    @Mapping(target = "jobDetailUrl", ignore = true)
     JobVectorDTO toJobVectorDTO(JobVectorProjection job);
 }

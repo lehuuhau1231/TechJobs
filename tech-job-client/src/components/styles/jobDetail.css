@@ -1,67 +1,168 @@
-.job-detail-header {
-  border-left: 4px solid #4f46e5;
+/* Refined Modernism Style for JobDetail */
+.job-detail-wrapper {
+  background-color: #f8fafc;
+  min-height: 100vh;
+  padding-bottom: 5rem;
 }
 
-.job-badge {
-  font-size: 14px;
-  font-weight: normal;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
+.job-hero-card {
+  background: white;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
 }
 
-.company-logo img {
-  border: 1px solid #eee;
-  padding: 8px;
-  border-radius: 8px;
+.company-logo-wrapper {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #f1f5f9;
 }
 
 .job-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 10px;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
 }
 
-.apply-btn,
-.favorite-btn {
+.company-name {
+  font-size: 1.1rem;
   font-weight: 600;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.top-reasons {
-  list-style-type: none;
-  padding-left: 0;
+.job-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
-.top-reasons li {
-  margin-bottom: 15px;
-  font-size: 16px;
+.job-section-card {
+  background: white;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.03);
+  margin-bottom: 2rem;
+  overflow: hidden;
 }
 
-.job-description,
-.job-requirements,
-.job-benefits {
-  line-height: 1.6;
+.section-header {
+  background: transparent;
+  padding: 1.5rem 2rem 0.5rem 2rem;
+  border-bottom: none;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.job-description ul,
-.job-requirements ul,
-.job-benefits ul {
-  padding-left: 20px;
-  margin-bottom: 15px;
+.section-body {
+  padding: 1rem 2rem 2rem 2rem;
+  color: #334155;
+  line-height: 1.8;
 }
 
-.job-description li,
-.job-requirements li,
-.job-benefits li {
-  margin-bottom: 8px;
+.job-badge-pill {
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 8px 16px;
+  border-radius: 99px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
 }
 
-.sticky-sidebar {
-  top: 20px;
+.job-badge-pill:hover {
+  background-color: #e2e8f0;
+  color: #0f172a;
 }
 
-@media (max-width: 767px) {
-  .sticky-sidebar {
-    position: static !important;
+.floating-sidebar {
+  position: sticky;
+  top: 100px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  padding: 2rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.summary-label {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.summary-value {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.apply-button-main {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  font-weight: 700;
+  width: 100%;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+}
+
+.apply-button-main:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+  background: var(--primary-dark);
+}
+
+.favorite-button-outline {
+  border: 2px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  border-radius: 12px;
+  padding: 1rem;
+  font-weight: 700;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.favorite-button-outline:hover {
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+@media (max-width: 991px) {
+  .floating-sidebar {
+    position: static;
+    margin-top: 2rem;
   }
 }

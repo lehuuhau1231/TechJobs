@@ -57,6 +57,8 @@ export default function LoginPage() {
           navigate("/");
         } else if (res.data.result.role === "EMPLOYER") {
           navigate("/create-job");
+        } else if (res.data.result.role === "ADMIN") {
+          navigate("/admin/jobs");
         } else {
           navigate("/");
         }
@@ -149,7 +151,6 @@ export default function LoginPage() {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
-                          className='border-start-0 ps-2'
                           style={{ boxShadow: "none" }}
                         />
                       </InputGroup>
@@ -165,15 +166,20 @@ export default function LoginPage() {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
+                          className='border-end-0'
                           style={{ boxShadow: "none" }}
                         />
-                        <Button
-                          variant='outline-secondary'
+                        <InputGroup.Text
                           onClick={() => setShowPassword(!showPassword)}
-                          style={{ borderLeft: "none" }}
+                          className='bg-white border-start-0'
+                          style={{ cursor: "pointer" }}
                         >
-                          {showPassword ? <EyeOff /> : <Eye />}
-                        </Button>
+                          {showPassword ? (
+                            <EyeOff className='text-muted' />
+                          ) : (
+                            <Eye className='text-muted' />
+                          )}
+                        </InputGroup.Text>
                       </InputGroup>
                     </Form.Group>
 
@@ -223,7 +229,7 @@ export default function LoginPage() {
                       onClick={handleGoogleLogin}
                       style={{ borderRadius: "8px" }}
                     >
-                      <span className='me-2'>🔍</span>
+                      <span className='me-2'></span>
                       Đăng nhập với Google
                     </Button>
                   </Form>

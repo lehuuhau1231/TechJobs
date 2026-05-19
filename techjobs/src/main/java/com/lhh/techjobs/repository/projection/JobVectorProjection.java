@@ -11,4 +11,5 @@ public interface JobVectorProjection {
     String getDistrict();
     String getImage();
     String getSkills();
+    String getSoftSkill();
 }

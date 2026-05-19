@@ -77,4 +77,7 @@ public class JobCreateRequest {
     private Integer contractTypeId;
 
     private List<Integer> jobSkillIds;
+
+    private String softSkill;
+
 }

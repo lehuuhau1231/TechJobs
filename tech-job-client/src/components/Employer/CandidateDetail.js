@@ -35,7 +35,7 @@ const CandidateDetail = () => {
     try {
       const token = cookies.load("token");
       const res = await authApis(token).get(
-        `${endpoints.candidate_applied_detail}/${candidateId}/${applicationId}`
+        `${endpoints.candidate_applied_detail}/${candidateId}/${applicationId}`,
       );
       setCandidateDetail(res.data);
     } catch (ex) {
@@ -117,9 +117,6 @@ const CandidateDetail = () => {
                     />
                   </div>
                   <h4 className='mb-2'>{candidateDetail.fullName}</h4>
-                  <p className='text-muted'>
-                    ID: {candidateDetail.candidateId}
-                  </p>
 
                   <div className='text-start'>
                     <div className='d-flex align-items-center mb-2'>

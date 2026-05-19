@@ -59,8 +59,17 @@ public class Job {
     @Column(name = "benefits", columnDefinition = "TEXT")
     private String benefits;
 
+    @Column(name = "soft_skill", columnDefinition = "TEXT")
+    private String softSkill;
+
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @Column(name = "reject_reason", columnDefinition = "TEXT")
+    private String rejectReason;
+
+    @Column(name = "field_errors", columnDefinition = "TEXT")
+    private String fieldErrors;
     
     @Column(name = "created_date")
     private LocalDateTime createdDate;

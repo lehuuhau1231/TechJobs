@@ -14,6 +14,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import redis.clients.jedis.JedisPooled;
 
 import java.util.List;
+import java.time.Duration;
+import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 @Configuration
 public class RedisConfig {
@@ -35,5 +39,18 @@ public class RedisConfig {
     @Bean
     JedisPooled jedisPool() {
         return new JedisPooled(redisHost, redisPort);
+    }
+
+    @Bean
+    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
+        return (builder) -> {
+            RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+                    .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                    .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+
+            builder.cacheDefaults(defaultCacheConfig)
+                   .withCacheConfiguration("jobRecommendations",
+                        defaultCacheConfig.entryTtl(Duration.ofMinutes(20)));
+        };
     }
 }

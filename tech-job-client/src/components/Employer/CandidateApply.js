@@ -52,7 +52,7 @@ const CandidateApply = () => {
     setLoading(true);
     try {
       const res = await authApis(token).get(
-        `${endpoints.application_pending}?page=${currentPage}&jobId=${jobId}`
+        `${endpoints.application_pending}?page=${currentPage}&jobId=${jobId}`,
       );
       setApplication(res.data.content);
       setTotalPages(res.data.totalPages);
@@ -66,7 +66,7 @@ const CandidateApply = () => {
   const loadContactCandidates = async () => {
     try {
       const res = await authApis(token).get(
-        `${endpoints.application_approve_candidate}/${jobId}`
+        `${endpoints.application_approve_candidate}/${jobId}`,
       );
       setContactCandidates(res.data);
     } catch (ex) {
@@ -86,8 +86,8 @@ const CandidateApply = () => {
         prev.map((candidate) =>
           candidate.applicationId === applicationId
             ? { ...candidate, contacted: true }
-            : candidate
-        )
+            : candidate,
+        ),
       );
       setAlertSuccess(true);
       setMessage("Đã đánh dấu liên hệ thành công.");
@@ -236,7 +236,7 @@ const CandidateApply = () => {
                                       className='me-2'
                                       onClick={() =>
                                         navigate(
-                                          `/employer/candidate-detail/${application.candidateId}/${application.id}`
+                                          `/employer/candidate-detail/${application.candidateId}/${application.id}`,
                                         )
                                       }
                                     >

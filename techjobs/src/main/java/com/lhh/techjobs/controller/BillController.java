@@ -2,6 +2,7 @@ package com.lhh.techjobs.controller;
 
 import com.lhh.techjobs.dto.request.BillRequest;
 import com.lhh.techjobs.dto.response.BillResponse;
+import com.lhh.techjobs.dto.response.BillUnpaidResponse;
 import com.lhh.techjobs.dto.response.RevenueStatsResponse;
 import com.lhh.techjobs.enums.BillStatus;
 import com.lhh.techjobs.service.BillService;
@@ -55,6 +56,12 @@ public class BillController {
             @RequestParam(required = false) Integer toYear) {
         List<Object[]> stats = billService.getYearlyRevenueStats(fromYear, toYear);
         return ResponseEntity.ok(stats);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/pending")
+    public ResponseEntity<List<BillUnpaidResponse>> getPendingBills() {
+        return ResponseEntity.ok(billService.getBillPending());
     }
 
     @PreAuthorize("hasRole('ADMIN')")

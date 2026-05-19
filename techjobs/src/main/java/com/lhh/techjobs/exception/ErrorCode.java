@@ -21,6 +21,7 @@ public enum ErrorCode {
     EMPLOYER_ACCOUNT_NOT_ACTIVE(1011, "Employer account is not active", HttpStatus.BAD_REQUEST),
     FILE_INVALID(1012, "File invalid", HttpStatus.BAD_REQUEST),
     FILE_NOT_FOUND(1013, "File not found", HttpStatus.BAD_REQUEST),
+    TOO_MANY_REQUESTS(1014, "Too many requests", HttpStatus.TOO_MANY_REQUESTS)
     ;
 
 

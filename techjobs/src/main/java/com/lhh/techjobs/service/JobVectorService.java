@@ -6,14 +6,11 @@ import com.lhh.techjobs.entity.Job;
 import com.lhh.techjobs.entity.Skill;
 import com.lhh.techjobs.enums.Status;
 import com.lhh.techjobs.mapper.JobMapper;
-import com.lhh.techjobs.repository.ITCareerRepository;
 import com.lhh.techjobs.repository.JobRepository;
 import com.lhh.techjobs.repository.projection.JobVectorProjection;
 import com.lhh.techjobs.repository.redis.JobVectorRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,15 +39,14 @@ public class JobVectorService {
         List<JobVectorProjection> jobs;
         int totalSynced = 0;
         int batchNumber = 0;
+        int offset = 50;
 
         do {
-            jobs = jobRepository.findByStatus(Status.APPROVED, pageSize);
+            jobs = jobRepository.findByStatus(Status.APPROVED.name(), pageSize, offset);
             List<JobVectorDTO> jobVectors = jobs.stream().map(jobMapper::toJobVectorDTO).toList();
-            jobRedisService.saveAllJob(jobVectors, "job: ");
+            jobRedisService.saveAllJob(jobVectors, "job:");
 
             List<Integer> jobIds = jobs.stream().map(JobVectorProjection::getId).toList();
-
-            if(jobIds.isEmpty()) break;
 
             jobRepository.updateVectorUpdatedAtForJobs(jobIds);
 
@@ -58,7 +54,8 @@ public class JobVectorService {
             batchNumber++;
             log.info("Synchronized {} jobs to Redis in {} batch", jobVectors.size(), batchNumber);
 
-        } while (jobs.size() == pageSize);
+            offset += pageSize;
+        } while (!jobs.isEmpty());
 
         log.info("Completed synchronize {} job to vector database Redis", totalSynced);
     }

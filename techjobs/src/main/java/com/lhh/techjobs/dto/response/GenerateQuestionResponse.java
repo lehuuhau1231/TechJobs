@@ -10,7 +10,5 @@ public class GenerateQuestionResponse {
     private Boolean isReady;
     private String question;
     private String summary;
-    private String characterTraits;
-    private String interests;
-    private String workStyles;
+    private String softSkill;
 }

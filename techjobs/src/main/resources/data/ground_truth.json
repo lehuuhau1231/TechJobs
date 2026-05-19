@@ -1,0 +1,46 @@
+[
+  { "cvId": 1, "jobId": 1, "relevanceScore": 8, "matchReason": "Cùng ngôn ngữ Java/Spring nhưng Job yêu cầu Senior nên điểm 8" },
+  { "cvId": 1, "jobId": 7, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Intern/Junior Java, Spring Boot" },
+  { "cvId": 1, "jobId": 41, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Intern Java Training Program" },
+
+  { "cvId": 2, "jobId": 2, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: ReactJS/Next.js Middle Level" },
+  { "cvId": 2, "jobId": 11, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Senior Frontend React/Next.js" },
+  { "cvId": 2, "jobId": 43, "relevanceScore": 9, "matchReason": "Khớp mạnh: Fullstack (Node/React) - CV mạnh về React" },
+  { "cvId": 2, "jobId": 49, "relevanceScore": 7, "matchReason": "Khớp: Intern Vue.js (Cùng mảng Frontend nhưng khác Framework)" },
+
+  { "cvId": 3, "jobId": 3, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: AI Engineer (RAG & LLMs Expert)" },
+  { "cvId": 3, "jobId": 22, "relevanceScore": 9, "matchReason": "Khớp mạnh: ML Engineer (Computer Vision vs RAG)" },
+  { "cvId": 3, "jobId": 28, "relevanceScore": 9, "matchReason": "Khớp mạnh: NLP Research Engineer (Vietnamese Focus)" },
+  { "cvId": 3, "jobId": 50, "relevanceScore": 9, "matchReason": "Khớp mạnh: AI Chatbot Specialist (Prompt Engineering)" },
+
+  { "cvId": 4, "jobId": 16, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Flutter Developer (Mid-Senior)" },
+  { "cvId": 4, "jobId": 44, "relevanceScore": 8, "matchReason": "Khớp: Game Developer (Cùng mảng Mobile/C#)" },
+  { "cvId": 4, "jobId": 14, "relevanceScore": 8, "matchReason": "Khớp: iOS Developer (Khác platform nhưng cùng mảng Mobile)" },
+
+  { "cvId": 5, "jobId": 4, "relevanceScore": 9, "matchReason": "Khớp mạnh: DevOps Engineer (AWS/K8s)" },
+  { "cvId": 5, "jobId": 23, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: DevOps Engineer (Azure & Terraform)" },
+  { "cvId": 5, "jobId": 30, "relevanceScore": 9, "matchReason": "Khớp mạnh: Site Reliability Engineer (SRE)" },
+
+  { "cvId": 6, "jobId": 1, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Senior Java Engineer (Spring Cloud)" },
+  { "cvId": 6, "jobId": 8, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Backend Lead (Distributed Systems)" },
+  { "cvId": 6, "jobId": 27, "relevanceScore": 7, "matchReason": "Khớp: Database Administrator (Cùng mảng Backend/Data)" },
+  { "cvId": 6, "jobId": 48, "relevanceScore": 7, "matchReason": "Khớp: Cloud Architect (Cần kiến thức Backend/Infra)" },
+
+  { "cvId": 7, "jobId": 2, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Senior Golang Engineer (High Load)" },
+  { "cvId": 7, "jobId": 9, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Golang Developer (High Load)" },
+  { "cvId": 7, "jobId": 30, "relevanceScore": 9, "matchReason": "Khớp mạnh: SRE Engineer (Yêu cầu Go/Python/High Load)" },
+
+  { "cvId": 8, "jobId": 32, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Senior Business Analyst (Fintech)" },
+  { "cvId": 8, "jobId": 33, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Product Owner (E-commerce)" },
+  { "cvId": 8, "jobId": 31, "relevanceScore": 9, "matchReason": "Khớp mạnh: IT Project Manager (Agile/Scrum)" },
+  { "cvId": 8, "jobId": 36, "relevanceScore": 9, "matchReason": "Khớp mạnh: Scrum Master (Agile Transformation)" },
+
+  { "cvId": 9, "jobId": 14, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Senior iOS Developer (Swift/SwiftUI)" },
+  { "cvId": 9, "jobId": 17, "relevanceScore": 8, "matchReason": "Khớp: Lead UI/UX (CV Senior Mobile thường có tư duy UI/UX mạnh)" },
+  { "cvId": 9, "jobId": 16, "relevanceScore": 7, "matchReason": "Khớp: Flutter Developer (Cùng Mobile nhưng khác Native)" },
+
+  { "cvId": 10, "jobId": 37, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Automation Test Lead" },
+  { "cvId": 10, "jobId": 20, "relevanceScore": 10, "matchReason": "Khớp hoàn toàn: Tester/QA Engineer" },
+  { "cvId": 10, "jobId": 23, "relevanceScore": 6, "matchReason": "Khớp nhẹ: DevOps (Cùng mảng Automation/Pipeline)" },
+  { "cvId": 10, "jobId": 35, "relevanceScore": 6, "matchReason": "Khớp nhẹ: Technical Writer (QA nắm vững luồng hệ thống)" }
+]

@@ -42,34 +42,28 @@ public class CareerRecommendationService {
     private final MessageRepository messageRepository;
     private final GeminiService geminiService;
     private final MessageService messageService;
-    private static final String INDEX_CAREER_NAME = "careerIdx";
+    private static final String INDEX_CAREER_NAME = "jobIdx";
     private static final int MAX_QUESTIONS = 5;
 
     public CareerRecommendResponse recommendCareer(CareerRequest careerRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         CvProfile cvProfile = candidateRepository.findCvProfileByEmail(email);
 
-        // Save chat session and message to DB
         ChatSession chatSession = chatSessionService.createChatSession(careerRequest);
 
         List<String> recentMessage = messageRepository.findTop5Message(chatSession, PageRequest.of(0, 10));
 
-        // Pass accumulated state to AI
         GenerateQuestionResponse generateQuestion = geminiService.generateQuestion(
                 "",
                 careerRequest.getContent(),
                 recentMessage,
-                chatSession.getWorkStyles(),
-                chatSession.getCharacterTraits(),
-                chatSession.getInterests(),
+                chatSession.getSoftSkill(),
                 chatSession.getQuestionCount() != null ? chatSession.getQuestionCount() : 0,
                 MAX_QUESTIONS
         );
+        
+        chatSession.setSoftSkill(mergeValue(chatSession.getSoftSkill(), generateQuestion.getSoftSkill()));
 
-        // Update accumulated state in ChatSession (merge: keep old value if AI returns null)
-        chatSession.setWorkStyles(mergeValue(chatSession.getWorkStyles(), generateQuestion.getWorkStyles()));
-        chatSession.setCharacterTraits(mergeValue(chatSession.getCharacterTraits(), generateQuestion.getCharacterTraits()));
-        chatSession.setInterests(mergeValue(chatSession.getInterests(), generateQuestion.getInterests()));
         chatSession.setQuestionCount((chatSession.getQuestionCount() != null ? chatSession.getQuestionCount() : 0) + 1);
         chatSessionService.save(chatSession);
 
@@ -86,7 +80,7 @@ public class CareerRecommendationService {
 
             Query q = new Query("*=>[KNN 2 @vector $vec AS score]")
                     .addParam("vec", vecBytes)
-                    .returnFields("id", "jobTitle", "keySkills", "characterTraits", "interests", "workStyles", "score")
+                    .returnFields("id", "title", "skillNames", "jobDetailUrl", "softSkill", "score")
                     .setSortBy("score", true)
                     .dialect(2);
 
@@ -103,7 +97,7 @@ public class CareerRecommendationService {
         // Save answer of Assistant
         messageService.createAndSaveMessage(chatSession, answerGenerated);
 
-        log.info("workStyles: {}, characterTraits: {}, interests: {}", chatSession.getWorkStyles(), chatSession.getCharacterTraits(), chatSession.getInterests());
+        log.info("softSkill: {}", chatSession.getSoftSkill());
 
         return CareerRecommendResponse.builder()
                 .chatSessionId(chatSession.getId())
@@ -112,10 +106,6 @@ public class CareerRecommendationService {
                 .build();
     }
 
-    /**
-     * Merge strategy: if new value is non-null, use it; otherwise keep old value.
-     * This prevents AI from accidentally nullifying previously extracted info.
-     */
     private String mergeValue(String oldValue, String newValue) {
         return (newValue != null && !newValue.isBlank()) ? newValue : oldValue;
     }
@@ -131,11 +121,10 @@ public class CareerRecommendationService {
     private CareerResponse mapToJobResponse(Document doc) {
         return CareerResponse.builder()
                 .id(Integer.parseInt(doc.getString("id")))
-                .jobTitle(doc.getString("jobTitle"))
-                .keySkills(doc.getString("keySkills"))
-                .interests(doc.getString("interests"))
-                .workStyles(doc.getString("workStyles"))
-                .characterTraits(doc.getString("characterTraits"))
+                .title(doc.getString("title"))
+                .skillNames(doc.getString("skillNames"))
+                .softSkill(doc.getString("softSkill"))
+                .jobDetailUrl(doc.getString("jobDetailUrl"))
                 .score(
                         Double.parseDouble(doc.getString("score"))
                 )

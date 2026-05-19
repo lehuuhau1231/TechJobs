@@ -18,6 +18,9 @@ import CandidateApply from "./components/Employer/CandidateApply";
 import Profile from "./components/Candidate/Profile";
 import JobRecommendation from "./components/Candidate/JobRecommendation";
 import CandidateDetail from "./components/Employer/CandidateDetail";
+import AdminDashboard from "./components/Admin/AdminDashboard";
+import AdminJobReview from "./components/Admin/AdminJobReview";
+import AdminEmployerApproval from "./components/Admin/AdminEmployerApproval";
 import "../src/components/styles/variable.css";
 import { Toaster } from "react-hot-toast";
 
@@ -88,6 +91,15 @@ function App() {
                   <Route
                     path='/employer/candidate-detail/:candidateId/:applicationId'
                     element={<CandidateDetail />}
+                  />
+                </>
+              ) : user.role === "ADMIN" ? (
+                <>
+                  {/* <Route path='/admin/dashboard' element={<AdminDashboard />} /> */}
+                  <Route path='/admin/jobs' element={<AdminJobReview />} />
+                  <Route
+                    path='/admin/employers'
+                    element={<AdminEmployerApproval />}
                   />
                 </>
               ) : null

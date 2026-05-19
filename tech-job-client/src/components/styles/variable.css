@@ -1,3 +1,57 @@
 :root {
+  /* Core Brand Colors */
   --primary-color: #4f46e5;
+  --primary-dark: #4338ca;
+  --accent-emerald: #10b981;
+  --accent-emerald-dark: #059669;
+
+  /* Neutral Surface Colors */
+  --bg-main: #f8fafc;
+  --bg-surface: #ffffff;
+  --border-subtle: #f1f5f9;
+  --border-main: #e2e8f0;
+
+  /* Typography Colors */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  /* Bootstrap Overrides */
+  --bs-primary: var(--primary-color);
+  --bs-primary-rgb: 79, 70, 229;
+  --bs-link-color: var(--primary-color);
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--primary-color);
+  --bs-btn-border-color: var(--primary-color);
+  --bs-btn-hover-bg: var(--primary-dark);
+}
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+/* Global Focus/Active Overrides to remove Bootstrap Blue */
+.form-control:focus, .form-check-input:focus, .btn:focus {
+  border-color: rgba(79, 70, 229, 0.4);
+  box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.15);
+}
+
+.btn-check:checked + .btn-primary, 
+.btn-primary.active, 
+.btn-primary:active, 
+.show > .btn-primary.dropdown-toggle {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
 }

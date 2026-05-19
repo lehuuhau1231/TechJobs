@@ -76,4 +76,20 @@ public class EmployerService {
         return employerRepository.findByStatus(Status.PENDING);
     }
 
+    @Transactional
+    public void approveEmployer(Integer employerId) {
+        Employer employer = employerRepository.findById(employerId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        employer.setStatus(Status.APPROVED);
+        employerRepository.save(employer);
+    }
+
+    @Transactional
+    public void rejectEmployer(Integer employerId) {
+        Employer employer = employerRepository.findById(employerId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        employer.setStatus(Status.CANCELED);
+        employerRepository.save(employer);
+    }
+
 }

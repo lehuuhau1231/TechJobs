@@ -16,9 +16,6 @@ public class RecommendationSmartJobController {
 
     private final RecommendationService recommendationService;
 
-    /**
-     * API tìm kiếm job thông minh sử dụng vector similarity với Gemini embedding
-     */
     @PreAuthorize("hasRole('CANDIDATE')")
     @GetMapping("/jobs")
     public ResponseEntity<List<JobResponse>> smartSearchJobs() {

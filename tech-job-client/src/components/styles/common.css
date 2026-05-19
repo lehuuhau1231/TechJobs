@@ -22,3 +22,14 @@
 .primary-background-color {
   background-color: var(--primary-color);
 }
+
+.spinner-in-button {
+  margin-left: 8px;
+  width: 15px;
+  height: 15px;
+}
+
+.custom-button:disabled {
+  background-color: var(--primary-color);
+  cursor: not-allowed;
+}

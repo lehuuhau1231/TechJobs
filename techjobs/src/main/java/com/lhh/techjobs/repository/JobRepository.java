@@ -82,7 +82,9 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "c.name, " +
             "jl.name, " +
             "jt.name, " +
-            "ct.name) " +
+            "ct.name, " +
+            "j.rejectReason, " +
+            "j.fieldErrors) " +
             "FROM Job j " +
             "JOIN j.employer e " +
             "JOIN e.user u " +
@@ -94,12 +96,12 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "WHERE (j.id = :jobId)")
     JobDetailResponse findJobDetailById(@Param("jobId") Integer jobId);
 
-    @Query("SELECT new com.lhh.techjobs.dto.response.JobTitleResponse(j.id, j.title, j.createdDate) FROM Job j " +
+    @Query("SELECT new com.lhh.techjobs.dto.response.JobTitleResponse(j.id, j.title, j.createdDate, j.rejectReason, j.fieldErrors) FROM Job j " +
             "JOIN j.employer e " +
             "WHERE j.status = :status AND j.employer = :employer ")
     List<JobTitleResponse> findAllJobTitles(@Param("status") Status status, @Param("employer") Employer employer);
 
-    @Query("SELECT new com.lhh.techjobs.dto.response.JobTitleResponse(j.id, j.title, j.createdDate) FROM Job j " +
+    @Query("SELECT new com.lhh.techjobs.dto.response.JobTitleResponse(j.id, j.title, j.createdDate, j.rejectReason, j.fieldErrors) FROM Job j " +
             "WHERE j.status = :status ")
     List<JobTitleResponse> findAllJobTitles(@Param("status") Status status);
 
@@ -113,6 +115,25 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
             "GROUP BY j.id, j.title, j.postedDate, a.id")
     List<JobStatsResponse> findApprovedJobsWithApplicationCount(@Param("employer") Employer employer);
 
+    @Query("SELECT new com.lhh.techjobs.dto.response.JobResponse(j.id, " +
+            "j.title, " +
+            "j.salaryMin, " +
+            "j.salaryMax, " +
+            "j.address, " +
+            "e.companyName, " +
+            "d.name, " +
+            "c.name, " +
+            "u.avatar, " +
+            "jl.name) " +
+            "FROM Job j " +
+            "JOIN j.employer e " +
+            "JOIN e.user u " +
+            "LEFT JOIN j.district d " +
+            "LEFT JOIN j.city c " +
+            "LEFT JOIN j.jobLevel jl " +
+            "WHERE j.status = :status")
+    List<JobResponse> findJobsByStatus(@Param("status") Status status);
+
     @Query(value ="""
             SELECT
                     j.id as id,
@@ -124,6 +145,7 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
                     c.name as city,
                     d.name as district,
                     u.avatar as image,
+                    j.soft_skill as "softSkill",
                     GROUP_CONCAT(s.name) as skills
                 FROM job j
                 LEFT JOIN job_level jl ON j.job_level_id = jl.id
@@ -134,13 +156,20 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
                 LEFT JOIN job_skill js ON j.id = js.job_id
                 LEFT JOIN skill s ON js.skill_id = s.id
                 WHERE j.status = :status
-                AND j.vector_updated_at IS NULL
                 GROUP BY j.id
+                ORDER BY j.id ASC
                 LIMIT :pageSize
+                OFFSET :offset
     """, nativeQuery = true)
-    List<JobVectorProjection> findByStatus(Status status, @Param("pageSize") int pageSize);
+    List<JobVectorProjection> findByStatus(@Param("status") String status, @Param("pageSize") int pageSize, @Param("offset") int offset);
 
     @Modifying
     @Query("UPDATE Job j SET j.vectorUpdatedAt = CURRENT_TIMESTAMP WHERE j.id IN :jobIds")
     void updateVectorUpdatedAtForJobs(@Param("jobIds") List<Integer> jobIds);
+
+    @Query("SELECT new com.lhh.techjobs.dto.response.JobChatbotResponse(" +
+           "j.id, j.title, j.description, j.jobRequire, j.benefits, jl.name, j.softSkill) " +
+           "FROM Job j LEFT JOIN j.jobLevel jl " +
+           "WHERE j.status = com.lhh.techjobs.enums.Status.APPROVED")
+    Page<com.lhh.techjobs.dto.response.JobChatbotResponse> findJobsForChatbot(Pageable pageable);
 }

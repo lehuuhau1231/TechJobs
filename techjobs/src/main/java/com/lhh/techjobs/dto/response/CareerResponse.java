@@ -8,16 +8,15 @@ import lombok.Getter;
 @Data
 public class CareerResponse {
     private Integer id;
-    private String jobTitle;
-    private String keySkills;
-    private String interests;
-    private String workStyles;
-    private String characterTraits;
+    private String title;
+    private String skillNames;
+    private String softSkill;
+    private String jobDetailUrl;
     private Double score;
 
     public String formatCareerDescription() {
         return """
-                Title: %s, keySkills: %s, interests: %s, workStyles: %s
-                """.formatted(jobTitle, keySkills, interests, workStyles);
+                Title: %s, keySkills: %s, softSkill: %s, jobDetailUrl: %s
+                """.formatted(title, skillNames, softSkill, jobDetailUrl);
     }
 }

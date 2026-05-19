@@ -26,6 +26,8 @@ import UploadCVInterface from "./UploadCVInterface";
 import UploadCVModal from "./UploadCVModal";
 import toast from "react-hot-toast";
 
+import "../styles/profile.css";
+
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -63,159 +65,132 @@ const Profile = () => {
     }
   }, [message]);
 
-  return (
-    <>
-      <Header />
-      <Container className='my-5'>
-        {profile && (
-          <Row>
-            <Col md={4}>
-              <Card className='mb-4 shadow-sm'>
-                <Card.Body className='text-center'>
-                  <div className='mb-4'>
-                    <Image
-                      src={profile.avatar || "https://via.placeholder.com/150"}
-                      alt={profile.fullName}
-                      roundedCircle
-                      className='img-thumbnail'
-                      style={{
-                        width: "150px",
-                        height: "150px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </div>
-                  <h4>{profile.fullName}</h4>
-                  <p className='text-muted'>
-                    {profile.candidateId ? `ID: ${profile.candidateId}` : ""}
-                  </p>
+  if (loading) return <Loading />;
 
-                  <div className='d-flex align-items-center justify-content-center mb-2'>
-                    <Mail size={18} className='text-primary me-2' />
+  return (
+    <div className='profile-container'>
+      <Header />
+      <Container>
+        {profile && (
+          <Row className='g-4 mt-2'>
+            {/* Left Sidebar */}
+            <Col lg={4}>
+              <div className='profile-card-left'>
+                <div className='profile-avatar-wrapper'>
+                  <Image
+                    src={profile.avatar || "https://via.placeholder.com/150"}
+                    alt={profile.fullName}
+                    className='profile-avatar'
+                  />
+                </div>
+                <h2 className='profile-name'>{profile.fullName}</h2>
+
+                <div className='mt-4 pt-4 border-top'>
+                  <div className='profile-info-item'>
+                    <Mail size={18} />
                     <span>{profile.email}</span>
                   </div>
-                  <div className='d-flex align-items-center justify-content-center mb-2'>
-                    <Phone size={18} className='text-primary me-2' />
+                  <div className='profile-info-item'>
+                    <Phone size={18} />
                     <span>{profile.phone}</span>
                   </div>
-                  <div className='d-flex align-items-center justify-content-center'>
-                    <MapPin size={18} className='text-primary me-2' />
+                  <div className='profile-info-item'>
+                    <MapPin size={18} />
                     <span>
                       {[profile.address, profile.district, profile.city]
                         .filter(Boolean)
                         .join(", ")}
                     </span>
                   </div>
-                </Card.Body>
-              </Card>
+                </div>
 
-              {profile.cv ? (
-                <Card className='shadow-sm'>
-                  <Card.Body>
-                    <h5 className='d-flex align-items-center'>
-                      <FileText size={20} className='text-primary me-2' />
-                      CV của bạn
-                    </h5>
-                    <p className='text-muted small'>
-                      Nhấn vào nút bên dưới để xem CV
-                    </p>
-                    <Row>
-                      <Col md={6}>
-                        <Button
-                          variant='outline-primary'
-                          className='w-100'
-                          onClick={() => openCV(profile.cv)}
-                        >
-                          <File size={16} className='me-2' />
-                          Xem CV
-                        </Button>
-                      </Col>
-                      <Col md={6}>
-                        <Button
-                          variant='primary'
-                          className='w-100'
-                          onClick={() => setShowCVModal(true)}
-                        >
-                          Thay đổi CV
-                        </Button>
-                      </Col>
-                    </Row>
-                  </Card.Body>
-                </Card>
-              ) : (
-                <UploadCVInterface
-                  setMessage={setMessage}
-                  setShowModal={setShowCVModal}
-                />
-                // <UploadCVModal />
-              )}
+                {/* CV Section */}
+                <div className='cv-card text-start'>
+                  <h6 className='d-flex align-items-center gap-2 mb-3'>
+                    <FileText size={18} className='text-primary' />
+                    Hồ sơ CV
+                  </h6>
+                  {profile.cv ? (
+                    <div className='d-grid gap-2'>
+                      <button
+                        className='profile-action-btn btn-outline-custom w-100 d-flex align-items-center justify-content-center gap-2'
+                        onClick={() => openCV(profile.cv)}
+                        style={{ background: "transparent" }}
+                      >
+                        <File size={16} /> Xem CV hiện tại
+                      </button>
+                      <button
+                        className='profile-action-btn btn-primary-custom w-100'
+                        onClick={() => setShowCVModal(true)}
+                      >
+                        Cập nhật CV mới
+                      </button>
+                    </div>
+                  ) : (
+                    <div className='text-center py-2'>
+                      <UploadCVInterface
+                        setMessage={setMessage}
+                        setShowModal={setShowCVModal}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
             </Col>
 
-            <Col md={8}>
-              <Card className='shadow-sm'>
-                <Card.Body>
-                  <h4 className='mb-4'>Thông tin cá nhân</h4>
+            {/* Main Content */}
+            <Col lg={8}>
+              <div className='profile-main-content'>
+                <h3 className='section-title'>
+                  <User size={22} />
+                  Thông tin cá nhân
+                </h3>
 
-                  <div className='mb-4'>
-                    <h5 className='d-flex align-items-center'>
-                      <User size={18} className='text-primary me-2' />
-                      Giới thiệu bản thân
-                    </h5>
-                    <Card className='bg-light border-0'>
-                      <Card.Body>
-                        {profile.selfDescription || (
-                          <span className='text-muted'>
-                            Chưa có thông tin giới thiệu bản thân.
-                          </span>
-                        )}
-                      </Card.Body>
-                    </Card>
+                <div className='mb-5'>
+                  <div className='info-label'>Giới thiệu bản thân</div>
+                  <div className='bio-box'>
+                    {profile.selfDescription || (
+                      <span className='text-muted italic'>
+                        Chưa có thông tin giới thiệu bản thân. Hãy thêm giới
+                        thiệu để nhà tuyển dụng hiểu rõ hơn về bạn.
+                      </span>
+                    )}
                   </div>
+                </div>
 
-                  <Row className='mb-4'>
-                    <Col md={6}>
-                      <div className='mb-3'>
-                        <h6 className='text-muted'>Họ và tên</h6>
-                        <p className='fw-medium'>{profile.fullName}</p>
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <div className='mb-3'>
-                        <h6 className='text-muted'>Email</h6>
-                        <p className='fw-medium'>{profile.email}</p>
-                      </div>
-                    </Col>
-                  </Row>
+                <div className='row g-4'>
+                  <Col md={6}>
+                    <div className='info-label'>Họ và tên</div>
+                    <div className='info-value'>{profile.fullName}</div>
+                  </Col>
+                  <Col md={6}>
+                    <div className='info-label'>Email liên hệ</div>
+                    <div className='info-value'>{profile.email}</div>
+                  </Col>
+                  <Col md={6}>
+                    <div className='info-label'>Số điện thoại</div>
+                    <div className='info-value'>{profile.phone}</div>
+                  </Col>
+                  <Col md={6}>
+                    <div className='info-label'>Địa chỉ hiện tại</div>
+                    <div className='info-value'>
+                      {[profile.address, profile.district, profile.city]
+                        .filter(Boolean)
+                        .join(", ") || "Chưa cập nhật"}
+                    </div>
+                  </Col>
+                </div>
 
-                  <Row>
-                    <Col md={6}>
-                      <div className='mb-3'>
-                        <h6 className='text-muted'>Số điện thoại</h6>
-                        <p className='fw-medium'>{profile.phone}</p>
-                      </div>
-                    </Col>
-                    <Col md={6}>
-                      <div className='mb-3'>
-                        <h6 className='text-muted'>Địa chỉ</h6>
-                        <p className='fw-medium'>
-                          {[profile.address, profile.district, profile.city]
-                            .filter(Boolean)
-                            .join(", ")}
-                        </p>
-                      </div>
-                    </Col>
-                  </Row>
-
-                  <div className='d-flex justify-content-end mt-3'>
-                    <Button variant='outline-primary'>
-                      Chỉnh sửa thông tin
-                    </Button>
-                  </div>
-                </Card.Body>
-              </Card>
+                <div className='d-flex justify-content-end mt-5 pt-4 border-top'>
+                  <button className='profile-action-btn btn-primary-custom d-flex align-items-center gap-2'>
+                    Chỉnh sửa hồ sơ
+                  </button>
+                </div>
+              </div>
             </Col>
           </Row>
         )}
+
         {showCVModal && (
           <UploadCVModal
             showCVModal={showCVModal}
@@ -224,7 +199,7 @@ const Profile = () => {
           />
         )}
       </Container>
-    </>
+    </div>
   );
 };
 

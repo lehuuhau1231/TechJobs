@@ -26,6 +26,8 @@ public class JobIndexSchema extends IndexSchema{
                         TagField.of("districtName"),
                         TagField.of("skillNames"),
                         TextField.of("image"),
+                        TextField.of("softSkill"),
+                        TextField.of("jobDetailUrl"),
 
                         // Vector field: FLAT + COSINE, dim = 768
                         VectorField.builder()

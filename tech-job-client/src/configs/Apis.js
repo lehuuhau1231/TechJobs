@@ -32,6 +32,18 @@ export const endpoints = {
   check_cv: "/api/candidate/check-cv",
   search_career: "/api/career/search-careers",
   get_recent_message: "/api/chat-session",
+  admin_job_pending: "/api/admin/jobs/pending",
+  admin_employer_pending: "/api/admin/employer/pending",
+  admin_pending_bills: "/api/bills/pending",
+  revenue_monthly: "/api/bills/stats/monthly",
+  revenue_quarterly: "/api/bills/stats/quarterly",
+  revenue_yearly: "/api/bills/stats/yearly",
+  approve_bill: (billId, jobId) => `/api/bills/${billId}/${jobId}/approve`,
+  reject_bill: (billId, jobId) => `/api/bills/${billId}/${jobId}/reject`,
+  approve_job_admin: (id) => `/api/admin/jobs/${id}/approve`,
+  reject_job: (id) => `/api/admin/jobs/${id}/reject`,
+  approve_employer: (id) => `/api/admin/employer/${id}/approve`,
+  reject_employer: (id) => `/api/admin/employer/${id}/reject`,
 };
 
 export const authApis = (token) =>

@@ -21,6 +21,8 @@ import Header from "../layout/Header";
 import "../styles/common.css";
 import { useNavigate } from "react-router-dom";
 
+import "../styles/applicationTracking.css";
+
 const ApplicationTracking = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,92 +73,75 @@ const ApplicationTracking = () => {
     }
   };
 
-  const getStatusVariant = (status) => {
+  const getStatusLabel = (status) => {
     switch (status) {
-      case "APPROVED":
-        return "success";
-      case "CANCELED":
-        return "danger";
-      case "PENDING":
-      default:
-        return "warning";
+      case "APPROVED": return "Đã duyệt";
+      case "CANCELED": return "Đã hủy";
+      default: return "Đang chờ xử lý";
+    }
+  };
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "APPROVED": return "status-badge-approved";
+      case "CANCELED": return "status-badge-canceled";
+      default: return "status-badge-pending";
     }
   };
 
   return (
-    <>
+    <div className="tracking-container">
       <Header />
-      <Container className='my-4'>
-        <h2 className='mb-4'>Theo dõi đơn ứng tuyển</h2>
+      <Container>
+        <div className="tracking-header-section mt-4">
+          <h2 className="tracking-title">Theo dõi đơn ứng tuyển</h2>
+          <p className="tracking-subtitle">Xem trạng thái các công việc bạn đã ứng tuyển</p>
+        </div>
 
-        <Card className='mb-4'>
-          <Card.Body>
-            <Row className='mb-3'>
-              <Col>
-                <ButtonGroup>
-                  <Button
-                    variant={
-                      currentStatus === "PENDING"
-                        ? "primary"
-                        : "outline-primary"
-                    }
-                    style={{ width: "150px" }}
-                    onClick={() => handleStatusChange("PENDING")}
-                  >
-                    Đang chờ xử lý
-                  </Button>
-                  <Button
-                    variant={
-                      currentStatus === "APPROVED"
-                        ? "primary"
-                        : "outline-primary"
-                    }
-                    style={{ width: "150px" }}
-                    onClick={() => handleStatusChange("APPROVED")}
-                  >
-                    Đã duyệt
-                  </Button>
-                  <Button
-                    variant={
-                      currentStatus === "CANCELED"
-                        ? "primary"
-                        : "outline-primary"
-                    }
-                    style={{ width: "150px" }}
-                    onClick={() => handleStatusChange("CANCELED")}
-                  >
-                    Đã hủy
-                  </Button>
-                </ButtonGroup>
-              </Col>
-            </Row>
+        {/* Status Navigation */}
+        <div className="status-nav">
+          <button
+            className={`status-nav-item ${currentStatus === "PENDING" ? "active" : ""}`}
+            onClick={() => handleStatusChange("PENDING")}
+          >
+            Đang chờ xử lý
+          </button>
+          <button
+            className={`status-nav-item ${currentStatus === "APPROVED" ? "active" : ""}`}
+            onClick={() => handleStatusChange("APPROVED")}
+          >
+            Đã duyệt
+          </button>
+          <button
+            className={`status-nav-item ${currentStatus === "CANCELED" ? "active" : ""}`}
+            onClick={() => handleStatusChange("CANCELED")}
+          >
+            Đã hủy
+          </button>
+        </div>
 
-            {loading ? (
-              <div className='text-center py-4'>
-                <Loading />
-              </div>
-            ) : error ? (
-              <Alert variant='danger'>{error}</Alert>
-            ) : applications.length === 0 ? (
-              <Alert variant='info' className='d-flex align-items-center'>
-                <AlertCircle className='me-2' />
-                Không có đơn ứng tuyển nào với trạng thái "
-                {currentStatus === "PENDING"
-                  ? "Đang chờ xử lý"
-                  : currentStatus === "APPROVED"
-                  ? "Đã duyệt"
-                  : "Đã hủy"}
-                "
-              </Alert>
-            ) : (
-              <Table responsive hover>
+        <div className="tracking-table-card">
+          {loading ? (
+            <div className="text-center py-5">
+              <Loading />
+            </div>
+          ) : error ? (
+            <Alert variant="danger" className="rounded-3 border-0 shadow-sm">{error}</Alert>
+          ) : applications.length === 0 ? (
+            <div className="text-center py-5">
+              <AlertCircle size={48} className="text-muted mb-3 opacity-25" />
+              <p className="text-muted fw-bold">Không có đơn ứng tuyển nào ở trạng thái này</p>
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <table className="tracking-table">
                 <thead>
                   <tr>
-                    <th>STT</th>
+                    <th style={{ width: '80px' }}>STT</th>
                     <th>Vị trí công việc</th>
                     <th>Ngày ứng tuyển</th>
                     <th>Trạng thái</th>
-                    <th>Hành động</th>
+                    <th className="text-end">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -164,44 +149,41 @@ const ApplicationTracking = () => {
                     <tr key={app.applicationId}>
                       <td>{index + 1}</td>
                       <td>
-                        <div className='d-flex align-items-center'>
-                          <Briefcase size={16} className='me-2 text-muted' />
+                        <div className="d-flex align-items-center gap-2">
+                          <div className="p-2 bg-light rounded-3">
+                            <Briefcase size={18} className="text-primary" />
+                          </div>
                           <div>{app.title}</div>
                         </div>
                       </td>
                       <td>
-                        <div className='d-flex align-items-center'>
-                          <Calendar size={16} className='me-2 text-muted' />
-                          <div>{formatDate(app.appliedDate)}</div>
+                        <div className="d-flex align-items-center gap-2 text-secondary small">
+                          <Calendar size={16} />
+                          {formatDate(app.appliedDate)}
                         </div>
                       </td>
                       <td>
-                        <Badge bg={getStatusVariant(currentStatus)}>
-                          {currentStatus === "PENDING"
-                            ? "Đang chờ xử lý"
-                            : currentStatus === "APPROVED"
-                            ? "Đã duyệt"
-                            : "Đã hủy"}
-                        </Badge>
+                        <span className={`status-badge ${getStatusClass(currentStatus)}`}>
+                          {getStatusLabel(currentStatus)}
+                        </span>
                       </td>
-                      <td>
-                        <Button
-                          variant='outline-primary'
-                          size='sm'
+                      <td className="text-end">
+                        <button
+                          className="view-detail-btn"
                           onClick={() => navigate(`/job-detail/${app.jobId}`)}
                         >
-                          Xem chi tiết
-                        </Button>
+                          Chi tiết
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </Table>
-            )}
-          </Card.Body>
-        </Card>
+              </table>
+            </div>
+          )}
+        </div>
       </Container>
-    </>
+    </div>
   );
 };
 

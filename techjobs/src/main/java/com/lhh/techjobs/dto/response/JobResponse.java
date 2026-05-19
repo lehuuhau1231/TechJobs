@@ -25,6 +25,7 @@ public class JobResponse {
     private List<String> jobSkills;
     private Integer matchPercentage;
     private String explanation;
+    private Double score; // cosine distance từ Redis Vector Search (dùng nội bộ, không trả về client)
 
     public JobResponse(Integer id, String title, Integer salaryMin, Integer salaryMax,
                        String address, String companyName, String district, String city, String image, String jobLevelName) {

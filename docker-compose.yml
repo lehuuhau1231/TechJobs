@@ -1,0 +1,63 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: techjobs_db
+    environment:
+      MYSQL_DATABASE: techjobdb
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-123456}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./data.sql:/docker-entrypoint-initdb.d/data.sql
+
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: techjobs_redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build: ./techjobs
+    container_name: techjobs_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/techjobdb
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-123456}
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - DB_USERNAME=root
+      - DB_PASSWORD=${DB_PASSWORD:-123456}
+      - email-app-password=${EMAIL_APP_PASSWORD}
+      - signerKey=${SIGNER_KEY}
+      - cloud-name=${CLOUD_NAME}
+      - cloud-api-key=${CLOUD_API_KEY}
+      - cloud-api-secret=${CLOUD_API_SECRET}
+      - tmn-code=${TMN_CODE}
+      - hash-secret=${HASH_SECRET}
+      - returnUrl=${RETURN_URL}
+      - ipnUrl=${IPN_URL}
+      - provincesUrl=${PROVINCES_URL}
+      - districtsUrl=${DISTRICTS_URL}
+      - gemini-api-key=${GEMINI_API_KEY}
+    depends_on:
+      - db
+      - redis
+
+  frontend:
+    build: ./tech-job-client
+    container_name: techjobs_frontend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080/techJobs/
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  redis_data:

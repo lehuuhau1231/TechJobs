@@ -25,10 +25,10 @@ import Loading from "../layout/Loading";
 import "../styles/common.css";
 
 const CreateJob = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [alertSuccess, setAlertSuccess] = useState(false);
-  const [amount] = useState(100000); // Giá cố định là 100.000 VND
 
   // Form data
   const [formData, setFormData] = useState({
@@ -92,6 +92,79 @@ const CreateJob = () => {
       setJobTypes(jobTypesRes.data);
       setContractTypes(contractTypesRes.data);
       setSkills(skillsRes.data);
+
+      // Check if editing
+      const queryParams = new URLSearchParams(window.location.search);
+      const editJobId = queryParams.get("editJobId");
+      if (editJobId) {
+        const token = cookies.load("token");
+        const jobRes = await authApis(token).get(`${endpoints.job}/${editJobId}`);
+        const jobData = jobRes.data;
+
+        // 1. Look up City
+        const foundCity = citiesRes.data.find(c => c.name === jobData.cityName);
+        const cityId = foundCity ? foundCity.id : null;
+
+        // 2. Fetch districts for that city immediately
+        let fetchedDistricts = [];
+        if (cityId) {
+          try {
+            const districtsRes = await Apis.get(`${endpoints.districts}/${cityId}`);
+            fetchedDistricts = districtsRes.data;
+            setDistricts(fetchedDistricts);
+          } catch (err) {
+            console.error(err);
+          }
+        }
+        const foundDistrict = fetchedDistricts.find(d => d.name === jobData.district);
+        const districtId = foundDistrict ? foundDistrict.id : null;
+
+        // 3. Look up JobLevel
+        const foundLevel = jobLevelsRes.data.find(l => l.name === jobData.jobLevelName);
+        const jobLevelId = foundLevel ? foundLevel.id : null;
+
+        // 4. Look up JobType
+        const foundType = jobTypesRes.data.find(t => t.name === jobData.jobTypeName);
+        const jobTypeId = foundType ? foundType.id : null;
+
+        // 5. Look up ContractType
+        const foundContract = contractTypesRes.data.find(ct => ct.name === jobData.contractTypeName);
+        const contractTypeId = foundContract ? foundContract.id : null;
+
+        // 6. Map Skills
+        const jobSkillIds = [];
+        if (jobData.jobSkills && skillsRes.data) {
+          jobData.jobSkills.forEach(skillName => {
+            const foundSkill = skillsRes.data.find(s => s.name === skillName);
+            if (foundSkill) {
+              jobSkillIds.push(foundSkill.id);
+            }
+          });
+        }
+
+        // Set Form data
+        setFormData({
+          title: jobData.title || "",
+          description: jobData.description || "",
+          address: jobData.address || "",
+          ageFrom: jobData.ageFrom || 18,
+          ageTo: jobData.ageTo || 60,
+          startDate: jobData.startDate || new Date().toISOString().split("T")[0],
+          endDate: jobData.endDate || new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split("T")[0],
+          startTime: jobData.startTime ? jobData.startTime.substring(0, 5) : "09:00",
+          endTime: jobData.endTime ? jobData.endTime.substring(0, 5) : "18:00",
+          salaryMin: jobData.salaryMin || 0,
+          salaryMax: jobData.salaryMax || 0,
+          jobRequire: jobData.jobRequire || "",
+          benefits: jobData.benefits || "",
+          cityId,
+          districtId,
+          jobLevelId,
+          jobTypeId,
+          contractTypeId,
+          jobSkillIds,
+        });
+      }
     } catch (err) {
       console.error("Error loading options:", err);
       setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
@@ -106,7 +179,7 @@ const CreateJob = () => {
       const fetchDistricts = async () => {
         try {
           const res = await Apis.get(
-            `${endpoints.districts}/${formData.cityId}`
+            `${endpoints.districts}/${formData.cityId}`,
           );
           setDistricts(res.data);
         } catch (err) {
@@ -136,6 +209,37 @@ const CreateJob = () => {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleCreateJob = async () => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const editJobId = queryParams.get("editJobId");
+
+    try {
+      setLoading(true);
+      setError(null);
+      console.log("formData:", formData);
+      
+      let jobResponse;
+      if (editJobId) {
+        jobResponse = await authApis(token).put(`${endpoints.job}/${editJobId}`, formData);
+      } else {
+        jobResponse = await authApis(token).post(endpoints.job, formData);
+      }
+
+      if (jobResponse.status !== 201 && jobResponse.status !== 200) {
+        setError(editJobId ? "Có lỗi khi cập nhật công việc. Vui lòng thử lại." : "Có lỗi khi tạo công việc. Vui lòng thử lại.");
+        setLoading(false);
+        return;
+      } else {
+        setAlertSuccess(true);
+      }
+    } catch (error) {
+      console.log(error);
+      setError(editJobId ? "Có lỗi khi cập nhật công việc" : "Có lỗi khi tạo công việc");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Initialize quill editor settings
@@ -204,7 +308,7 @@ const CreateJob = () => {
     if (
       descriptionQuill &&
       formData.description &&
-      !descriptionQuill.root.innerHTML
+      (!descriptionQuill.root.innerHTML || descriptionQuill.root.innerHTML === "<p><br></p>")
     ) {
       descriptionQuill.clipboard.dangerouslyPasteHTML(formData.description);
     }
@@ -234,7 +338,7 @@ const CreateJob = () => {
     if (
       jobRequireQuill &&
       formData.jobRequire &&
-      !jobRequireQuill.root.innerHTML
+      (!jobRequireQuill.root.innerHTML || jobRequireQuill.root.innerHTML === "<p><br></p>")
     ) {
       jobRequireQuill.clipboard.dangerouslyPasteHTML(formData.jobRequire);
     }
@@ -261,7 +365,11 @@ const CreateJob = () => {
 
   // Set initial content separately to avoid dependency cycles
   useEffect(() => {
-    if (benefitsQuill && formData.benefits && !benefitsQuill.root.innerHTML) {
+    if (
+      benefitsQuill && 
+      formData.benefits && 
+      (!benefitsQuill.root.innerHTML || benefitsQuill.root.innerHTML === "<p><br></p>")
+    ) {
       benefitsQuill.clipboard.dangerouslyPasteHTML(formData.benefits);
     }
   }, [benefitsQuill, formData.benefits]);
@@ -277,90 +385,15 @@ const CreateJob = () => {
     }));
   };
 
-  // Verify payment
-  const verifyPayment = useCallback(async () => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const vnpResponseCode = queryParams.get("vnp_ResponseCode");
-
-    if (vnpResponseCode) {
-      try {
-        setLoading(true);
-        const queryString = window.location.search;
-        const billId = cookies.load("billId");
-        let url = `${endpoints.return_payment}${queryString}&billId=${billId}`;
-        console.log("getUrl:", url);
-        const response = await authApis(token).get(url);
-        console.log("response: ", response);
-        if (response.data.status === "success") {
-          cookies.remove("billId");
-          setAlertSuccess(true);
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-          );
-        }
-      } catch (error) {
-        console.log(error);
-        setError("Có lỗi khi xác minh thanh toán");
-      } finally {
-        setLoading(false);
-      }
-    }
-  }, [token]);
-
-  const handlePayment = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      console.log("formData:", formData);
-      const jobResponse = await authApis(token).post(endpoints.job, formData);
-
-      if (jobResponse.status !== 201 && jobResponse.status !== 200) {
-        setError("Có lỗi khi tạo công việc. Vui lòng thử lại.");
-        setLoading(false);
-        return;
-      } else {
-        const jobId = jobResponse.data.jobId;
-        const billResponse = await authApis(token).post(endpoints.bill, {
-          jobId: jobId,
-          amount: amount,
-        });
-
-        if (billResponse.status === 201 || billResponse.status === 200) {
-          cookies.save("billId", billResponse.data.id);
-          const response = await authApis(token).post(
-            endpoints.create_payment,
-            {
-              amount: billResponse.data.amount,
-              billId: billResponse.data.id,
-            }
-          );
-          console.log("paymentUrl:", response.data.paymentUrl);
-          window.location.href = response.data.paymentUrl;
-        }
-      }
-    } catch (error) {
-      console.log(error);
-      setError("Có lỗi khi tạo đơn hàng hoặc thanh toán");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    if (queryParams.get("vnp_ResponseCode")) {
-      verifyPayment();
+    if (alertSuccess) {
+      const timer = setTimeout(() => {
+        setAlertSuccess(false);
+        navigate("/job-tracking");
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-  }, [verifyPayment]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setAlertSuccess(false);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [alertSuccess]);
+  }, [alertSuccess, navigate]);
 
   if (loadingOptions) {
     return (
@@ -378,11 +411,21 @@ const CreateJob = () => {
     <>
       <Header />
       <Container className='my-4'>
-        <h2 className='mb-4'>Tạo công việc mới</h2>
+        <h2 className='mb-4'>
+          {new URLSearchParams(window.location.search).get("editJobId")
+            ? "Cập nhật công việc"
+            : "Tạo công việc mới"}
+        </h2>
 
         {error && <Alert variant='danger'>{error}</Alert>}
         {alertSuccess && (
-          <AlertSuccess message='Thanh toán thành công! Vui lòng chờ duyệt' />
+          <AlertSuccess
+            message={
+              new URLSearchParams(window.location.search).get("editJobId")
+                ? "Cập nhật công việc thành công! Tin của bạn đang được kiểm duyệt."
+                : "Đăng tin tuyển dụng thành công! Tin của bạn đang được kiểm duyệt."
+            }
+          />
         )}
 
         <Card>
@@ -816,9 +859,15 @@ const CreateJob = () => {
                   className='button'
                   size='lg'
                   disabled={loading}
-                  onClick={handlePayment}
+                  onClick={handleCreateJob}
                 >
-                  {loading ? <Loading /> : `Thanh toán 100.000 VNĐ`}
+                  {loading ? (
+                    <Loading />
+                  ) : new URLSearchParams(window.location.search).get("editJobId") ? (
+                    "Cập nhật công việc"
+                  ) : (
+                    "Đăng công việc"
+                  )}
                 </Button>
               </div>
             </Form>

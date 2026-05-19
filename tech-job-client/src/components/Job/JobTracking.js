@@ -21,6 +21,8 @@ import Header from "../layout/Header";
 import "../styles/common.css";
 import { useNavigate } from "react-router-dom";
 
+import "../styles/jobTracking.css";
+
 const JobTracking = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,7 @@ const JobTracking = () => {
 
   useEffect(() => {
     if (!user) {
-      setError("Vui lòng đăng nhập để xem đơn ứng tuyển của bạn");
+      setError("Vui lòng đăng nhập để xem danh sách công việc");
       setLoading(false);
       return;
     }
@@ -71,91 +73,83 @@ const JobTracking = () => {
     }
   };
 
-  const getStatusVariant = (status) => {
+  const getStatusLabel = (status) => {
     switch (status) {
-      case "APPROVED":
-        return "success";
-      case "CANCELED":
-        return "danger";
-      case "PENDING":
-      default:
-        return "warning";
+      case "APPROVED": return "Đã duyệt";
+      case "CANCELED": return "Đã hủy";
+      case "REJECTED": return "Bị từ chối";
+      default: return "Đang chờ xử lý";
+    }
+  };
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "APPROVED": return "status-badge-approved";
+      case "CANCELED": return "status-badge-canceled";
+      case "REJECTED": return "status-badge-rejected";
+      default: return "status-badge-pending";
     }
   };
 
   return (
-    <>
+    <div className="tracking-container">
       <Header />
-      <Container className='my-4'>
-        <h2 className='mb-4'>Theo dõi công việc</h2>
+      <Container>
+        <div className="tracking-header-section mt-4">
+          <h2 className="tracking-title">Theo dõi công việc đã đăng</h2>
+          <p className="tracking-subtitle">Quản lý và theo dõi trạng thái các tin tuyển dụng của bạn</p>
+        </div>
 
-        <Card className='mb-4'>
-          <Card.Body>
-            <Row className='mb-3'>
-              <Col>
-                <ButtonGroup>
-                  <Button
-                    variant={
-                      currentStatus === "PENDING"
-                        ? "primary"
-                        : "outline-primary"
-                    }
-                    style={{ width: "150px" }}
-                    onClick={() => handleStatusChange("PENDING")}
-                  >
-                    Đang chờ xử lý
-                  </Button>
-                  <Button
-                    variant={
-                      currentStatus === "APPROVED"
-                        ? "primary"
-                        : "outline-primary"
-                    }
-                    style={{ width: "150px" }}
-                    onClick={() => handleStatusChange("APPROVED")}
-                  >
-                    Đã duyệt
-                  </Button>
-                  <Button
-                    variant={
-                      currentStatus === "CANCELED"
-                        ? "primary"
-                        : "outline-primary"
-                    }
-                    style={{ width: "150px" }}
-                    onClick={() => handleStatusChange("CANCELED")}
-                  >
-                    Đã hủy
-                  </Button>
-                </ButtonGroup>
-              </Col>
-            </Row>
+        {/* Status Navigation */}
+        <div className="status-nav">
+          <button
+            className={`status-nav-item ${currentStatus === "PENDING" ? "active" : ""}`}
+            onClick={() => handleStatusChange("PENDING")}
+          >
+            Đang chờ xử lý
+          </button>
+          <button
+            className={`status-nav-item ${currentStatus === "APPROVED" ? "active" : ""}`}
+            onClick={() => handleStatusChange("APPROVED")}
+          >
+            Đã duyệt
+          </button>
+          <button
+            className={`status-nav-item ${currentStatus === "REJECTED" ? "active" : ""}`}
+            onClick={() => handleStatusChange("REJECTED")}
+          >
+            Bị từ chối
+          </button>
+          <button
+            className={`status-nav-item ${currentStatus === "CANCELED" ? "active" : ""}`}
+            onClick={() => handleStatusChange("CANCELED")}
+          >
+            Đã hủy
+          </button>
+        </div>
 
-            {loading ? (
-              <div className='text-center py-4'>
-                <Loading />
-              </div>
-            ) : error ? (
-              <Alert variant='danger'>{error}</Alert>
-            ) : jobs.length === 0 ? (
-              <Alert variant='info' className='d-flex align-items-center'>
-                <AlertCircle className='me-2' />
-                Không có công việc nào với trạng thái "
-                {currentStatus === "PENDING"
-                  ? "Đang chờ xử lý"
-                  : currentStatus === "APPROVED"
-                  ? "Đã duyệt"
-                  : "Đã hủy"}
-                "
-              </Alert>
-            ) : (
-              <Table responsive hover>
+        <div className="tracking-table-card">
+          {loading ? (
+            <div className="text-center py-5">
+              <Loading />
+            </div>
+          ) : error ? (
+            <Alert variant="danger" className="rounded-3 border-0 shadow-sm">{error}</Alert>
+          ) : jobs.length === 0 ? (
+            <div className="text-center py-5">
+              <AlertCircle size={48} className="text-muted mb-3 opacity-25" />
+              <p className="text-muted fw-bold">Không có công việc nào ở trạng thái này</p>
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <table className="tracking-table">
                 <thead>
                   <tr>
-                    <th>STT</th>
-                    <th>Tên công việc</th>
+                    <th style={{ width: '80px' }}>STT</th>
+                    <th style={{ width: '40rem' }}>Tên công việc</th>
                     <th>Ngày tạo</th>
                     <th>Trạng thái</th>
+                    <th className="text-end">Hành động</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -163,35 +157,80 @@ const JobTracking = () => {
                     <tr key={job.id}>
                       <td>{index + 1}</td>
                       <td>
-                        <div className='d-flex align-items-center'>
-                          <Briefcase size={16} className='me-2 text-muted' />
-                          <div>{job.title}</div>
+                        <div className="d-flex align-items-center gap-2">
+                          <div className="p-2 bg-light rounded-3">
+                            <Briefcase size={18} className="text-primary" />
+                          </div>
+                          <div>
+                            <div>{job.title}</div>
+                            {currentStatus === "REJECTED" && (
+                              <div className="text-danger small mt-1" style={{ maxWidth: '450px', whiteSpace: 'normal' }}>
+                                {job.rejectReason && <div><strong>Lý do chung:</strong> {job.rejectReason}</div>}
+                                {job.fieldErrors && (() => {
+                                  try {
+                                    const errors = JSON.parse(job.fieldErrors);
+                                    const errorEntries = Object.entries(errors).filter(([_, v]) => v);
+                                    if (errorEntries.length > 0) {
+                                      const translateField = (field) => {
+                                        switch(field) {
+                                          case 'title': return 'Tiêu đề';
+                                          case 'description': return 'Mô tả';
+                                          case 'jobRequire': return 'Yêu cầu';
+                                          case 'benefits': return 'Quyền lợi';
+                                          default: return field;
+                                        }
+                                      };
+                                      return (
+                                        <div className="mt-1 ps-2 border-start border-danger" style={{ fontSize: '0.82rem' }}>
+                                          <span className="fw-semibold">Trường lỗi:</span>
+                                          <ul className="mb-0 ps-3 mt-0" style={{ listStyleType: 'disc' }}>
+                                            {errorEntries.map(([k, v]) => (
+                                              <li key={k}>
+                                                <strong>{translateField(k)}</strong>: {v}
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      );
+                                    }
+                                  } catch (e) {
+                                    console.error(e);
+                                  }
+                                  return null;
+                                })()}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td>
-                        <div className='d-flex align-items-center'>
-                          <Calendar size={16} className='me-2 text-muted' />
-                          <div>{formatDate(job.createdDate)}</div>
+                        <div className="d-flex align-items-center gap-2 text-secondary small">
+                          <Calendar size={16} />
+                          {formatDate(job.createdDate)}
                         </div>
                       </td>
                       <td>
-                        <Badge bg={getStatusVariant(currentStatus)}>
-                          {currentStatus === "PENDING"
-                            ? "Đang chờ xử lý"
-                            : currentStatus === "APPROVED"
-                            ? "Đã duyệt"
-                            : "Đã hủy"}
-                        </Badge>
+                        <span className={`status-badge ${getStatusClass(currentStatus)}`}>
+                          {getStatusLabel(currentStatus)}
+                        </span>
+                      </td>
+                      <td className="text-end">
+                        <button
+                          className="view-detail-btn"
+                          onClick={() => navigate(`/job-detail/${job.id}`)}
+                        >
+                          Chi tiết
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </Table>
-            )}
-          </Card.Body>
-        </Card>
+              </table>
+            </div>
+          )}
+        </div>
       </Container>
-    </>
+    </div>
   );
 };
 
